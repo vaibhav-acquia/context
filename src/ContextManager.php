@@ -4,8 +4,7 @@ namespace Drupal\context;
 
 use Drupal\context\Entity\Context;
 use Drupal\context\Plugin\ContextReaction\Blocks;
-use Drupal\Core\Entity\Query\QueryFactory;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Condition\ConditionPluginCollection;
@@ -26,14 +25,9 @@ class ContextManager {
   use StringTranslationTrait;
 
   /**
-   * @var \Drupal\Core\Entity\Query\QueryFactory
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityQuery;
-
-  /**
-   * @var \Drupal\Core\Entity\EntityManagerInterface
-   */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
@@ -72,34 +66,26 @@ class ContextManager {
   /**
    * Construct.
    *
-   * @param QueryFactory $entityQuery
-   *   The Drupal entity query service.
-   *
-   * @param EntityManagerInterface $entityManager
+   * @param EntityTypeManager $entityTypeManager
    *   The Drupal entity manager service.
-   *
    * @param ContextRepositoryInterface $contextRepository
    *   The drupal context repository service.
-   *
    * @param ContextHandlerInterface $contextHandler
    *   The Drupal context handler service.
-   *
    * @param ThemeManagerInterface $themeManager
    *   The Drupal theme manager service.
-   *
-   * @param \Drupal\Core\Entity\EntityFormBuilderInterface $entityFormBuilder
+   * @param EntityFormBuilderInterface $entityFormBuilder
+   *   The Drupal EntityFormBuilder service.
    */
-  function __construct(
-    QueryFactory $entityQuery,
-    EntityManagerInterface $entityManager,
+  public function __construct(
+    EntityTypeManager $entityTypeManager,
     ContextRepositoryInterface $contextRepository,
     ContextHandlerInterface $contextHandler,
     EntityFormBuilderInterface $entityFormBuilder,
     ThemeManagerInterface $themeManager
   )
   {
-    $this->entityQuery = $entityQuery;
-    $this->entityManager = $entityManager;
+    $this->entityTypeManager = $entityTypeManager;
     $this->contextRepository = $contextRepository;
     $this->contextHandler = $contextHandler;
     $this->entityFormBuilder = $entityFormBuilder;
@@ -112,13 +98,8 @@ class ContextManager {
    * @return Context[]
    */
   public function getContexts() {
-    $contextIds = $this->entityQuery
-      ->get('context')
-      ->execute();
 
-    $contexts = $this->entityManager
-      ->getStorage('context')
-      ->loadMultiple($contextIds);
+    $contexts = $this->entityTypeManager->getStorage('context')->loadByProperties();
 
     // Sort the contexts by their weight.
     uasort($contexts, [$this, 'sortContextsByWeight']);
@@ -160,9 +141,7 @@ class ContextManager {
    * @return bool
    */
   public function contextExists($name) {
-    $entity = $this->entityQuery->get('context')
-      ->condition('name', $name)
-      ->execute();
+    $entity = $this->entityTypeManager->getStorage('context')->loadByProperties(['name' => $name]);
 
     return (bool) $entity;
   }
