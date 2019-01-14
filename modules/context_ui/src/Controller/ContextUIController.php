@@ -239,7 +239,6 @@ class ContextUIController extends ControllerBase {
             '#options' => [
               'html' => TRUE,
             ],
-            '#ajax' => TRUE,
           ],
         ],
       ];
