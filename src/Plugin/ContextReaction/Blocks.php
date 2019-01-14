@@ -147,7 +147,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    *
    * @return array
    */
-  public function execute(array $build = array(), $title = NULL, $main_content = NULL) {
+  public function execute(array $build = [], $title = NULL, $main_content = NULL) {
 
     $cacheability = CacheableMetadata::createFromRenderArray($build);
 

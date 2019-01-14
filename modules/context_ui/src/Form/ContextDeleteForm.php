@@ -35,9 +35,9 @@ class ContextDeleteForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return $this->t('Are you sure you want to delete the %label context?', array(
+    return $this->t('Are you sure you want to delete the %label context?', [
       '%label' => $this->entity->getLabel(),
-    ));
+    ]);
   }
 
   /**
@@ -70,9 +70,9 @@ class ContextDeleteForm extends EntityConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $formState) {
     $this->entity->delete();
 
-    drupal_set_message($this->t('The context %title has been deleted.', array(
+    drupal_set_message($this->t('The context %title has been deleted.', [
       '%title' => $this->entity->getLabel(),
-    )));
+    ]));
 
     $formState->setRedirectUrl($this->getCancelUrl());
   }

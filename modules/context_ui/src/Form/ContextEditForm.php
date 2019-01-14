@@ -34,9 +34,9 @@ class ContextEditForm extends ContextFormBase {
       '#suffix' => '</div>',
       '#markup' => '<h3>' . $this->t('Conditions') . '</h3>',
       '#tree' => TRUE,
-      '#process' => array(
-        array($this, 'processConditions'),
-      ),
+      '#process' => [
+        [$this, 'processConditions'],
+      ],
     ];
 
     $form['reactions'] = [
@@ -44,9 +44,9 @@ class ContextEditForm extends ContextFormBase {
       '#suffix' => '</div>',
       '#markup' => '<h3>' . $this->t('Reactions') . '</h3>',
       '#tree' => TRUE,
-      '#process' => array(
-        array($this, 'processReactions'),
-      ),
+      '#process' => [
+        [$this, 'processReactions'],
+      ],
     ];
 
     return $form;
@@ -83,7 +83,7 @@ class ContextEditForm extends ContextFormBase {
   public function processConditions(&$element, FormStateInterface $form_state) {
     $conditions = $this->entity->getConditions();
 
-    $element['add_condition'] = array(
+    $element['add_condition'] = [
       '#type' => 'link',
       '#title' => $this->t('Add condition'),
       '#url' => Url::fromRoute('context.conditions_library', [
@@ -98,7 +98,7 @@ class ContextEditForm extends ContextFormBase {
           'width' => 700,
         ]),
       ],
-    );
+    ];
 
     if (!count($conditions)) {
       $element['reactions']['empty'] = [

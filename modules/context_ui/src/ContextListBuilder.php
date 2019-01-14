@@ -92,20 +92,20 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
   public function buildForm(array $form, FormStateInterface $form_state) {
     $groups = $this->contextManager->getContextsByGroup();
 
-    $form['contexts'] = array(
+    $form['contexts'] = [
       '#type' => 'table',
-      '#header' => array(
+      '#header' => [
         $this->t('Context'),
         $this->t('Description'),
         $this->t('Group'),
         $this->t('Weight'),
         $this->t('Operations'),
-      ),
+      ],
       '#empty' => $this->t('There are no contexts defined.'),
-      '#attributes' => array(
+      '#attributes' => [
         'id' => 'contexts',
-      ),
-    );
+      ],
+    ];
 
     $group_options = [];
 
@@ -120,27 +120,27 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
     foreach ($groups as $group => $contexts) {
       $group_class = Html::getClass($group);
 
-      $form['contexts']['#tabledrag'][] = array(
+      $form['contexts']['#tabledrag'][] = [
         'action' => 'match',
         'relationship' => 'sibling',
         'group' => 'context-group-select',
         'subgroup' => 'context-group-' . $group_class,
         'hidden' => FALSE,
-      );
+      ];
 
-      $form['contexts']['#tabledrag'][] = array(
+      $form['contexts']['#tabledrag'][] = [
         'action' => 'order',
         'relationship' => 'sibling',
         'group' => 'context-weight',
         'subgroup' => 'context-weight-' . $group_class,
-      );
+      ];
 
-      $form['contexts']['group-' . $group_class] = array(
-        '#attributes' => array(
-          'class' => array('group-label', 'group-label-' . $group_class),
+      $form['contexts']['group-' . $group_class] = [
+        '#attributes' => [
+          'class' => ['group-label', 'group-label-' . $group_class],
           'no_striping' => TRUE,
-        ),
-      );
+        ],
+      ];
 
       $form['contexts']['group-' . $group_class] = [
         '#attributes' => [
@@ -212,16 +212,16 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
       }
     }
 
-    $form['actions'] = array(
+    $form['actions'] = [
       '#type' => 'actions',
-    );
+    ];
 
     if (count($groups) > 0) {
-      $form['actions']['submit'] = array(
+      $form['actions']['submit'] = [
         '#type'        => 'submit',
         '#value'       => $this->t('Save contexts'),
         '#button_type' => 'primary',
-      );
+      ];
     }
 
     return $form;

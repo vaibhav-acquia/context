@@ -300,7 +300,7 @@ class ContextManager {
    * @param array $form_state_additions
    * @return array
    */
-  public function getForm(ContextInterface $context, $formType = 'edit', array $form_state_additions = array()) {
+  public function getForm(ContextInterface $context, $formType = 'edit', array $form_state_additions = []) {
     return $this->entityFormBuilder->getForm($context, $formType, $form_state_additions);
   }
 
