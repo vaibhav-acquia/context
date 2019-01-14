@@ -211,7 +211,12 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           '#block_plugin' => $block,
           '#pre_render' => [[$this, 'preRenderBlock']],
           '#cache' => [
-            'keys' => ['context_blocks_reaction', 'block', $block_placement_key],
+            'keys' => [
+              'context_blocks_reaction',
+              $configuration['context_id'],
+              'block',
+              $block_placement_key,
+            ],
             'tags' => $block->getCacheTags(),
             'contexts' => $block->getCacheContexts(),
             'max-age' => $block->getCacheMaxAge(),
