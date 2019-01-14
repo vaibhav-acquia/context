@@ -102,7 +102,7 @@ class MenuBuilder {
         }
       }
     }
-
+    $this->menuLinkManager->rebuild();
   }
 
   /**
