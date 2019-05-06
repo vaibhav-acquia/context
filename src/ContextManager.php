@@ -4,8 +4,8 @@ namespace Drupal\context;
 
 use Drupal\context\Entity\Context;
 use Drupal\context\Plugin\ContextReaction\Blocks;
-use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Condition\ConditionPluginCollection;
 use Drupal\Component\Plugin\Exception\ContextException;
@@ -66,7 +66,7 @@ class ContextManager {
   /**
    * Construct.
    *
-   * @param EntityTypeManager $entityTypeManager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The Drupal entity manager service.
    * @param ContextRepositoryInterface $contextRepository
    *   The drupal context repository service.
@@ -78,7 +78,7 @@ class ContextManager {
    *   The Drupal EntityFormBuilder service.
    */
   public function __construct(
-    EntityTypeManager $entityTypeManager,
+    EntityTypeManagerInterface $entityTypeManager,
     ContextRepositoryInterface $contextRepository,
     ContextHandlerInterface $contextHandler,
     EntityFormBuilderInterface $entityFormBuilder,

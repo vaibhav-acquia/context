@@ -1,12 +1,13 @@
 <?php
 namespace Drupal\context\Plugin\Condition;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+
 /**
  * Provides a 'Views' condition.
  *
@@ -30,10 +31,10 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
    * @param array $configuration
    * @param $plugin_id
    * @param $plugin_definition
-   * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    * @param \Drupal\Core\Routing\CurrentRouteMatch
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManager $entityTypeManager, CurrentRouteMatch $currentRouteMatch) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entityTypeManager, CurrentRouteMatch $currentRouteMatch) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entityTypeManager;
     $this->currentRouteMatch = $currentRouteMatch;
