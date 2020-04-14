@@ -103,12 +103,11 @@ class BlockDeleteForm extends ConfirmFormBase {
     // button very well.
     if ($this->getRequest()->isXmlHttpRequest()) {
       unset($form['actions']['cancel']);
+      // Submit the form with AJAX if possible.
+      $form['actions']['submit']['#ajax'] = [
+        'callback' => '::submitFormAjax'
+      ];
     }
-
-    // Submit the form with AJAX if possible.
-    $form['actions']['submit']['#ajax'] = [
-      'callback' => '::submitFormAjax'
-    ];
 
     return $form;
   }
