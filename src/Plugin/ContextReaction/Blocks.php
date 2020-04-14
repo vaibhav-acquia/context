@@ -2,6 +2,7 @@
 
 namespace Drupal\context\Plugin\ContextReaction;
 
+use Drupal\Core\Plugin\PluginDependencyTrait;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormState;
@@ -37,6 +38,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class Blocks extends ContextReactionPluginBase implements ContainerFactoryPluginInterface {
 
   use AjaxFormTrait;
+
+  use PluginDependencyTrait {
+    addDependency as addDependencyTrait;
+  }
 
   /**
    * An array of blocks to be displayed with this reaction.
@@ -697,4 +702,16 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   protected function getSystemRegionList($theme, $show = REGIONS_ALL) {
     return system_region_list($theme, $show);
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    $this->dependencies = parent::calculateDependencies();
+    foreach ($this->getBlocks() as $instance) {
+      $this->calculatePluginDependencies($instance);
+    }
+    return $this->dependencies;
+  }
+
 }
