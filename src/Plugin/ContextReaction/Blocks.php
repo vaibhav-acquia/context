@@ -5,6 +5,7 @@ namespace Drupal\context\Plugin\ContextReaction;
 use Drupal\Core\Plugin\PluginDependencyTrait;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Block\BlockManager;
@@ -15,6 +16,7 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\context\ContextReactionPluginBase;
 use Drupal\Core\Block\TitleBlockPluginInterface;
 use Drupal\Core\Extension\ThemeHandlerInterface;
@@ -80,6 +82,11 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   protected $contextRepository;
 
   /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * @var ContextHandlerInterface
    */
   protected $contextHandler;
@@ -107,7 +114,8 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
     ContextRepositoryInterface $contextRepository,
     ContextHandlerInterface $contextHandler,
     AccountInterface $account,
-    BlockManager $blockManager
+    BlockManager $blockManager,
+    EntityTypeManagerInterface $entityTypeManager
   ) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
 
@@ -118,6 +126,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
     $this->contextHandler = $contextHandler;
     $this->account = $account;
     $this->blockManager = $blockManager;
+    $this->entityTypeManager = $entityTypeManager;
   }
 
   /**
@@ -134,7 +143,8 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
       $container->get('context.repository'),
       $container->get('context.handler'),
       $container->get('current_user'),
-      $container->get('plugin.manager.block')
+      $container->get('plugin.manager.block'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -201,6 +211,10 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           $this->contextHandler->applyContextMapping($block, $contexts);
         }
 
+        $context_entity = $this->entityTypeManager
+          ->getStorage('context')
+          ->load($configuration['context_id']);
+
         // Create the render array for the block as a whole.
         // @see template_preprocess_block().
         $blockBuild = [
@@ -222,7 +236,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
               'block',
               $block_placement_key,
             ],
-            'tags' => $block->getCacheTags(),
+            'tags' => Cache::mergeTags($block->getCacheTags(), $context_entity->getCacheTags()),
             'contexts' => $block->getCacheContexts(),
             'max-age' => $block->getCacheMaxAge(),
           ],
