@@ -222,7 +222,7 @@ abstract class BlockFormBase extends FormBase {
     $form['unique'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Unique'),
-      '#description' => $this->t('Check if the block should be uniquely placed, this means that the block can not be overridden by other blocks of the same type in the selected region.'),
+      '#description' => $this->t('Check if the block should be uniquely placed. This means that the block can not be overridden by other blocks of the same type in the selected region. Most often you want this checked if a block unintentionally contains the same content as another block on the same page.'),
       '#default_value' => isset($configuration['unique']) ? $configuration['unique'] : FALSE,
     ];
 
