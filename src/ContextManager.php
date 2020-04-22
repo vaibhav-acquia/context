@@ -252,7 +252,11 @@ class ContextManager {
     $conditions = $context->getConditions();
 
     // Apply context to any context aware conditions.
-    $this->applyContexts($conditions);
+    // Abort if the application of contexts has been unsuccessful
+    // similarly to BlockAccessControlHandler::checkAccess().
+    if (!$this->applyContexts($conditions)) {
+      return FALSE;
+    }
 
     // Set the logic to use when validating the conditions.
     $logic = $context->requiresAllConditions()

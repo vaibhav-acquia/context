@@ -11,9 +11,6 @@ use Drupal\system\Plugin\Condition\RequestPath;
  * @Condition(
  *   id = "request_path_exclusion",
  *   label = @Translation("Request path exclusion"),
- *   context = {
- *     "request_path_exclusion" = @ContextDefinition("request_path_exclusion", label = @Translation("Request path exclusion"))
- *   }
  * )
  */
 class RequestPathExclusion extends RequestPath implements ContainerFactoryPluginInterface {
