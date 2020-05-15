@@ -217,7 +217,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
 
         // Create the render array for the block as a whole.
         // @see template_preprocess_block().
-        $blockBuild = [
+        $block_build = [
           '#theme' => 'block',
           '#configuration' => $configuration,
           '#plugin_id' => $block->getPluginId(),
@@ -246,7 +246,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
         $block_build['#attributes'] = array_merge_recursive($existing_attributes, $new_attributes);
 
         // Add additional contextual link, for editing block configuration.
-        $blockBuild['#contextual_links']['context_block'] = [
+        $block_build['#contextual_links']['context_block'] = [
           'route_parameters' => [
             'context' => $configuration['context_id'],
             'reaction_id' => 'blocks',
@@ -255,15 +255,15 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
         ];
 
         if (array_key_exists('weight', $configuration)) {
-          $blockBuild['#weight'] = $configuration['weight'];
+          $block_build['#weight'] = $configuration['weight'];
         }
 
         // Invoke block_view_alter().
         // If an alter hook wants to modify the block contents, it can append
         // another #pre_render hook.
-        \Drupal::moduleHandler()->alter(['block_view', 'block_view_' . $block->getBaseId()], $blockBuild, $block);
+        \Drupal::moduleHandler()->alter(['block_view', 'block_view_' . $block->getBaseId()], $block_build, $block);
 
-        $build[$region][$block_placement_key] = $blockBuild;
+        $build[$region][$block_placement_key] = $block_build;
 
         // After merging with blocks from Block layout, we want to sort all of
         // them again.
