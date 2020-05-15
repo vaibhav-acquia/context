@@ -219,9 +219,6 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
         // @see template_preprocess_block().
         $blockBuild = [
           '#theme' => 'block',
-          '#attributes' => [
-            'class' => [$configuration['css_class']]
-          ],
           '#configuration' => $configuration,
           '#plugin_id' => $block->getPluginId(),
           '#base_plugin_id' => $block->getBaseId(),
@@ -241,6 +238,12 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
             'max-age' => $block->getCacheMaxAge(),
           ],
         ];
+
+        // Merge existing attributes from block with class(es) configured in Context.
+        $block_content = $block->build();
+        $existing_attributes = isset($block_content['#attributes']) ? $block_content['#attributes'] : [];
+        $new_attributes['class'][] = $configuration['css_class'];
+        $block_build['#attributes'] = array_merge_recursive($existing_attributes, $new_attributes);
 
         // Add additional contextual link, for editing block configuration.
         $blockBuild['#contextual_links']['context_block'] = [
