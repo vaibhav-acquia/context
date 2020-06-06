@@ -320,7 +320,7 @@ class ContextUIController extends ControllerBase {
       return $response;
     }
 
-    $url = $context->urlInfo('edit-form');
+    $url = $context->toUrl('edit-form');
 
     return $this->redirect($url->getRouteName(), $url->getRouteParameters());
   }
@@ -386,7 +386,7 @@ class ContextUIController extends ControllerBase {
       return $response;
     }
 
-    $url = $context->urlInfo('edit-form');
+    $url = $context->toUrl('edit-form');
 
     return $this->redirect($url->getRouteName(), $url->getRouteParameters());
   }

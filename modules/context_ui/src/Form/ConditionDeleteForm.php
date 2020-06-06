@@ -72,7 +72,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return $this->context->urlInfo('edit-form');
+    return $this->context->toUrl('edit-form');
   }
 
   /**
@@ -115,7 +115,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
 
     // If this is not an AJAX request then redirect and show a message.
     if (!$this->getRequest()->isXmlHttpRequest()) {
-      drupal_set_message($this->t('The condition %name has been removed.', [
+      $this->messenger()->addMessage($this->t('The condition %name has been removed.', [
           '%name' => $this->condition->getPluginDefinition()['label']]
       ));
 

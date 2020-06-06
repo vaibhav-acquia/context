@@ -59,12 +59,12 @@ class ContextEditForm extends ContextFormBase {
     $status = parent::save($form, $formState);
 
     if ($status) {
-      drupal_set_message($this->t('The context %label has been saved.', [
+      $this->messenger()->addMessage($this->t('The context %label has been saved.', [
         '%label' => $this->entity->getLabel(),
       ]));
     }
     else {
-      drupal_set_message($this->t('The context was not saved.'));
+      $this->messenger()->addMessage($this->t('The context was not saved.'));
     }
 
   }

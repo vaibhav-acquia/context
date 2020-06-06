@@ -1,6 +1,7 @@
 <?php
 namespace Drupal\context\Plugin\ContextReaction;
 
+use Drupal\block\BlockRepositoryInterface;
 use Drupal\context\ContextReactionPluginBase;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormState;
@@ -156,7 +157,7 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
    *
    * @todo This could be moved to a service since we use it in a couple of places.
    */
-  protected function getSystemRegionList($theme, $show = REGIONS_ALL) {
+  protected function getSystemRegionList($theme, $show = BlockRepositoryInterface::REGIONS_ALL) {
     return system_region_list($theme, $show);
   }
 

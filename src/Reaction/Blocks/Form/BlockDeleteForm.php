@@ -84,7 +84,7 @@ class BlockDeleteForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return $this->context->urlInfo();
+    return $this->context->toUrl();
   }
 
   /**
@@ -124,7 +124,7 @@ class BlockDeleteForm extends ConfirmFormBase {
 
     // If this is not an AJAX request then redirect and show a message.
     if (!$this->getRequest()->isXmlHttpRequest()) {
-      drupal_set_message($this->t('The %label block has been removed.', [
+      $this->messenger()->addMessage($this->t('The %label block has been removed.', [
           '%label' => $configuration['label']]
       ));
 

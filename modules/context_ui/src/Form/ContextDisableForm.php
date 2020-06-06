@@ -11,14 +11,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ContextDisableForm extends EntityConfirmFormBase {
 
   /**
-   * @var ContextManager
+   * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
 
   /**
-   * @param ContextManager $contextManager
+   * @param \Drupal\context\ContextManager $contextManager
    */
-  function __construct(ContextManager $contextManager) {
+  public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
   }
 
@@ -79,11 +79,12 @@ class ContextDisableForm extends EntityConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $formState) {
     $this->entity->disable();
-    drupal_set_message($this->t('The context %title has been %status.', [
+    $this->messenger()->addMessage($this->t('The context %title has been %status.', [
       '%title' => $this->entity->getLabel(),
       '%status' => $this->entity->disabled() ? "disabled" : "enabled",
     ]));
 
     $formState->setRedirectUrl($this->getCancelUrl());
   }
+
 }

@@ -2,6 +2,7 @@
 
 namespace Drupal\context\Reaction\Blocks\Form;
 
+use Drupal\block\BlockRepositoryInterface;
 use Drupal\context\ContextManager;
 use Drupal\context\ContextReactionManager;
 use Drupal\context\Form\AjaxFormTrait;
@@ -341,7 +342,7 @@ abstract class BlockFormBase extends FormBase {
    *
    * @return array
    */
-  protected function getThemeRegionOptions($theme, $show = REGIONS_ALL) {
+  protected function getThemeRegionOptions($theme, $show = BlockRepositoryInterface::REGIONS_ALL) {
     $regions = system_region_list($theme, $show);
 
     foreach ($regions as $region => $title) {

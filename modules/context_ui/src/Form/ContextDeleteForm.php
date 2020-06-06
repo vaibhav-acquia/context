@@ -70,7 +70,7 @@ class ContextDeleteForm extends EntityConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $formState) {
     $this->entity->delete();
 
-    drupal_set_message($this->t('The context %title has been deleted.', [
+    $this->messenger()->addMessage($this->t('The context %title has been deleted.', [
       '%title' => $this->entity->getLabel(),
     ]));
 

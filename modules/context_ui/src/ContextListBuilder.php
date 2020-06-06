@@ -13,6 +13,7 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
+use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ContextListBuilder extends ConfigEntityListBuilder implements FormInterface {
@@ -32,6 +33,13 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
   protected $formBuilder;
 
   /**
+   * The messenger.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * Constructs a new ContextListBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
@@ -45,17 +53,22 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
    *
    * @param \Drupal\Core\Form\FormBuilderInterface $formBuilder
    *   The Drupal form builder.
+   *
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger.
    */
   public function __construct(
     EntityTypeInterface $entity_type,
     EntityStorageInterface $storage,
     ContextManager $contextManager,
-    FormBuilderInterface $formBuilder
+    FormBuilderInterface $formBuilder,
+    MessengerInterface $messenger
   ) {
     parent::__construct($entity_type, $storage);
 
     $this->contextManager = $contextManager;
     $this->formBuilder = $formBuilder;
+    $this->messenger = $messenger;
   }
 
   /**
@@ -64,9 +77,10 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $entity_type,
-      $container->get('entity.manager')->getStorage($entity_type->id()),
+      $container->get('entity_type.manager')->getStorage($entity_type->id()),
       $container->get('context.manager'),
-      $container->get('form_builder')
+      $container->get('form_builder'),
+      $container->get('messenger')
     );
   }
 
@@ -159,11 +173,11 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
         $operations = [
           'edit' => [
             'title' => $this->t('Edit'),
-            'url' => $context->urlInfo('edit-form'),
+            'url' => $context->toUrl('edit-form'),
           ],
           'delete' => [
             'title' => $this->t('Delete'),
-            'url' => $context->urlInfo('delete-form'),
+            'url' => $context->toUrl('delete-form'),
             'attributes' => $this->getAjaxAttributes(),
           ],
           'disable' => [
@@ -257,7 +271,7 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
       $context->save();
     }
 
-    drupal_set_message($this->t('The context settings have been updated.'));
+    $this->messenger->addMessage($this->t('The context settings have been updated.'));
   }
 
 }

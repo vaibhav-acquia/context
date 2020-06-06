@@ -4,10 +4,10 @@ namespace Drupal\context;
 
 use Drupal\Core\Executable\ExecutableInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
-use Drupal\Component\Plugin\ConfigurablePluginInterface;
+use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 
-interface ContextReactionInterface extends ConfigurablePluginInterface, PluginFormInterface, PluginInspectionInterface, ExecutableInterface {
+interface ContextReactionInterface extends ConfigurableInterface, PluginFormInterface, PluginInspectionInterface, ExecutableInterface {
 
   /**
    * Get the unique ID of this context reaction.
@@ -22,4 +22,5 @@ interface ContextReactionInterface extends ConfigurablePluginInterface, PluginFo
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    */
   public function summary();
+
 }
