@@ -264,6 +264,9 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
         // another #pre_render hook.
         \Drupal::moduleHandler()->alter(['block_view', 'block_view_' . $block->getBaseId()], $block_build, $block);
 
+        // Allow altering of cacheability metadata or setting #create_placeholder.
+        \Drupal::moduleHandler()->alter(['block_build', "block_build_" . $block->getBaseId()], $blockBuild, $block);
+
         $build[$region][$block_placement_key] = $block_build;
 
         // After merging with blocks from Block layout, we want to sort all of
