@@ -240,11 +240,16 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           ],
         ];
 
-        // Merge existing attributes from block with class(es) configured in Context.
         $block_content = $block->build();
         $existing_attributes = isset($block_content['#attributes']) ? $block_content['#attributes'] : [];
-        $new_attributes['class'][] = $configuration['css_class'];
-        $block_build['#attributes'] = array_merge_recursive($existing_attributes, $new_attributes);
+        // Merge existing attributes from block with class(es) configured in Context.
+        if (isset($configuration['css_class']) && '' !== $configuration['css_class']) {
+          $new_attributes = [
+            'class' => [$configuration['css_class']],
+          ];
+          $existing_attributes = array_merge_recursive($existing_attributes, $new_attributes);
+        }
+        $block_build['#attributes'] = $existing_attributes;
 
         // Add additional contextual link, for editing block configuration.
         $block_build['#contextual_links']['context_block'] = [
