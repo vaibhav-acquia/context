@@ -2,7 +2,6 @@ name: Context UI
 description: 'Provides a simple UI for settings up a site structure using Context.'
 package: Context
 type: module
-core: 8.x
 core_version_requirement: ^8 || ^9
 configure: entity.context.collection
 

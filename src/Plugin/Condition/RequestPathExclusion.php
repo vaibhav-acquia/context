@@ -28,6 +28,11 @@ class RequestPathExclusion extends RequestPath implements ContainerFactoryPlugin
    * {@inheritdoc}
    */
   public function evaluate() {
+    // Allow this to pass through gracefully when blank.
+    $pages = mb_strtolower($this->configuration['pages']);
+    if (!$pages) {
+      return TRUE;
+    }
     return !parent::evaluate();
   }
 }
