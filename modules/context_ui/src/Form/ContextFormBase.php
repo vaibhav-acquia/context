@@ -206,6 +206,22 @@ abstract class ContextFormBase extends EntityForm {
 
       $reaction_values = (new FormState())->setValues($configuration);
       $reaction->validateConfigurationForm($form, $reaction_values);
+
+      // Menu root should not be selected as the plugin does not exist.
+      if ($reaction_id === 'menu') {
+        $menu_items = $reaction_values->getValue('menu_items');
+        foreach ($menu_items as $menu_item) {
+          $menu = strtok($menu_item, ':');
+          $plugin_id = substr($menu_item, strlen($menu) + 1);
+
+          if (!$plugin_id) {
+            $plugin_title = $form['reactions']['reaction-menu']['options']['menu_items']['#options'][$menu_item];
+            $error = $this->t('Menu root @plugin_title cannot be selected.', ['@plugin_title' => $plugin_title]);
+            $form_state->setErrorByName("reactions][$reaction_id][$menu_item", $error);
+          }
+        }
+      }
+
       if ($reaction_values->hasAnyErrors()) {
         // In case of errors, copy them back from the dummy FormState to the
         // master form.
@@ -219,7 +235,7 @@ abstract class ContextFormBase extends EntityForm {
   /**
    * Check to see if a context already exists with the specified name.
    *
-   * @param  string $name
+   * @param string $name
    *   The machine name to check for.
    *
    * @return bool
