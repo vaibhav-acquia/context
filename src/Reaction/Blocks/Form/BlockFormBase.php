@@ -259,6 +259,28 @@ abstract class BlockFormBase extends FormBase {
   }
 
   /**
+   * Form validation handler.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    $settings = (new FormState())->setValues($form_state->getValue('settings'));
+
+    // Call the plugin validate handler.
+    $this->block->validateConfigurationForm($form['settings'], $settings);
+
+    // Update the original form values, including errors.
+    $form_state->setValue('settings', $settings->getValues());
+    foreach ($settings->getErrors() as $name => $error) {
+      $form_state->setErrorByName($name, $error);
+    }
+  }
+
+  /**
    * Form submission handler.
    *
    * @param array $form
