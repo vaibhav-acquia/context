@@ -28,6 +28,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Security\TrustedCallbackInterface;
 
 /**
  * Provides a content reaction that will let you place blocks in the current
@@ -38,7 +39,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   label = @Translation("Blocks")
  * )
  */
-class Blocks extends ContextReactionPluginBase implements ContainerFactoryPluginInterface {
+class Blocks extends ContextReactionPluginBase implements ContainerFactoryPluginInterface, TrustedCallbackInterface{
 
   use AjaxFormTrait;
 
@@ -732,6 +733,14 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
       $this->calculatePluginDependencies($instance);
     }
     return $this->dependencies;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks()
+  {
+    return ['preRenderBlock'];
   }
 
 }
