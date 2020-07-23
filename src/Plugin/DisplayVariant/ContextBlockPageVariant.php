@@ -123,6 +123,14 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
     foreach ($this->contextManager->getActiveReactions('blocks') as $reaction) {
       if ($reaction->includeDefaultBlocks()) {
         $build = NestedArray::mergeDeep($this->getBuildFromBlockLayout(), $build);
+        // Gives the system_main block the same weight as from block layout.
+        $build['content']['#sorted'] = FALSE;
+        foreach ($build['content'] as $key => $blockId) {
+          if (isset($blockId['#plugin_id']) && $blockId['#plugin_id'] == 'system_main_block') {
+            $build['content']['system_main']['#weight'] = isset($blockId['#weight']) ? $blockId['#weight'] : 0;
+            break;
+          }
+        }
         return $build;
       }
     }
