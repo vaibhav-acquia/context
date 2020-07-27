@@ -36,6 +36,8 @@ function context_help($route_name, RouteMatchInterface $route_match) {
 function context_preprocess_html(&$variables) {
   /** @var \Drupal\context\ContextManager $context_manager */
   $context_manager = \Drupal::service('context.manager');
+  // Active theme for route.
+  $current_theme = \Drupal::service('theme.negotiator')->determineActiveTheme(Drupal::routeMatch());
 
   foreach ($context_manager->getActiveReactions('body_class') as $reaction) {
     $variables['attributes'] = NestedArray::mergeDeep($variables['attributes'], $reaction->execute());
@@ -44,6 +46,17 @@ function context_preprocess_html(&$variables) {
   foreach ($context_manager->getActiveReactions('page_title') as $reaction) {
     $variables['head_title']['title'] = Markup::create(trim(strip_tags($reaction->execute())));
   }
+
+  // Disable regions based on regions reaction.
+  foreach ($context_manager->getActiveReactions('regions') as $region_reaction) {
+    $configuration = $region_reaction->getConfiguration();
+    if (isset($configuration['regions'][$current_theme])) {
+      foreach ($configuration['regions'][$current_theme] as $region) {
+        unset($variables['page'][$region]);
+      }
+    }
+  }
+
 }
 
 /**
@@ -67,26 +80,4 @@ function context_theme_suggestions_page_alter(array &$suggestions, array $variab
     $template_suggestions = explode(PHP_EOL, $reaction->execute());
     $suggestions = array_merge($suggestions, $template_suggestions);
   }
-}
-
-/**
- * Implements hook_preprocess_page().
- */
-function context_preprocess_page(&$variables) {
-  // Active theme for route.
-  $current_theme = \Drupal::service('theme.negotiator')->determineActiveTheme(Drupal::routeMatch());
-
-  // Context manager.
-  $context_manager = \Drupal::service('context.manager');
-
-  // Disable regions based on regions reaction.
-  foreach ($context_manager->getActiveReactions('regions') as $region_reaction) {
-    $configuration = $region_reaction->getConfiguration();
-    if (isset($configuration['regions'][$current_theme])) {
-      foreach ($configuration['regions'][$current_theme] as $region) {
-        unset($variables['page'][$region]);
-      }
-    }
-  }
-
 }
