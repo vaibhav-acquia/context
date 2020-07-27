@@ -9,14 +9,14 @@ use Drupal\menu_link_content\Entity\MenuLinkContent;
 
 /**
  * Implements the MenuBuilder class, which configures and updates the submenu
- * context items
+ * context items.
  *
  * @package Drupal\context_ui
  */
 class MenuBuilder {
 
   /**
-   * @var \Drupal\Core\Menu\MenuLinkManagerInterface Stores the menuLinkManager interface.
+   * @var \Drupal\Core\Menu\MenuLinkManagerInterfaceStoresthemenuLinkManagerinterface
    */
   protected $menuLinkManager;
 
@@ -30,8 +30,8 @@ class MenuBuilder {
   }
 
   /**
-   *
    * Create function.
+   *
    * @param \Drupal\context_ui\ContainerInterface $container
    *
    * @return static
@@ -43,10 +43,10 @@ class MenuBuilder {
   }
 
   /**
-   *
    * Adds a submenu item for the $entity item.
    *
-   * @param \Drupal\context\Entity\Context $entity The given entity item.
+   * @param \Drupal\context\Entity\Context $entity
+   *   The given entity item.
    */
   public function addSubMenuItem(Context $entity) {
     $menu_link = MenuLinkContent::create([
@@ -62,10 +62,10 @@ class MenuBuilder {
   }
 
   /**
-   *
    * Updates the submenu item of the $entity item.
    *
-   * @param \Drupal\context\Entity\Context $entity The given entity item.
+   * @param \Drupal\context\Entity\Context $entity
+   *   The given entity item.
    */
   public function updateSubMenuItem(Context $entity) {
     $result = $this->menuLinkManager->loadLinksByRoute('entity.context.edit_form', ['context' => $entity->id()]);
@@ -87,10 +87,10 @@ class MenuBuilder {
   }
 
   /**
-   *
    * Deletes the submenu item of the $entity item.
    *
-   * @param \Drupal\context\Entity\Context $entity The given entity item.
+   * @param \Drupal\context\Entity\Context $entity
+   *   The given entity item.
    */
   public function deleteSubMenuItem(Context $entity) {
     $result = $this->menuLinkManager->loadLinksByRoute('entity.context.edit_form', ['context' => $entity->id()]);
@@ -106,10 +106,10 @@ class MenuBuilder {
   }
 
   /**
-   *
    * Return the URI string of the given context entity.
    *
-   * @param \Drupal\context\Entity\Context $entity The context entity.
+   * @param \Drupal\context\Entity\Context $entity
+   *   The context entity.
    *
    * @return string The URI string.
    */

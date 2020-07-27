@@ -4,35 +4,36 @@ namespace Drupal\context\Reaction\Blocks\Form;
 
 use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
-use Drupal\context\Plugin\ContextReaction\Blocks;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
-use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class BlockDeleteForm extends ConfirmFormBase {
 
   /**
    * The context that the block is being removed from.
    *
-   * @var ContextInterface
+   * @var \Drupal\context\ContextInterface
    */
   protected $context;
 
   /**
    * The blocks reaction.
    *
-   * @var Blocks
+   * @var \Drupal\context\Plugin\ContextReaction\Blocks
    */
   protected $reaction;
 
   /**
    * The block that is being removed.
    *
-   * @var BlockPluginInterface
+   * @var \Drupal\Core\Block\BlockPluginInterface
    */
   protected $block;
 
@@ -46,7 +47,7 @@ class BlockDeleteForm extends ConfirmFormBase {
   /**
    * Construct a condition delete form.
    *
-   * @param ContextManager $contextManager
+   * @param \Drupal\context\ContextManager $contextManager
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
@@ -56,7 +57,7 @@ class BlockDeleteForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static (
+    return new static(
       $container->get('context.manager')
     );
   }
@@ -105,7 +106,7 @@ class BlockDeleteForm extends ConfirmFormBase {
       unset($form['actions']['cancel']);
       // Submit the form with AJAX if possible.
       $form['actions']['submit']['#ajax'] = [
-        'callback' => '::submitFormAjax'
+        'callback' => '::submitFormAjax',
       ];
     }
 
@@ -125,7 +126,8 @@ class BlockDeleteForm extends ConfirmFormBase {
     // If this is not an AJAX request then redirect and show a message.
     if (!$this->getRequest()->isXmlHttpRequest()) {
       $this->messenger()->addMessage($this->t('The %label block has been removed.', [
-          '%label' => $configuration['label']]
+        '%label' => $configuration['label'],
+      ]
       ));
 
       $form_state->setRedirectUrl($this->getCancelUrl());
@@ -135,7 +137,7 @@ class BlockDeleteForm extends ConfirmFormBase {
   /**
    * Handle when the form is submitted trough AJAX.
    *
-   * @return AjaxResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse
    */
   public function submitFormAjax() {
     $contextForm = $this->contextManager->getForm($this->context, 'edit');
@@ -147,4 +149,5 @@ class BlockDeleteForm extends ConfirmFormBase {
 
     return $response;
   }
+
 }

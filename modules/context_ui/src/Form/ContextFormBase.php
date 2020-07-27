@@ -11,6 +11,9 @@ use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 abstract class ContextFormBase extends EntityForm {
 
   /**
@@ -23,24 +26,24 @@ abstract class ContextFormBase extends EntityForm {
   /**
    * The Context module context manager.
    *
-   * @var ContextManager
+   * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
 
   /**
    * The Drupal context repository.
    *
-   * @var ContextRepositoryInterface
+   * @var \Drupal\context\Entity\ContextRepositoryInterface
    */
   protected $contextRepository;
 
   /**
    * Construct a new context form.
    *
-   * @param ContextManager $contextManager
-   * @param ContextRepositoryInterface $contextRepository
+   * @param \Drupal\context\ContextManager $contextManager
+   * @param \Drupal\context\Entity\ContextRepositoryInterface $contextRepository
    */
-  function __construct(ContextManager $contextManager, ContextRepositoryInterface $contextRepository) {
+  public function __construct(ContextManager $contextManager, ContextRepositoryInterface $contextRepository) {
     $this->contextManager = $contextManager;
     $this->contextRepository = $contextRepository;
   }
@@ -143,7 +146,7 @@ abstract class ContextFormBase extends EntityForm {
    * @param array $form
    *   The rendered form.
    *
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
   private function handleConditions(array &$form, FormStateInterface $form_state) {
@@ -171,7 +174,7 @@ abstract class ContextFormBase extends EntityForm {
    * @param array $form
    *   The rendered form.
    *
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
   private function handleReactions(array &$form, FormStateInterface $form_state) {
@@ -193,7 +196,7 @@ abstract class ContextFormBase extends EntityForm {
    * @param array $form
    *   The rendered form.
    *
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
   private function validateReactions(array &$form, FormStateInterface $form_state) {
@@ -243,4 +246,5 @@ abstract class ContextFormBase extends EntityForm {
   public function contextExists($name) {
     return $this->contextManager->contextExists($name);
   }
+
 }

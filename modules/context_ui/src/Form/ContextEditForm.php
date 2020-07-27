@@ -8,6 +8,9 @@ use Drupal\context\Form\AjaxFormTrait;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ *
+ */
 class ContextEditForm extends ContextFormBase {
 
   use AjaxFormTrait;
@@ -75,7 +78,7 @@ class ContextEditForm extends ContextFormBase {
    * @param $element
    *   The element to process.
    *
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    *
    * @return array
@@ -91,7 +94,7 @@ class ContextEditForm extends ContextFormBase {
       ]),
       '#attributes' => [
         'class' => [
-          'use-ajax', 'button', 'button--small'
+          'use-ajax', 'button', 'button--small',
         ],
         'data-dialog-type' => 'modal',
         'data-dialog-options' => Json::encode([
@@ -131,7 +134,7 @@ class ContextEditForm extends ContextFormBase {
         ]),
         '#attributes' => [
           'class' => [
-            'use-ajax', 'button', 'button--small'
+            'use-ajax', 'button', 'button--small',
           ],
           'data-dialog-type' => 'modal',
           'data-dialog-options' => Json::encode([
@@ -150,7 +153,7 @@ class ContextEditForm extends ContextFormBase {
    * @param $element
    *   The element to process.
    *
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    *
    * @return array
@@ -166,7 +169,7 @@ class ContextEditForm extends ContextFormBase {
       ]),
       '#attributes' => [
         'class' => [
-          'use-ajax', 'button', 'button--small'
+          'use-ajax', 'button', 'button--small',
         ],
         'data-dialog-type' => 'modal',
         'data-dialog-options' => Json::encode([
@@ -209,7 +212,7 @@ class ContextEditForm extends ContextFormBase {
         ]),
         '#attributes' => [
           'class' => [
-            'use-ajax', 'button', 'button--small'
+            'use-ajax', 'button', 'button--small',
           ],
           'data-dialog-type' => 'modal',
           'data-dialog-options' => Json::encode([

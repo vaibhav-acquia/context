@@ -6,7 +6,6 @@ use Drupal\context\ContextManager;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Extension\ThemeHandlerInterface;
-use Drupal\Core\Form\FormState;
 use Drupal\Core\Url;
 use Drupal\context\ContextInterface;
 use Drupal\Component\Serialization\Json;
@@ -16,6 +15,9 @@ use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ *
+ */
 class ContextReactionBlocksController extends ControllerBase {
 
   /**
@@ -46,7 +48,7 @@ class ContextReactionBlocksController extends ControllerBase {
    * @param \Drupal\Core\Extension\ThemeHandlerInterface $themeHandler
    * @param \Drupal\context\ContextManager $contextManager
    */
-  function __construct(
+  public function __construct(
     BlockManagerInterface $blockManager,
     ContextRepositoryInterface $contextRepository,
     ThemeHandlerInterface $themeHandler,
@@ -74,7 +76,7 @@ class ContextReactionBlocksController extends ControllerBase {
    * Display a library of blocks that can be added to the context reaction.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
-   *  The request object.
+   *   The request object.
    *
    * @param \Drupal\context\ContextInterface $context
    *   The context the blocks reaction belongs to.
@@ -180,10 +182,10 @@ class ContextReactionBlocksController extends ControllerBase {
   /**
    * Callback for the theme select list on the Context blocks reaction form.
    *
-   * @param Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
    *
-   * @param ContextInterface $context
+   * @param \Drupal\context\ContextInterface $context
    *   The context the block reaction is located on.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse

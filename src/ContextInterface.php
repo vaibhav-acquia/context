@@ -2,12 +2,12 @@
 
 namespace Drupal\context;
 
-use Drupal\Core\Condition\ConditionInterface;
-use Drupal\Core\Condition\ConditionPluginCollection;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
-use Drupal\context\Plugin\ContextReactionPluginCollection;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 
+/**
+ *
+ */
 interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollectionInterface {
 
   /**
@@ -106,7 +106,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
   /**
    * If the context requires all conditions to validate.
    *
-   * @return boolean
+   * @return bool
    */
   public function requiresAllConditions();
 
@@ -123,7 +123,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
   /**
    * Get a list of all conditions.
    *
-   * @return ConditionInterface[]|ConditionPluginCollection
+   * @return \Drupal\Core\Condition\ConditionInterface[]|ConditionPluginCollection
    */
   public function getConditions();
 
@@ -131,7 +131,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * Get a condition with the specified ID.
    *
    * @param string $condition_id
-   *  The condition to get.
+   *   The condition to get.
    *
    * @return \Drupal\Core\Condition\ConditionInterface
    */
@@ -212,4 +212,5 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return bool
    */
   public function hasReaction($reaction_id);
+
 }

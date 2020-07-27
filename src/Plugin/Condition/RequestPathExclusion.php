@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\context\Plugin\Condition;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -35,4 +36,5 @@ class RequestPathExclusion extends RequestPath implements ContainerFactoryPlugin
     }
     return !parent::evaluate();
   }
+
 }

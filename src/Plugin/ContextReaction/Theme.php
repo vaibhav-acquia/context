@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\context\Plugin\ContextReaction;
 
 use Drupal\context\ContextReactionPluginBase;
@@ -31,7 +32,7 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
   /**
    * {@inheritdoc}
    */
-  function __construct(
+  public function __construct(
     array $configuration,
     $pluginId,
     $pluginDefinition,
@@ -102,4 +103,5 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
     $configuration += $this->getConfiguration();
     $this->setConfiguration($configuration);
   }
+
 }

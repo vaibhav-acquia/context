@@ -52,4 +52,5 @@ class PageTitle extends ContextReactionPluginBase {
     $config['page_title'] = $form_state->getValue('page_title');
     $this->setConfiguration($config);
   }
+
 }

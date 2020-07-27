@@ -4,6 +4,9 @@ namespace Drupal\context\Plugin;
 
 use Drupal\Core\Plugin\DefaultLazyPluginCollection;
 
+/**
+ *
+ */
 class ContextReactionPluginCollection extends DefaultLazyPluginCollection {
 
   /**
@@ -14,4 +17,5 @@ class ContextReactionPluginCollection extends DefaultLazyPluginCollection {
   public function &get($instance_id) {
     return parent::get($instance_id);
   }
+
 }

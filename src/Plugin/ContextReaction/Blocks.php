@@ -39,7 +39,7 @@ use Drupal\Core\Security\TrustedCallbackInterface;
  *   label = @Translation("Blocks")
  * )
  */
-class Blocks extends ContextReactionPluginBase implements ContainerFactoryPluginInterface, TrustedCallbackInterface{
+class Blocks extends ContextReactionPluginBase implements ContainerFactoryPluginInterface, TrustedCallbackInterface {
 
   use AjaxFormTrait;
 
@@ -57,7 +57,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * Contains a temporary collection of blocks.
    *
-   * @var BlockCollection
+   * @var \Drupal\context\Reaction\Blocks\BlockCollection
    */
   protected $blocksCollection;
 
@@ -79,7 +79,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   protected $themeHandler;
 
   /**
-   * @var ContextRepositoryInterface
+   * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
   protected $contextRepository;
 
@@ -89,24 +89,24 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   protected $entityTypeManager;
 
   /**
-   * @var ContextHandlerInterface
+   * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
    */
   protected $contextHandler;
 
   /**
-   * @var AccountInterface
+   * @var \Drupal\Core\Session\AccountInterface
    */
   protected $account;
 
   /**
-   * @var BlockManager
+   * @var \Drupal\Core\Block\BlockManager
    */
   protected $blockManager;
 
   /**
    * {@inheritdoc}
    */
-  function __construct(
+  public function __construct(
     array $configuration,
     $pluginId,
     $pluginDefinition,
@@ -299,7 +299,8 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * Renders the content using the provided block plugin.
    *
-   * @param  array $build
+   * @param array $build
+   *
    * @return array
    */
   public function preRenderBlock($build) {
@@ -340,7 +341,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    */
   public function defaultConfiguration() {
     return [
-      'blocks' => []
+      'blocks' => [],
     ] + parent::defaultConfiguration();
   }
 
@@ -376,7 +377,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * Get all blocks as a collection.
    *
-   * @return BlockPluginInterface[]|BlockCollection
+   * @return \Drupal\Core\Block\BlockPluginInterface[]|BlockCollection
    */
   public function getBlocks() {
     if (!$this->blocksCollection) {
@@ -392,7 +393,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * @param string $blockId
    *   The ID of the block to get.
    *
-   * @return BlockPluginInterface
+   * @return \Drupal\Core\Block\BlockPluginInterface
    */
   public function getBlock($blockId) {
     return $this->getBlocks()->get($blockId);
@@ -491,13 +492,12 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
       '#default_value' => isset($this->getConfiguration()['include_default_blocks']) ? $this->getConfiguration()['include_default_blocks'] : FALSE,
     ];
 
-
     $form['blocks']['block_add'] = [
       '#type' => 'link',
       '#title' => $this->t('Place block'),
       '#attributes' => [
-          'id' => 'context-reaction-blocks-region-add',
-        ] + $this->getAjaxButtonAttributes(),
+        'id' => 'context-reaction-blocks-region-add',
+      ] + $this->getAjaxButtonAttributes(),
       '#url' => Url::fromRoute('context.reaction.blocks.library', [
         'context' => $context->id(),
         'reaction_id' => $this->getPluginId(),
@@ -584,7 +584,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
 
       // Add each block specified for the region if there are any.
       if (isset($blocks[$region])) {
-        /** @var BlockPluginInterface $block */
+        /** @var \Drupal\Core\Block\BlockPluginInterface $block */
         foreach ($blocks[$region] as $block_id => $block) {
           $configuration = $block->getConfiguration();
 
@@ -659,7 +659,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * Check to see if the block should be uniquely placed.
    *
-   * @param BlockPluginInterface $block
+   * @param \Drupal\Core\Block\BlockPluginInterface $block
    *
    * @return bool
    */
@@ -738,8 +738,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public static function trustedCallbacks()
-  {
+  public static function trustedCallbacks() {
     return ['preRenderBlock'];
   }
 

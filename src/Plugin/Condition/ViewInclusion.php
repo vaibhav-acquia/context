@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\context\Plugin\Condition;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -119,4 +120,5 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
 
     return FALSE;
   }
+
 }

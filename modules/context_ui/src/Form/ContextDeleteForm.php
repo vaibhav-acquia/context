@@ -8,17 +8,20 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityConfirmFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class ContextDeleteForm extends EntityConfirmFormBase {
 
   /**
-   * @var ContextManager
+   * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
 
   /**
-   * @param ContextManager $contextManager
+   * @param \Drupal\context\ContextManager $contextManager
    */
-  function __construct(ContextManager $contextManager) {
+  public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
   }
 
@@ -63,7 +66,6 @@ class ContextDeleteForm extends EntityConfirmFormBase {
     return $form;
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -76,4 +78,5 @@ class ContextDeleteForm extends EntityConfirmFormBase {
 
     $formState->setRedirectUrl($this->getCancelUrl());
   }
+
 }

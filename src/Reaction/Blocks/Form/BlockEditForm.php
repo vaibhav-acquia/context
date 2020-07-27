@@ -2,6 +2,9 @@
 
 namespace Drupal\context\Reaction\Blocks\Form;
 
+/**
+ *
+ */
 class BlockEditForm extends BlockFormBase {
 
   /**

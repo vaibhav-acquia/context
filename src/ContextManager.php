@@ -59,7 +59,7 @@ class ContextManager {
   private $entityFormBuilder;
 
   /**
-   * @var \Drupal\Core\Theme\ThemeManagerInterface;
+   * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
   protected $themeManager;
 
@@ -68,13 +68,13 @@ class ContextManager {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The Drupal entity manager service.
-   * @param ContextRepositoryInterface $contextRepository
+   * @param \Drupal\context\Entity\ContextRepositoryInterface $contextRepository
    *   The drupal context repository service.
-   * @param ContextHandlerInterface $contextHandler
+   * @param \Drupal\context\Entity\ContextHandlerInterface $contextHandler
    *   The Drupal context handler service.
-   * @param ThemeManagerInterface $themeManager
+   * @param \Drupal\Core\Theme\ThemeManagerInterface $themeManager
    *   The Drupal theme manager service.
-   * @param EntityFormBuilderInterface $entityFormBuilder
+   * @param \Drupal\Core\Entity\EntityFormBuilderInterface $entityFormBuilder
    *   The Drupal EntityFormBuilder service.
    */
   public function __construct(
@@ -83,8 +83,7 @@ class ContextManager {
     ContextHandlerInterface $contextHandler,
     EntityFormBuilderInterface $entityFormBuilder,
     ThemeManagerInterface $themeManager
-  )
-  {
+  ) {
     $this->entityTypeManager = $entityTypeManager;
     $this->contextRepository = $contextRepository;
     $this->contextHandler = $contextHandler;
@@ -95,7 +94,7 @@ class ContextManager {
   /**
    * Get all contexts.
    *
-   * @return Context[]
+   * @return \Drupal\context\Entity\Context[]
    */
   public function getContexts() {
 
@@ -191,7 +190,7 @@ class ContextManager {
    * @param string $reactionType
    *   Either the reaction class name or the id of the reaction type to get.
    *
-   * @return ContextReactionInterface[]
+   * @return \Drupal\context\Entity\ContextReactionInterface[]
    */
   public function getActiveReactions($reactionType = NULL) {
     $reactions = [];
@@ -243,7 +242,7 @@ class ContextManager {
   /**
    * Evaluate a contexts conditions.
    *
-   * @param ContextInterface $context
+   * @param \Drupal\context\Entity\ContextInterface $context
    *   The context to evaluate conditions for.
    *
    * @return bool
@@ -275,7 +274,7 @@ class ContextManager {
   /**
    * Apply context to all the context aware conditions in the collection.
    *
-   * @param ConditionPluginCollection $conditions
+   * @param \Drupal\Core\Condition\ConditionPluginCollection $conditions
    *   A collection of conditions to apply context to.
    *
    * @return bool
@@ -299,9 +298,11 @@ class ContextManager {
 
   /**
    * Get a rendered form for the context.
+   *
    * @param \Drupal\context\ContextInterface $context
    * @param string $formType
    * @param array $form_state_additions
+   *
    * @return array
    */
   public function getForm(ContextInterface $context, $formType = 'edit', array $form_state_additions = []) {
@@ -313,10 +314,10 @@ class ContextManager {
    *
    * Callback for uasort().
    *
-   * @param ContextInterface $a
+   * @param \Drupal\context\Entity\ContextInterface $a
    *   First item for comparison.
    *
-   * @param ContextInterface $b
+   * @param \Drupal\context\Entity\ContextInterface $b
    *   Second item for comparison.
    *
    * @return int

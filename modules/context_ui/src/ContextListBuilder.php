@@ -2,7 +2,6 @@
 
 namespace Drupal\context_ui;
 
-use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
 use Drupal\context\Entity\Context;
 use Drupal\Component\Utility\Html;
@@ -16,6 +15,9 @@ use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class ContextListBuilder extends ConfigEntityListBuilder implements FormInterface {
 
   use AjaxFormTrait;
@@ -23,12 +25,12 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
   /**
    * The Context modules context manager.
    *
-   * @var ContextManager
+   * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
 
   /**
-   * @var FormBuilderInterface
+   * @var \Drupal\Core\Form\FormBuilderInterface
    */
   protected $formBuilder;
 
@@ -168,7 +170,7 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
         ],
       ];
 
-      /** @var ContextInterface $context */
+      /** @var \Drupal\context\ContextInterface $context */
       foreach ($contexts as $context_id => $context) {
         $operations = [
           'edit' => [
@@ -184,7 +186,7 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
             'title' => $context->disabled() ? $this->t('Enable') : $this->t('Disable'),
             'url' => $context->toUrl('disable-form'),
             'attributes' => $this->getAjaxAttributes(),
-          ]
+          ],
         ];
 
         $form['contexts'][$context_id] = [
@@ -254,7 +256,7 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $contexts = $this->storage->loadMultiple(array_keys($form_state->getValue('contexts')));
 
-    /*** @var ContextInterface $context */
+    /*** @var \Drupal\context\ContextInterface $context */
     foreach ($contexts as $context_id => $context) {
       $context_values = $form_state->getValue(['contexts', $context_id]);
 

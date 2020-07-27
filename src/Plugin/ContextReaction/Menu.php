@@ -5,7 +5,6 @@ namespace Drupal\context\Plugin\ContextReaction;
 use Drupal\context\ContextReactionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Menu\MenuParentFormSelectorInterface;
-use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -17,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   label = @Translation("Menu")
  * )
  */
-class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginInterface  {
+class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
    * @var \Drupal\Core\Menu\MenuParentFormSelector

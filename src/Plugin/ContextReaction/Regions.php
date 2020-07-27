@@ -1,10 +1,10 @@
 <?php
+
 namespace Drupal\context\Plugin\ContextReaction;
 
 use Drupal\block\BlockRepositoryInterface;
 use Drupal\context\ContextReactionPluginBase;
 use Drupal\Core\Extension\ThemeHandlerInterface;
-use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
@@ -40,7 +40,7 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  function __construct(
+  public function __construct(
     array $configuration,
     $pluginId,
     $pluginDefinition,
@@ -168,4 +168,5 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
     $configurations = $this->getConfiguration();
     return isset($configurations['regions']) ? $configurations['regions'] : [];
   }
+
 }

@@ -7,6 +7,9 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 
+/**
+ *
+ */
 interface ContextReactionInterface extends ConfigurableInterface, PluginFormInterface, PluginInspectionInterface, ExecutableInterface {
 
   /**

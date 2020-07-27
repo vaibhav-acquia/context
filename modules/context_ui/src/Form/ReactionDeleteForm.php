@@ -8,36 +8,38 @@ use Drupal\context\ContextInterface;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\context\ContextReactionInterface;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 
+/**
+ *
+ */
 class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionInterface {
 
   /**
-   * @var ContextInterface
+   * @var \Drupal\context\ContextInterface
    */
   protected $context;
 
   /**
-   * @var ContextReactionInterface
+   * @var \Drupal\context\ContextReactionInterface
    */
   protected $reaction;
 
   /**
    * The Context module context manager.
    *
-   * @var ContextManager
+   * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
 
   /**
    * Construct.
    *
-   * @param ContextManager $contextManager
+   * @param \Drupal\context\ContextManager $contextManager
    */
-  function __construct(ContextManager $contextManager) {
+  public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
   }
 
@@ -118,7 +120,8 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
     // If this is not an AJAX request then redirect and show a message.
     if (!$this->getRequest()->isXmlHttpRequest()) {
       $this->messenger()->addMessage($this->t('The %label context reaction has been removed.', [
-          '%label' => $definition['label']]
+        '%label' => $definition['label'],
+      ]
       ));
 
       $form_state->setRedirectUrl($this->getCancelUrl());
@@ -128,7 +131,7 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
   /**
    * Handle when the form is submitted through AJAX.
    *
-   * @return AjaxResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse
    */
   public function submitFormAjax() {
     $response = new AjaxResponse();
@@ -140,4 +143,5 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
 
     return $response;
   }
+
 }

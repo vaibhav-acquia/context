@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\context\EventSubscriber\BlockPageDisplayVariantSubscriber.
- */
-
 namespace Drupal\context\EventSubscriber;
 
 use Drupal\context\ContextManager;
@@ -28,7 +23,7 @@ class BlockPageDisplayVariantSubscriber implements EventSubscriberInterface {
   /**
    * @param \Drupal\context\ContextManager $contextManager
    */
-  function __construct(ContextManager $contextManager) {
+  public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
   }
 
@@ -52,7 +47,7 @@ class BlockPageDisplayVariantSubscriber implements EventSubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  static function getSubscribedEvents() {
+  public static function getSubscribedEvents() {
     $events[RenderEvents::SELECT_PAGE_DISPLAY_VARIANT][] = ['onSelectPageDisplayVariant'];
     return $events;
   }

@@ -11,6 +11,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class ConditionDeleteForm extends ConfirmFormBase {
 
   /**
@@ -37,7 +40,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
   /**
    * Construct a condition delete form.
    *
-   * @param ContextManager $contextManager
+   * @param \Drupal\context\ContextManager $contextManager
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
@@ -47,7 +50,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static (
+    return new static(
       $container->get('context.manager')
     );
   }
@@ -100,7 +103,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
 
     // Submit the form with AJAX if possible.
     $form['actions']['submit']['#ajax'] = [
-      'callback' => '::submitFormAjax'
+      'callback' => '::submitFormAjax',
     ];
 
     return $form;
@@ -116,7 +119,8 @@ class ConditionDeleteForm extends ConfirmFormBase {
     // If this is not an AJAX request then redirect and show a message.
     if (!$this->getRequest()->isXmlHttpRequest()) {
       $this->messenger()->addMessage($this->t('The condition %name has been removed.', [
-          '%name' => $this->condition->getPluginDefinition()['label']]
+        '%name' => $this->condition->getPluginDefinition()['label'],
+      ]
       ));
 
       $form_state->setRedirectUrl($this->getCancelUrl());
@@ -126,7 +130,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
   /**
    * Handle when the form is submitted trough AJAX.
    *
-   * @return AjaxResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse
    */
   public function submitFormAjax() {
     $contextForm = $this->contextManager->getForm($this->context, 'edit');

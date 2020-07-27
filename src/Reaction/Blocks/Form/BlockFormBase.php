@@ -20,11 +20,13 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\Element\StatusMessages;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ *
+ */
 abstract class BlockFormBase extends FormBase {
 
   use AjaxFormTrait;
@@ -39,7 +41,7 @@ abstract class BlockFormBase extends FormBase {
   /**
    * The context entity the reaction belongs to.
    *
-   * @var ContextInterface
+   * @var \Drupal\context\ContextInterface
    */
   protected $context;
 
@@ -109,8 +111,7 @@ abstract class BlockFormBase extends FormBase {
     ContextReactionManager $contextReactionManager,
     ContextManager $contextManager,
     RequestStack $requestStack
-  )
-  {
+  ) {
     $this->blockManager = $block_manager;
     $this->contextRepository = $contextRepository;
     $this->themeHandler = $themeHandler;
@@ -149,7 +150,7 @@ abstract class BlockFormBase extends FormBase {
   /**
    * Get the value to use for the submit button.
    *
-   * @return TranslatableMarkup
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    */
   abstract protected function getSubmitValue();
 
@@ -162,7 +163,7 @@ abstract class BlockFormBase extends FormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    *
-   * @param ContextInterface $context
+   * @param \Drupal\context\ContextInterface $context
    *   The context the reaction belongs to.
    *
    * @param string|null $reaction_id
@@ -183,7 +184,7 @@ abstract class BlockFormBase extends FormBase {
     // otherwise use the default theme.
     $theme = $this->getRequest()->query->get('theme', $this->themeHandler->getDefault());
 
-    // Some blocks require the theme name in the form state like Site Branding
+    // Some blocks require the theme name in the form state like Site Branding.
     $form_state->set('block_theme', $theme);
 
     // Some blocks require contexts, set a temporary value with gathered
@@ -243,7 +244,7 @@ abstract class BlockFormBase extends FormBase {
       '#value' => $this->getSubmitValue(),
       '#button_type' => 'primary',
       '#ajax' => [
-        'callback' => '::submitFormAjax'
+        'callback' => '::submitFormAjax',
       ],
     ];
 
@@ -315,7 +316,8 @@ abstract class BlockFormBase extends FormBase {
     // Add/Update the block.
     if (!isset($configuration['uuid'])) {
       $this->reaction->addBlock($configuration);
-    } else {
+    }
+    else {
       $this->reaction->updateBlock($configuration['uuid'], $configuration);
     }
 
@@ -329,7 +331,7 @@ abstract class BlockFormBase extends FormBase {
   /**
    * Handle when the form is submitted trough AJAX.
    *
-   * @return AjaxResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse
    */
   public function submitFormAjax(array &$form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
@@ -338,7 +340,7 @@ abstract class BlockFormBase extends FormBase {
       $messages = StatusMessages::renderMessages(NULL);
       $output[] = $messages;
       $output[] = $form;
-      $form_class = '.' . str_replace('_', '-', $form_state->getFormObject()->getFormId()) ;
+      $form_class = '.' . str_replace('_', '-', $form_state->getFormObject()->getFormId());
       // Remove any previously added error messages.
       $response->addCommand(new RemoveCommand('#drupal-modal .messages--error'));
       // Replace old form with new one and with error message.
@@ -375,4 +377,3 @@ abstract class BlockFormBase extends FormBase {
   }
 
 }
-

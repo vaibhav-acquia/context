@@ -3,19 +3,21 @@
 namespace Drupal\context\Reaction;
 
 use Drupal\context\ContextInterface;
-use Drupal\context\ContextReactionInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ *
+ */
 abstract class ContextReactionFormBase extends FormBase {
 
   /**
-   * @var ContextInterface
+   * @var \Drupal\context\ContextInterface
    */
   protected $context;
 
   /**
-   * @var ContextReactionInterface
+   * @var \Drupal\context\ContextReactionInterface
    */
   protected $reaction;
 
@@ -35,7 +37,7 @@ abstract class ContextReactionFormBase extends FormBase {
    *   The id of the reaction that is being configured.
    *
    * @return array The form structure.
-   * The form structure.
+   *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL) {
     $this->context = $context;
@@ -46,7 +48,7 @@ abstract class ContextReactionFormBase extends FormBase {
     ];
 
     $form['actions'] = [
-      '#type' => 'actions'
+      '#type' => 'actions',
     ];
 
     $form['actions']['submit'] = [
@@ -64,4 +66,5 @@ abstract class ContextReactionFormBase extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->context->save();
   }
+
 }
