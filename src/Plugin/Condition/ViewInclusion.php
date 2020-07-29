@@ -108,7 +108,11 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   }
 
   /**
+   * Evaluate the view inclusion condition.
+   *
    * @return bool
+   *   Return true if condition are empty, so access check passes or return the
+   *   condition.
    */
   public function evaluate() {
     $route = str_replace('.', '-', $this->currentRouteMatch->getRouteName());
@@ -117,8 +121,9 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
     if (array_key_exists('view_inclusion', $configuration) && !empty($configuration['view_inclusion'])) {
       return in_array($route, $configuration['view_inclusion']);
     }
-
-    return FALSE;
+    else {
+      return TRUE;
+    }
   }
 
 }
