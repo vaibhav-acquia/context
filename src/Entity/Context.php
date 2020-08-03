@@ -129,8 +129,9 @@ class Context extends ConfigEntityBase implements ContextInterface {
   protected $weight = 0;
 
   /**
-   * Returns the ID of the context. The ID is the unique machine name of the
-   * context.
+   * Returns the ID of the context.
+   *
+   * The ID is the unique machine name of the context.
    */
   public function id() {
     return $this->name;
