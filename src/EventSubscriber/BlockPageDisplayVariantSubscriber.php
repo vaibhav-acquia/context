@@ -16,12 +16,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class BlockPageDisplayVariantSubscriber implements EventSubscriberInterface {
 
   /**
+   * The Context module context manager.
+   *
    * @var \Drupal\context\ContextManager
    */
   private $contextManager;
 
   /**
+   * Construct a block page display variant.
+   *
    * @param \Drupal\context\ContextManager $contextManager
+   *   The Context manager.
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
