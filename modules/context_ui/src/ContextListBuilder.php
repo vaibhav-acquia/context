@@ -16,7 +16,7 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Provides a class to crate the Context List.
  */
 class ContextListBuilder extends ConfigEntityListBuilder implements FormInterface {
 
@@ -30,6 +30,8 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
   protected $contextManager;
 
   /**
+   * The form builder.
+   *
    * @var \Drupal\Core\Form\FormBuilderInterface
    */
   protected $formBuilder;
@@ -46,16 +48,12 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
-   *
    * @param \Drupal\Core\Entity\EntityStorageInterface $storage
    *   The entity storage class.
-   *
    * @param \Drupal\context\ContextManager $contextManager
    *   The Context module context manager.
-   *
    * @param \Drupal\Core\Form\FormBuilderInterface $formBuilder
    *   The Drupal form builder.
-   *
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger.
    */

@@ -5,7 +5,7 @@ namespace Drupal\context_ui\Form;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- *
+ * Provides a form to add a context.
  */
 class ContextAddForm extends ContextFormBase {
 

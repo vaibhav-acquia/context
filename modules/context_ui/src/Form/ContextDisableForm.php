@@ -9,17 +9,22 @@ use Drupal\Core\Entity\EntityConfirmFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Provides a form to disable a context.
  */
 class ContextDisableForm extends EntityConfirmFormBase {
 
   /**
+   * The Context module context manager.
+   *
    * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
 
   /**
+   * The ContextDisableForm constructor.
+   *
    * @param \Drupal\context\ContextManager $contextManager
+   *   The Context module context manager.
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;

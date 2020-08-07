@@ -9,7 +9,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- *
+ * Provides a form to edit context.
  */
 class ContextEditForm extends ContextFormBase {
 
@@ -75,15 +75,15 @@ class ContextEditForm extends ContextFormBase {
   /**
    * Process function for the conditions.
    *
-   * @param $element
+   * @param array $element
    *   The element to process.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    *
    * @return array
+   *   An array with the condition element.
    */
-  public function processConditions(&$element, FormStateInterface $form_state) {
+  public function processConditions(array &$element, FormStateInterface $form_state) {
     $conditions = $this->entity->getConditions();
 
     $element['add_condition'] = [
@@ -150,15 +150,15 @@ class ContextEditForm extends ContextFormBase {
   /**
    * Process function for the reactions.
    *
-   * @param $element
+   * @param array $element
    *   The element to process.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    *
    * @return array
+   *   An array with the reaction element.
    */
-  public function processReactions(&$element, FormStateInterface $form_state) {
+  public function processReactions(array &$element, FormStateInterface $form_state) {
     $reactions = $this->entity->getReactions();
 
     $element['add_reaction'] = [

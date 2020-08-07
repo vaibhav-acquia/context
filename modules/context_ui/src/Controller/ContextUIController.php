@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Provides the Context UI Controller.
  */
 class ContextUIController extends ControllerBase {
 
@@ -50,10 +50,8 @@ class ContextUIController extends ControllerBase {
    *
    * @param \Drupal\context\ContextManager $contextManager
    *   The Context module context manager.
-   *
    * @param \Drupal\context\ContextReactionManager $contextReactionManager
    *   The Context module context reaction plugin manager.
-   *
    * @param \Drupal\Core\Condition\ConditionManager $conditionManager
    *   The Drupal core condition manager.
    */
@@ -118,6 +116,7 @@ class ContextUIController extends ControllerBase {
    *   The context to display available conditions for.
    *
    * @return array
+   *   An array with the build information.
    */
   public function listConditions(ContextInterface $context) {
 
@@ -193,6 +192,7 @@ class ContextUIController extends ControllerBase {
    *   The context to display available.
    *
    * @return array
+   *   An array with the build information.
    */
   public function listReactions(ContextInterface $context) {
 
@@ -266,14 +266,13 @@ class ContextUIController extends ControllerBase {
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
-   *
    * @param \Drupal\context\ContextInterface $context
    *   The context to add the reaction to.
-   *
-   * @param $reaction_id
+   * @param string $reaction_id
    *   The ID of the reaction to add.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse|RedirectResponse
+   *   An AJAX response or a redirect response.
    */
   public function addReaction(Request $request, ContextInterface $context, $reaction_id) {
 
@@ -289,8 +288,10 @@ class ContextUIController extends ControllerBase {
       throw new HttpException(400, $e->getMessage());
     }
 
-    // If one of the condition is "Current theme", prevent adding Theme reaction.
-    // Else this will cause an infinite loop when checking for active contexts.
+    // If one of the condition is "Current theme",
+    // prevent adding Theme reaction.
+    // Else this will cause an infinite loop
+    // when checking for active contexts.
     if ($reaction_id == 'theme') {
       $conditions = $context->getConditions();
       foreach ($conditions as $condition) {
@@ -332,14 +333,13 @@ class ContextUIController extends ControllerBase {
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
-   *
    * @param \Drupal\context\ContextInterface $context
    *   The context to add the condition to.
-   *
-   * @param $condition_id
+   * @param string $condition_id
    *   The ID of the condition to add.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse|RedirectResponse
+   *   An AJAX response or A redirect response.
    */
   public function addCondition(Request $request, ContextInterface $context, $condition_id) {
 
@@ -355,7 +355,8 @@ class ContextUIController extends ControllerBase {
       throw new HttpException(400, $e->getMessage());
     }
 
-    // Prevent adding "Current theme" condition, if "Theme" reaction is already set.
+    // Prevent adding "Current theme" condition,
+    // if "Theme" reaction is already set.
     // Else this will cause an infinite loop when checking for active contexts.
     if ($condition_id == 'current_theme') {
       $reactions = $context->getReactions();

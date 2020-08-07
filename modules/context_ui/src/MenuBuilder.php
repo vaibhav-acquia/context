@@ -8,15 +8,18 @@ use Drupal\Core\Url;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 
 /**
- * Implements the MenuBuilder class, which configures and updates the submenu
- * context items.
+ * Implements the MenuBuilder class.
+ *
+ * MenuBuilder configures and updates the submenu context items.
  *
  * @package Drupal\context_ui
  */
 class MenuBuilder {
 
   /**
-   * @var \Drupal\Core\Menu\MenuLinkManagerInterfaceStoresthemenuLinkManagerinterface
+   * The menu link plugin manager.
+   *
+   * @var \Drupal\Core\Menu\MenuLinkManagerInterface
    */
   protected $menuLinkManager;
 
@@ -24,17 +27,14 @@ class MenuBuilder {
    * MenuBuilder constructor.
    *
    * @param \Drupal\Core\Menu\MenuLinkManagerInterface $menuLinkManager
+   *   The menu link plugin manager.
    */
   public function __construct(MenuLinkManagerInterface $menuLinkManager) {
     $this->menuLinkManager = $menuLinkManager;
   }
 
   /**
-   * Create function.
-   *
-   * @param \Drupal\context_ui\ContainerInterface $container
-   *
-   * @return static
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -111,7 +111,8 @@ class MenuBuilder {
    * @param \Drupal\context\Entity\Context $entity
    *   The context entity.
    *
-   * @return string The URI string.
+   * @return string
+   *   The URI string.
    */
   private function getUriString(Context $entity) {
     $url = Url::fromRoute('entity.context.edit_form', ['context' => $entity->id()]);

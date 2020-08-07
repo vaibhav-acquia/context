@@ -12,7 +12,7 @@ use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Provides a context form base.
  */
 abstract class ContextFormBase extends EntityForm {
 
@@ -41,7 +41,9 @@ abstract class ContextFormBase extends EntityForm {
    * Construct a new context form.
    *
    * @param \Drupal\context\ContextManager $contextManager
+   *   The Context module context manager.
    * @param \Drupal\context\Entity\ContextRepositoryInterface $contextRepository
+   *   The Drupal context repository.
    */
   public function __construct(ContextManager $contextManager, ContextRepositoryInterface $contextRepository) {
     $this->contextManager = $contextManager;
@@ -145,7 +147,6 @@ abstract class ContextFormBase extends EntityForm {
    *
    * @param array $form
    *   The rendered form.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
@@ -173,7 +174,6 @@ abstract class ContextFormBase extends EntityForm {
    *
    * @param array $form
    *   The rendered form.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
@@ -195,7 +195,6 @@ abstract class ContextFormBase extends EntityForm {
    *
    * @param array $form
    *   The rendered form.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
@@ -242,6 +241,7 @@ abstract class ContextFormBase extends EntityForm {
    *   The machine name to check for.
    *
    * @return bool
+   *   TRUE if context exists. FALSE if context doesn't exist.
    */
   public function contextExists($name) {
     return $this->contextManager->contextExists($name);

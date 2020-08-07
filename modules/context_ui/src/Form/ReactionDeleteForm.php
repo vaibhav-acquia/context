@@ -13,16 +13,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 
 /**
- *
+ * Provides a context reaction delete form.
  */
 class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionInterface {
 
   /**
+   * The Context module context manager.
+   *
    * @var \Drupal\context\ContextInterface
    */
   protected $context;
 
   /**
+   * The context reaction.
+   *
    * @var \Drupal\context\ContextReactionInterface
    */
   protected $reaction;
@@ -38,6 +42,7 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
    * Construct.
    *
    * @param \Drupal\context\ContextManager $contextManager
+   *   The Context module context manager.
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
@@ -132,6 +137,7 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
    * Handle when the form is submitted through AJAX.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
+   *   An AJAX response.
    */
   public function submitFormAjax() {
     $response = new AjaxResponse();

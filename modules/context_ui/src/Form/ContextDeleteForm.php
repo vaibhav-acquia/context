@@ -9,17 +9,22 @@ use Drupal\Core\Entity\EntityConfirmFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Provides a form to delete a context.
  */
 class ContextDeleteForm extends EntityConfirmFormBase {
 
   /**
+   * The Context module context manager.
+   *
    * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
 
   /**
+   * ContextDeleteForm constructor.
+   *
    * @param \Drupal\context\ContextManager $contextManager
+   *   The Context module context manager.
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;

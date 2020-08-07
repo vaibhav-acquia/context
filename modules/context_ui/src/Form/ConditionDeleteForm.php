@@ -12,7 +12,7 @@ use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Provides a Condition delete form.
  */
 class ConditionDeleteForm extends ConfirmFormBase {
 
@@ -41,6 +41,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
    * Construct a condition delete form.
    *
    * @param \Drupal\context\ContextManager $contextManager
+   *   The Context module context manager.
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
@@ -131,6 +132,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
    * Handle when the form is submitted trough AJAX.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
+   *   An AJAX response.
    */
   public function submitFormAjax() {
     $contextForm = $this->contextManager->getForm($this->context, 'edit');
