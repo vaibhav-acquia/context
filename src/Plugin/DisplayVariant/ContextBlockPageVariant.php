@@ -24,6 +24,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ContextBlockPageVariant extends VariantBase implements PageVariantInterface, ContainerFactoryPluginInterface {
 
   /**
+   * The Context module context manager.
+   *
    * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
@@ -43,6 +45,8 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
   protected $title = '';
 
   /**
+   * The display variant plugin manager.
+   *
    * @var \Drupal\Core\Display\VariantManager
    */
   protected $displayVariant;
@@ -52,16 +56,12 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
-   *
    * @param string $plugin_id
    *   The plugin ID for the plugin instance.
-   *
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   *
    * @param \Drupal\context\ContextManager $contextManager
    *   The context module manager.
-   *
    * @param \Drupal\Core\Display\VariantManager $displayVariant
    *   The variant manager.
    */

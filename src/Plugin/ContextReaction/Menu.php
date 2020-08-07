@@ -19,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
+   * The menu parent form selector service.
+   *
    * @var \Drupal\Core\Menu\MenuParentFormSelector
    */
   protected $menuParentFormSelector;

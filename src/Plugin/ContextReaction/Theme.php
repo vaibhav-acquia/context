@@ -20,11 +20,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
+   * The theme manager.
+   *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
   protected $themeManager;
 
   /**
+   * The handler of the available themes.
+   *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
   protected $themeHandler;

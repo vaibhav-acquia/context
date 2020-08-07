@@ -31,8 +31,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Security\TrustedCallbackInterface;
 
 /**
- * Provides a content reaction that will let you place blocks in the current
- * themes regions.
+ * Provides a content reaction.
+ *
+ * It will let you place blocks in the current themes regions.
  *
  * @ContextReaction(
  *   id = "blocks",
@@ -69,36 +70,50 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   protected $uuid;
 
   /**
+   * The theme manager.
+   *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
   protected $themeManager;
 
   /**
+   * The handler of the available themes.
+   *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
   protected $themeHandler;
 
   /**
+   * The Drupal context repository.
+   *
    * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
   protected $contextRepository;
 
   /**
+   * The entity type manager.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
+   * The plugin context handler.
+   *
    * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
    */
   protected $contextHandler;
 
   /**
+   * The current account.
+   *
    * @var \Drupal\Core\Session\AccountInterface
    */
   protected $account;
 
   /**
+   * The block manager.
+   *
    * @var \Drupal\Core\Block\BlockManager
    */
   protected $blockManager;
@@ -155,14 +170,13 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    *
    * @param array $build
    *   The current build of the page.
-   *
    * @param string|null $title
    *   The page title.
-   *
    * @param string|null $main_content
    *   The main page content.
    *
    * @return array
+   *   Blocks that will be built.
    */
   public function execute(array $build = [], $title = NULL, $main_content = NULL) {
 
@@ -300,10 +314,12 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * Renders the content using the provided block plugin.
    *
    * @param array $build
+   *   The block to be rendered.
    *
    * @return array
+   *   The block already rendered.
    */
-  public function preRenderBlock($build) {
+  public function preRenderBlock(array $build) {
 
     $content = $build['#block_plugin']->build();
 
@@ -378,6 +394,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * Get all blocks as a collection.
    *
    * @return \Drupal\Core\Block\BlockPluginInterface[]|BlockCollection
+   *   The collection of blocks.
    */
   public function getBlocks() {
     if (!$this->blocksCollection) {
@@ -394,6 +411,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    *   The ID of the block to get.
    *
    * @return \Drupal\Core\Block\BlockPluginInterface
+   *   The specified block plugin.
    */
   public function getBlock($blockId) {
     return $this->getBlocks()->get($blockId);
@@ -403,6 +421,10 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * Add a new block.
    *
    * @param array $configuration
+   *   The configuration from the block.
+   *
+   * @return string
+   *   The uuid from the block.
    */
   public function addBlock(array $configuration) {
     $configuration['uuid'] = $this->uuid->generate();
@@ -417,11 +439,11 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    *
    * @param string $blockId
    *   The ID of the block to update.
-   *
-   * @param $configuration
+   * @param array $configuration
    *   The updated configuration for the block.
    *
-   * @return $this
+   * @return Drupal\context\Plugin\ContextReaction
+   *   This object.
    */
   public function updateBlock($blockId, array $configuration) {
     $existingConfiguration = $this->getBlock($blockId)->getConfiguration();
@@ -432,8 +454,13 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   }
 
   /**
-   * @param $blockId
-   * @return $this
+   * Remove block.
+   *
+   * @param string $blockId
+   *   Block id to removed.
+   *
+   * @return Drupal\context\Plugin\ContextReaction
+   *   This object.
    */
   public function removeBlock($blockId) {
     $this->getBlocks()->removeInstanceId($blockId);
@@ -572,7 +599,11 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
 
       $form['blocks']['blocks']['region-' . $region . '-message'] = [
         '#attributes' => [
-          'class' => ['region-message', 'region-' . $region . '-message', $regionEmptyClass],
+          'class' => [
+            'region-message',
+            'region-' . $region . '-message',
+            $regionEmptyClass,
+          ],
         ],
         'message' => [
           '#markup' => '<em>' . $this->t('No blocks in this region') . '</em>',
@@ -660,8 +691,10 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * Check to see if the block should be uniquely placed.
    *
    * @param \Drupal\Core\Block\BlockPluginInterface $block
+   *   The block plugin.
    *
    * @return bool
+   *   TRUE if block should be placed uniquely, FALSE if not.
    */
   private function blockShouldBePlacedUniquely(BlockPluginInterface $block) {
     $configuration = $block->getConfiguration();
@@ -701,6 +734,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * Should reaction include default blocks from Block layout.
    *
    * @return bool
+   *   TRUE if default blocks will be included, FALSE if not.
    */
   public function includeDefaultBlocks() {
     $config = $this->getConfiguration();
@@ -712,11 +746,11 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    *
    * @param string $theme
    *   The theme to get a list of regions for.
-   *
    * @param string $show
    *   What type of regions that should be returned, defaults to all regions.
    *
    * @return array
+   *   An array of available regions from a specified theme.
    *
    * @todo This could be moved to a service since we use it in a couple of places.
    */

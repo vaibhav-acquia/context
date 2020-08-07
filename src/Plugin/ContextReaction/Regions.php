@@ -28,11 +28,15 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
   protected $regions = [];
 
   /**
+   * The theme manager.
+   *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
   protected $themeManager;
 
   /**
+   * The handler of the available themes.
+   *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
   protected $themeHandler;
@@ -149,11 +153,11 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
    *
    * @param string $theme
    *   The theme to get a list of regions for.
-   *
    * @param string $show
    *   What type of regions that should be returned, defaults to all regions.
    *
    * @return array
+   *   The list of available regions from a specified theme.
    *
    * @todo This could be moved to a service since we use it in a couple of places.
    */

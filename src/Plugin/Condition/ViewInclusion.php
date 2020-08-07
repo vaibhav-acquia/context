@@ -22,18 +22,36 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPluginInterface {
 
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
   private $entityTypeManager;
 
+  /**
+   * The current route match.
+   *
+   * @var \Drupal\Core\Routing\CurrentRouteMatch
+   */
   private $currentRouteMatch;
 
   /**
    * View constructor.
    *
    * @param array $configuration
-   * @param $plugin_id
-   * @param $plugin_definition
+   *   The plugin configuration, i.e. an array with configuration values keyed
+   *   by configuration option name. The special key 'context' may be used to
+   *   initialize the defined contexts by setting it to an array of context
+   *   values keyed by context names.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   * @param \Drupal\Core\Routing\CurrentRouteMatch
+   *   The entity type manager.
+   * @param \Drupal\Core\Routing\CurrentRouteMatch $currentRouteMatch
+   *   The current route match service.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entityTypeManager, CurrentRouteMatch $currentRouteMatch) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -42,12 +60,7 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   }
 
   /**
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   * @param array $configuration
-   * @param string $plugin_id
-   * @param mixed $plugin_definition
-   *
-   * @return static
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
@@ -60,10 +73,7 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   }
 
   /**
-   * @param array $form
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *
-   * @return array
+   * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
 
@@ -92,8 +102,7 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   }
 
   /**
-   * @param array $form
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration['view_inclusion'] = array_filter($form_state->getValue('views_pages'));
@@ -101,18 +110,14 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   }
 
   /**
-   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   * {@inheritdoc}
    */
   public function summary() {
     return t('Select views pages');
   }
 
   /**
-   * Evaluate the view inclusion condition.
-   *
-   * @return bool
-   *   Return true if condition are empty, so access check passes or return the
-   *   condition.
+   * {@inheritdoc}
    */
   public function evaluate() {
     $route = str_replace('.', '-', $this->currentRouteMatch->getRouteName());
