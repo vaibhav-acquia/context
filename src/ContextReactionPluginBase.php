@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
 
 /**
- *
+ * Provides a plugin base for Context Reactions.
  */
 abstract class ContextReactionPluginBase extends PluginBase implements ContextReactionInterface {
 

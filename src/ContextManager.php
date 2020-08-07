@@ -16,8 +16,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Theme\ThemeManagerInterface;
 
 /**
- * This is the manager service for the context module and should not be
- * confused with the built in contexts in Drupal.
+ * This is the manager service for the context module.
+ *
+ * It should not be confused with the built in contexts in Drupal.
  */
 class ContextManager {
 
@@ -25,21 +26,29 @@ class ContextManager {
   use StringTranslationTrait;
 
   /**
+   * The entity type manager.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
+   * The context repository service.
+   *
    * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
   protected $contextRepository;
 
   /**
+   * Wraps the context handler.
+   *
    * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
    */
   protected $contextHandler;
 
   /**
+   * The context conditions evaluate.
+   *
    * If the context conditions has been evaluated then this is set to TRUE
    * otherwise FALSE.
    *
@@ -53,12 +62,17 @@ class ContextManager {
    * @var array
    */
   protected $activeContexts = [];
+
   /**
+   * The entity form builder.
+   *
    * @var \Drupal\Core\Entity\EntityFormBuilderInterface
    */
   private $entityFormBuilder;
 
   /**
+   * The theme manager.
+   *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
   protected $themeManager;
@@ -72,10 +86,10 @@ class ContextManager {
    *   The drupal context repository service.
    * @param \Drupal\context\Entity\ContextHandlerInterface $contextHandler
    *   The Drupal context handler service.
-   * @param \Drupal\Core\Theme\ThemeManagerInterface $themeManager
-   *   The Drupal theme manager service.
    * @param \Drupal\Core\Entity\EntityFormBuilderInterface $entityFormBuilder
    *   The Drupal EntityFormBuilder service.
+   * @param \Drupal\Core\Theme\ThemeManagerInterface $themeManager
+   *   The Drupal theme manager service.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
@@ -95,6 +109,7 @@ class ContextManager {
    * Get all contexts.
    *
    * @return \Drupal\context\Entity\Context[]
+   *   An array with the context entity.
    */
   public function getContexts() {
 
@@ -107,10 +122,12 @@ class ContextManager {
   }
 
   /**
-   * Get all contexts sorted by their group and sorted by their weight inside
-   * of each group.
+   * Get all contexts sorted by their group.
+   *
+   * It also sort the contexts by their weight inside of each group.
    *
    * @return array
+   *   An array with all contexts by group.
    */
   public function getContextsByGroup() {
     $contexts = $this->getContexts();
@@ -138,6 +155,7 @@ class ContextManager {
    *   The machine name of the context to validate.
    *
    * @return bool
+   *   TRUE on context name already exist, FALSE on context name not exist.
    */
   public function contextExists($name) {
     $entity = $this->entityTypeManager->getStorage('context')->loadByProperties(['name' => $name]);
@@ -149,6 +167,7 @@ class ContextManager {
    * Check to see if context conditions has been evaluated.
    *
    * @return bool
+   *   TRUE if context was already evaluated, FALSE if context was not.
    */
   public function conditionsHasBeenEvaluated() {
     return $this->contextConditionsEvaluated;
@@ -158,6 +177,7 @@ class ContextManager {
    * Get the evaluated and active contexts.
    *
    * @return \Drupal\context\ContextInterface[]
+   *   An array with the evaluated and active contexts.
    */
   public function getActiveContexts() {
     if ($this->conditionsHasBeenEvaluated()) {
@@ -191,6 +211,7 @@ class ContextManager {
    *   Either the reaction class name or the id of the reaction type to get.
    *
    * @return \Drupal\context\Entity\ContextReactionInterface[]
+   *   An array with all active reactions or reactions of a certain type.
    */
   public function getActiveReactions($reactionType = NULL) {
     $reactions = [];
@@ -201,7 +222,8 @@ class ContextManager {
       // continue to the next context.
       if (is_null($reactionType)) {
         foreach ($context->getReactions() as $reaction) {
-          // Only return block reaction if there is a block applied to the current theme.
+          // Only return block reaction if there is a block applied to
+          // the current theme.
           if ($reaction instanceof Blocks) {
             $blocks = $reaction->getBlocks();
             $current_theme = $this->getCurrentTheme();
@@ -246,6 +268,7 @@ class ContextManager {
    *   The context to evaluate conditions for.
    *
    * @return bool
+   *   Whether these conditions grant or deny access.
    */
   public function evaluateContextConditions(ContextInterface $context) {
     $conditions = $context->getConditions();
@@ -278,6 +301,8 @@ class ContextManager {
    *   A collection of conditions to apply context to.
    *
    * @return bool
+   *   TRUE if context was applied and FALSE if context
+   *   is provided but has no value.
    */
   protected function applyContexts(ConditionPluginCollection &$conditions) {
 
@@ -300,10 +325,14 @@ class ContextManager {
    * Get a rendered form for the context.
    *
    * @param \Drupal\context\ContextInterface $context
+   *   The entity to be created or edited.
    * @param string $formType
+   *   The operation identifying the form variation to be returned.
    * @param array $form_state_additions
+   *   An associative array used to build the current state of the form.
    *
    * @return array
+   *   The processed form for the given entity and operation.
    */
   public function getForm(ContextInterface $context, $formType = 'edit', array $form_state_additions = []) {
     return $this->entityFormBuilder->getForm($context, $formType, $form_state_additions);
@@ -316,7 +345,6 @@ class ContextManager {
    *
    * @param \Drupal\context\Entity\ContextInterface $a
    *   First item for comparison.
-   *
    * @param \Drupal\context\Entity\ContextInterface $b
    *   Second item for comparison.
    *

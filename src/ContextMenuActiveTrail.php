@@ -14,6 +14,8 @@ use Drupal\Core\Routing\RouteMatchInterface;
 class ContextMenuActiveTrail extends MenuActiveTrail {
 
   /**
+   * The Context module context manager.
+   *
    * @var \Drupal\context\ContextManager
    */
   protected $contextManager;

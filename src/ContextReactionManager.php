@@ -7,7 +7,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
- *
+ * Provides a manager for Context Reactions.
  */
 class ContextReactionManager extends DefaultPluginManager {
 
