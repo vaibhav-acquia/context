@@ -23,9 +23,9 @@ class ContextReaction extends Plugin {
   /**
    * The human-readable name of the context reaction.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $label;
 
@@ -34,9 +34,9 @@ class ContextReaction extends Plugin {
    *
    * This will be shown when adding or configuring this context reaction.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translationoptional
+   *
+   * @ingroup plugin_translatable
    */
   public $description = '';
 

@@ -25,7 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- *
+ * Provides a Block Form Base for blocks reactions.
  */
 abstract class BlockFormBase extends FormBase {
 
@@ -60,31 +60,43 @@ abstract class BlockFormBase extends FormBase {
   protected $blockManager;
 
   /**
+   * The Drupal context repository.
+   *
    * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
   protected $contextRepository;
 
   /**
+   * The handler of the available themes.
+   *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
   protected $themeHandler;
 
   /**
+   * The form builder.
+   *
    * @var \Drupal\Core\Form\FormBuilderInterface
    */
   protected $formBuilder;
 
   /**
+   * The context reaction manager.
+   *
    * @var \Drupal\context\ContextReactionManager
    */
   protected $contextReactionManager;
 
   /**
+   * The Context modules context manager.
+   *
    * @var \Drupal\context\ContextManager
    */
   protected $contextManager;
 
   /**
+   * The current request.
+   *
    * @var \Symfony\Component\HttpFoundation\Request
    */
   protected $request;
@@ -94,14 +106,18 @@ abstract class BlockFormBase extends FormBase {
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $block_manager
    *   The block manager.
-   *
    * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $contextRepository
-   *
+   *   The Drupal context repository.
    * @param \Drupal\Core\Extension\ThemeHandlerInterface $themeHandler
+   *   The handler of the available themes.
    * @param \Drupal\Core\Form\FormBuilderInterface $formBuilder
+   *   The form builder.
    * @param \Drupal\context\ContextReactionManager $contextReactionManager
+   *   The context reaction manager.
    * @param \Drupal\context\ContextManager $contextManager
+   *   The Context modules context manager.
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The current request.
    */
   public function __construct(
     PluginManagerInterface $block_manager,
@@ -151,6 +167,7 @@ abstract class BlockFormBase extends FormBase {
    * Get the value to use for the submit button.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   An object that, when cast to a string, returns the translated string.
    */
   abstract protected function getSubmitValue();
 
@@ -159,20 +176,17 @@ abstract class BlockFormBase extends FormBase {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
-   *
    * @param \Drupal\context\ContextInterface $context
    *   The context the reaction belongs to.
-   *
    * @param string|null $reaction_id
    *   The ID of the blocks reaction the block should be added to.
-   *
    * @param string|null $block_id
    *   The ID of the block to show a configuration form for.
    *
    * @return array
+   *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL, $block_id = NULL) {
     $this->context = $context;
@@ -264,7 +278,6 @@ abstract class BlockFormBase extends FormBase {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    */
@@ -286,7 +299,6 @@ abstract class BlockFormBase extends FormBase {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    */
@@ -332,6 +344,7 @@ abstract class BlockFormBase extends FormBase {
    * Handle when the form is submitted trough AJAX.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
+   *   An AJAX response.
    */
   public function submitFormAjax(array &$form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
@@ -360,11 +373,11 @@ abstract class BlockFormBase extends FormBase {
    *
    * @param string $theme
    *   The theme to get a list of regions for.
-   *
    * @param string $show
    *   What type of regions that should be returned, defaults to all regions.
    *
    * @return array
+   *   The regions of the theme.
    */
   protected function getThemeRegionOptions($theme, $show = BlockRepositoryInterface::REGIONS_ALL) {
     $regions = system_region_list($theme, $show);

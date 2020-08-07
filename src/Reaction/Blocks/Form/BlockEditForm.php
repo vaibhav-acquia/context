@@ -3,7 +3,7 @@
 namespace Drupal\context\Reaction\Blocks\Form;
 
 /**
- *
+ * Provides a form to edit a block in the Block reaction.
  */
 class BlockEditForm extends BlockFormBase {
 

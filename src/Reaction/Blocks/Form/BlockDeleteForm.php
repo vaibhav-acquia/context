@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Provides a form to delete a block from block reaction.
  */
 class BlockDeleteForm extends ConfirmFormBase {
 
@@ -48,6 +48,7 @@ class BlockDeleteForm extends ConfirmFormBase {
    * Construct a condition delete form.
    *
    * @param \Drupal\context\ContextManager $contextManager
+   *   The context manager.
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
@@ -138,6 +139,7 @@ class BlockDeleteForm extends ConfirmFormBase {
    * Handle when the form is submitted trough AJAX.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The ajax response.
    */
   public function submitFormAjax() {
     $contextForm = $this->contextManager->getForm($this->context, 'edit');

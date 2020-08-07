@@ -7,16 +7,20 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- *
+ * Provides a context reaction form base.
  */
 abstract class ContextReactionFormBase extends FormBase {
 
   /**
+   * The context.
+   *
    * @var \Drupal\context\ContextInterface
    */
   protected $context;
 
   /**
+   * The context reaction.
+   *
    * @var \Drupal\context\ContextReactionInterface
    */
   protected $reaction;
@@ -26,17 +30,14 @@ abstract class ContextReactionFormBase extends FormBase {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
-   *
    * @param \Drupal\context\ContextInterface $context
    *   The context that contains the reaction.
-   *
-   * @param $reaction_id
+   * @param int $reaction_id
    *   The id of the reaction that is being configured.
    *
-   * @return array The form structure.
+   * @return array
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL) {
