@@ -14,10 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @Condition(
  *   id = "view_inclusion",
- *   label = @Translation("View inclusion"),
- *   context = {
- *     "view" = @ContextDefinition("entity:view", label = @Translation("View")),
- *   }
+ *   label = @Translation("View inclusion")
  * )
  */
 class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPluginInterface {
