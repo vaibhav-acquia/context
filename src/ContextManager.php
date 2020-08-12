@@ -233,6 +233,9 @@ class ContextManager {
                 break;
               }
             }
+            if (empty($blocks->getConfiguration())) {
+              $reactions[] = $reaction;
+            }
           }
           else {
             $reactions[] = $reaction;
