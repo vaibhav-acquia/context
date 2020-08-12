@@ -110,6 +110,10 @@ abstract class ContextFormBase extends EntityForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    if ($form_state->hasValue('conditions')) {
+      $this->validateConditions($form, $form_state);
+    }
+
     if ($form_state->hasValue('reactions')) {
       $this->validateReactions($form, $form_state);
     }
@@ -187,6 +191,34 @@ abstract class ContextFormBase extends EntityForm {
 
       $reaction_values = (new FormState())->setValues($configuration);
       $reaction->submitConfigurationForm($form, $reaction_values);
+    }
+  }
+
+  /**
+   * Validate the condition plugins configuration forms.
+   *
+   * @param array $form
+   *   The rendered form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current form state.
+   */
+  private function validateConditions(array &$form, FormStateInterface $form_state) {
+    $conditions = $form_state->getValue('conditions', []);
+
+    // Loop trough each condition and update the configuration values by
+    // validating the conditions form.
+    foreach ($conditions as $condition_id => $configuration) {
+      $condition = $this->entity->getCondition($condition_id);
+
+      $condition_values = (new FormState())->setValues($configuration);
+      $condition->validateConfigurationForm($form, $condition_values);
+      if ($condition_values->hasAnyErrors()) {
+        // In case of errors, copy them back from the dummy FormState to the
+        // master form.
+        foreach ($condition_values->getErrors() as $element => $error) {
+          $form_state->setErrorByName("conditions][$condition_id][$element", $error);
+        }
+      }
     }
   }
 
