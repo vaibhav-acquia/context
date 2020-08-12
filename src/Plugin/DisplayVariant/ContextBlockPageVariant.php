@@ -131,6 +131,13 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
             break;
           }
         }
+        // Remove systems messages block if it's added via context.
+        foreach ($build as $item => $block) {
+          if (array_key_exists('system_messages_block', $block)) {
+            unset($build['content']['messages']);
+            break;
+          }
+        }
         return $build;
       }
     }
