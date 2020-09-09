@@ -27,6 +27,13 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
   protected $theme;
 
   /**
+   * A boolean indicating if the applies method has already been evaluated.
+   *
+   * @var bool
+   */
+  protected $evaluated;
+
+  /**
    * Service constructor.
    *
    * @param \Drupal\context\ContextManager $contextManager
@@ -34,14 +41,20 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
    */
   public function __construct(ContextManager $contextManager) {
     $this->contextManager = $contextManager;
+    $this->evaluated = FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $route_match) {
-    // If there is no Theme reaction set, do not try to get active reactions,
-    // since this causes infinite loop.
+    // If there is no Theme reaction set or this method has already been
+    // executed, do not try to get active reactions, since this causes infinite
+    // loop.
+    if ($this->evaluated) {
+      $this->evaluated = FALSE;
+      return FALSE;
+    }
     $theme_reaction = FALSE;
     foreach ($this->contextManager->getContexts() as $context) {
       foreach ($context->getReactions() as $reaction) {
@@ -53,10 +66,14 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
     }
 
     if ($theme_reaction) {
+      $this->evaluated = TRUE;
       foreach ($this->contextManager->getActiveReactions('theme') as $theme_reaction) {
         $configuration = $theme_reaction->getConfiguration();
-        $this->theme = $configuration['theme'];
-        return TRUE;
+        // Be sure the theme key really exists.
+        if (isset($configuration['theme'])) {
+          $this->theme = $configuration['theme'];
+          return TRUE;
+        }
       }
     }
 
