@@ -8,6 +8,7 @@ use Drupal\Core\Display\VariantBase;
 use Drupal\Core\Display\PageVariantInterface;
 use Drupal\Core\Display\VariantManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\Element;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -123,12 +124,14 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
     foreach ($this->contextManager->getActiveReactions('blocks') as $reaction) {
       if ($reaction->includeDefaultBlocks()) {
         $build = NestedArray::mergeDeep($this->getBuildFromBlockLayout(), $build);
-        // Gives the system_main block the same weight as from block layout.
-        $build['content']['#sorted'] = FALSE;
-        foreach ($build['content'] as $key => $blockId) {
-          if (isset($blockId['#plugin_id']) && $blockId['#plugin_id'] == 'system_main_block') {
-            $build['content']['system_main']['#weight'] = isset($blockId['#weight']) ? $blockId['#weight'] : 0;
-            break;
+        // Remove main content as it can added from core block layout or context
+        // without the other knowing.
+        foreach (Element::children($build) as $region_key) {
+          foreach ($build[$region_key] as $blockId) {
+            if (isset($blockId['#plugin_id']) && $blockId['#plugin_id'] == 'system_main_block') {
+              unset($build['content']['system_main']);
+              break;
+            }
           }
         }
         // Remove systems messages block if it's added via context.
@@ -150,6 +153,7 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
   private function getBuildFromBlockLayout() {
     $display_variant = $this->displayVariant->createInstance('block_page', $this->displayVariant->getDefinition('block_page'));
     $display_variant->setTitle($this->title);
+    $display_variant->setMainContent($this->mainContent);
 
     return $display_variant->build();
   }
