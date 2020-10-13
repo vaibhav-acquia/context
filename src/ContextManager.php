@@ -309,19 +309,20 @@ class ContextManager {
    */
   protected function applyContexts(ConditionPluginCollection &$conditions) {
 
+    $passed = FALSE;
     foreach ($conditions as $condition) {
       if ($condition instanceof ContextAwarePluginInterface) {
         try {
           $contexts = $this->contextRepository->getRuntimeContexts(array_values($condition->getContextMapping()));
           $this->contextHandler->applyContextMapping($condition, $contexts);
+          $passed = TRUE;
         }
         catch (ContextException $e) {
-          return FALSE;
+          continue;
         }
       }
     }
-
-    return TRUE;
+    return $passed;
   }
 
   /**
