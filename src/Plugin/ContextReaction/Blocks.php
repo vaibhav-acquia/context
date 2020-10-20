@@ -205,6 +205,13 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           $block->setMainContent($main_content);
         }
 
+        // Inject runtime contexts.
+        // Must be before $block->access() to prevent ContextException.
+        if ($block instanceof ContextAwarePluginInterface) {
+          $contexts = $this->contextRepository->getRuntimeContexts($block->getContextMapping());
+          $this->contextHandler->applyContextMapping($block, $contexts);
+        }
+
         // Make sure the user is allowed to view the block.
         $access = $block->access($this->account, TRUE);
         $cacheability->addCacheableDependency($access);
@@ -219,12 +226,6 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
             unset($build['content']['messages']);
           }
           $block->setTitle($title);
-        }
-
-        // Inject runtime contexts.
-        if ($block instanceof ContextAwarePluginInterface) {
-          $contexts = $this->contextRepository->getRuntimeContexts($block->getContextMapping());
-          $this->contextHandler->applyContextMapping($block, $contexts);
         }
 
         $context_entity = $this->entityTypeManager
