@@ -2,13 +2,14 @@
 
 namespace Drupal\context\Plugin\DisplayVariant;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\context\ContextManager;
 use Drupal\Core\Display\VariantBase;
 use Drupal\Core\Display\PageVariantInterface;
 use Drupal\Core\Display\VariantManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Theme\ThemeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -53,6 +54,13 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
   protected $displayVariant;
 
   /**
+   * The theme manager.
+   *
+   * @var \Drupal\Core\Theme\ThemeManagerInterface
+   */
+  protected $themeManager;
+
+  /**
    * Constructs a new ContextBlockPageVariant.
    *
    * @param array $configuration
@@ -65,11 +73,14 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
    *   The context module manager.
    * @param \Drupal\Core\Display\VariantManager $displayVariant
    *   The variant manager.
+   * @param \Drupal\Core\Theme\ThemeManagerInterface $themeManager
+   *   The Drupal theme manager service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContextManager $contextManager, VariantManager $displayVariant) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContextManager $contextManager, VariantManager $displayVariant, ThemeManagerInterface $themeManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->contextManager = $contextManager;
     $this->displayVariant = $displayVariant;
+    $this->themeManager = $themeManager;
   }
 
   /**
@@ -81,7 +92,8 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
       $plugin_id,
       $plugin_definition,
       $container->get('context.manager'),
-      $container->get('plugin.manager.display_variant')
+      $container->get('plugin.manager.display_variant'),
+      $container->get('theme.manager')
     );
   }
 
@@ -120,10 +132,29 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
       $build = $reaction->execute($build, $this->title, $this->mainContent);
     }
 
-    // Execute each block reaction and check if default block should be included in page build.
+    // Execute each block reaction and check if default block should be included
+    // in page build.
     foreach ($this->contextManager->getActiveReactions('blocks') as $reaction) {
       if ($reaction->includeDefaultBlocks()) {
-        $build = NestedArray::mergeDeep($this->getBuildFromBlockLayout(), $build);
+        $build_block_layout = $this->getBuildFromBlockLayout();
+        // Only merge at block level, not underneath,
+        // else, unexpected consequences will arise.
+        $regions = $this->themeManager->getActiveTheme()->getRegions();
+        foreach ($regions as $region_key) {
+          if (empty($build[$region_key])) {
+            $build[$region_key] = [];
+          }
+          if (empty($build_block_layout[$region_key])) {
+            $build_block_layout[$region_key] = [];
+          }
+          $build[$region_key] += $build_block_layout[$region_key];
+
+        }
+        // Merge bubbleable cache data now.
+        BubbleableMetadata::createFromRenderArray($build)
+          ->merge(BubbleableMetadata::createFromRenderArray($build_block_layout))
+          ->applyTo($build);
+
         // Remove main content as it can added from core block layout or context
         // without the other knowing.
         foreach (Element::children($build) as $region_key) {
@@ -135,7 +166,7 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
           }
         }
         // Remove systems messages block if it's added via context.
-        foreach ($build as $item => $block) {
+        foreach ($build as $block) {
           if (array_key_exists('system_messages_block', $block)) {
             unset($build['content']['messages']);
             break;
