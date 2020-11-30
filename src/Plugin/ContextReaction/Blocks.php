@@ -236,6 +236,8 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
         // @see template_preprocess_block().
         $block_build = [
           '#theme' => 'block',
+          // Must be defined to avoid array merge error in preRender().
+          '#attributes' => [],
           '#configuration' => $configuration,
           '#plugin_id' => $block->getPluginId(),
           '#base_plugin_id' => $block->getBaseId(),
@@ -255,17 +257,6 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
             'max-age' => $block->getCacheMaxAge(),
           ],
         ];
-
-        $block_content = $block->build();
-        $existing_attributes = isset($block_content['#attributes']) ? $block_content['#attributes'] : [];
-        // Merge existing attributes from block with class(es) configured in Context.
-        if (isset($configuration['css_class']) && '' !== $configuration['css_class']) {
-          $new_attributes = [
-            'class' => [$configuration['css_class']],
-          ];
-          $existing_attributes = array_merge_recursive($existing_attributes, $new_attributes);
-        }
-        $block_build['#attributes'] = $existing_attributes;
 
         // Add additional contextual link, for editing block configuration.
         $block_build['#contextual_links']['context_block'] = [
@@ -347,6 +338,26 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
       }
     }
     else {
+      foreach (['#attributes', '#contextual_links'] as $property) {
+        if (isset($content[$property])) {
+          $build[$property] += $content[$property];
+          unset($content[$property]);
+        }
+      }
+      $block_configuration = $build['#configuration'];
+      // Merge attributes from context.
+      // @see #3150394 and #2979536.
+      $existing_attributes = isset($build['#attributes']) ? $build['#attributes'] : [];
+
+      // Merge existing attributes from block with class(es) configured
+      // in Context.
+      if (isset($block_configuration['css_class']) && '' !== $block_configuration['css_class']) {
+        $new_attributes = [
+          'class' => [$block_configuration['css_class']],
+        ];
+        $existing_attributes = array_merge_recursive($existing_attributes, $new_attributes);
+      }
+      $build['#attributes'] = $existing_attributes;
       $build['content'] = $content;
     }
 
