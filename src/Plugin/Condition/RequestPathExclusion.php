@@ -29,12 +29,14 @@ class RequestPathExclusion extends RequestPath implements ContainerFactoryPlugin
    * {@inheritdoc}
    */
   public function evaluate() {
+    // Set the negate condition to true instead of negating the result.
+    $this->setConfig('negate', TRUE);
     // Allow this to pass through gracefully when blank.
     $pages = mb_strtolower($this->configuration['pages']);
     if (!$pages) {
       return TRUE;
     }
-    return !parent::evaluate();
+    return parent::evaluate();
   }
 
 }
