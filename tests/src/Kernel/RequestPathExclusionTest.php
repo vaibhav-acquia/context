@@ -9,14 +9,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Tests that the Request Path Exclusion Condition, provided by the context
- * module, is working properly.
+ * Tests the request path exclusion condition plugin.
  *
  * @package Drupal\Tests\context\Kernel
  *
  * @group context
  */
 class RequestPathExclusionTest extends KernelTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static $modules = ['system', 'path', 'field', 'context'];
 
   /**
    * The condition plugin manager used for testing.
@@ -40,14 +44,9 @@ class RequestPathExclusionTest extends KernelTestBase {
   protected $requestStack;
 
   /**
-   * {@inheritdoc }
-   */
-  public static $modules = ['system', 'path', 'field', 'context'];
-
-  /**
    * The current path.
    *
-   * @var \Drupal\Core\Path\CurrentPathStack|\PHPUnit\Framework\MockObject\MockObject
+   * @var \Drupal\Core\Path\CurrentPathStack
    */
   protected $currentPath;
 
@@ -71,31 +70,56 @@ class RequestPathExclusionTest extends KernelTestBase {
 
     $this->currentPath = new CurrentPathStack($this->requestStack);
     $this->container->set('path.current', $this->currentPath);
-
   }
 
   /**
-   * Tests the request path exclusion condition.
+   * Tests the condition against different patterns and requests.
    */
   public function testRequestPathExclusion() {
-
-    // Get the request path exclusion condition and configure it to check against
-    // different patterns and requests.
     $pages = "/my/exclude/page\r\n/my/exclude/page2\r\n/excludefoo";
-
     $request = Request::create('/my/exclude/page2');
     $this->requestStack->push($request);
 
-    /* @var \Drupal\system\Plugin\Condition\RequestPath $condition */
+    // Test a standard path.
+    /** @var \Drupal\context\Plugin\Condition\RequestPathExclusion $condition */
     $condition = $this->pluginManager->createInstance('request_path_exclusion');
     $condition->setConfig('pages', $pages);
-
     $this->aliasManager->addAlias('/my/exclude/page2', '/my/exclude/page2');
-
     $this->assertFalse($condition->execute(), 'The request path matches a standard path');
     $this->assertEquals('Do not return true on the following pages: /my/exclude/page, /my/exclude/page2, /excludefoo', $condition->summary(), 'The condition summary matches for a standard path');
+
+    // Test an aliased path.
+    $this->currentPath->setPath('/my/aliased/page', $request);
+    $this->requestStack->pop();
+    $this->requestStack->push($request);
+    $this->aliasManager->addAlias('/my/aliased/page', '/my/exclude/page');
+    $this->assertFalse($condition->execute(), 'The request path matches an aliased path');
+    $this->assertEquals('Do not return true on the following pages: /my/exclude/page, /my/exclude/page2, /excludefoo', $condition->summary(), 'The condition summary matches for an aliased path');
+
+    // Test a wildcard path.
+    $this->aliasManager->addAlias('/my/exclude/page3', '/my/exclude/page3');
+    $this->currentPath->setPath('/my/exclude/page3', $request);
+    $this->requestStack->pop();
+    $this->requestStack->push($request);
+    $condition->setConfig('pages', '/my/exclude/*');
+    $this->assertTrue($condition->evaluate(), 'The exclude_path my/exclude/page3 passes for wildcard paths.');
+    $this->assertEquals('Do not return true on the following pages: /my/exclude/*', $condition->summary(), 'The condition summary matches for a wildcard path');
+
+    // Test a missing path.
+    $this->requestStack->pop();
+    $this->requestStack->push($request);
+    $this->currentPath->setPath('/my/fail/page4', $request);
+    $condition->setConfig('pages', '/my/exclude/*');
+    $this->aliasManager->addAlias('/my/fail/page4', '/my/fail/page4');
+    $this->assertFalse($condition->evaluate(), 'The request_path /my/pass/page4 fails for a missing path.');
+
+    // Test a path of '/'.
+    $this->aliasManager->addAlias('/', '/my/exclude/page3');
+    $this->currentPath->setPath('/', $request);
+    $this->requestStack->pop();
+    $this->requestStack->push($request);
+    $this->assertTrue($condition->evaluate(), 'The request_path my/exclude/page3 passes for wildcard paths.');
+    $this->assertEquals($condition->summary(), 'Do not return true on the following pages: /my/exclude/*', 'The condition summary matches for a wildcard path');
   }
 
 }
-
-
