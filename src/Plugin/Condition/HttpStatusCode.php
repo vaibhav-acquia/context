@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Provides a 'Http status code' condition.
@@ -105,7 +106,7 @@ class HttpStatusCode extends ConditionPluginBase implements ContainerFactoryPlug
     /** @var \Symfony\Component\HttpKernel\Exception\HttpException $exception */
     $exception = $this->requestStack->getCurrentRequest()->attributes->get('exception');
 
-    if (!empty($exception)) {
+    if (!empty($exception) && $exception instanceof HttpException) {
       $status_code = $exception->getStatusCode();
     }
     else {
