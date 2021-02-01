@@ -34,7 +34,7 @@ class RequestPathExclusion extends RequestPath implements ContainerFactoryPlugin
     // Allow this to pass through gracefully when blank.
     $pages = mb_strtolower($this->configuration['pages']);
     if (!$pages) {
-      return TRUE;
+      return FALSE;
     }
     return parent::evaluate();
   }
