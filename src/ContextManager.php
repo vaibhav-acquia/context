@@ -228,7 +228,7 @@ class ContextManager {
             $blocks = $reaction->getBlocks();
             $current_theme = $this->getCurrentTheme();
             foreach ($blocks as $block) {
-              if ($block->getConfiguration()['theme'] == $current_theme) {
+              if (isset($block->getConfiguration()['theme']) && $block->getConfiguration()['theme'] == $current_theme) {
                 $reactions[] = $reaction;
                 break;
               }
