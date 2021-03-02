@@ -252,7 +252,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
               'block',
               $block_placement_key,
             ],
-            'tags' => Cache::mergeTags($block->getCacheTags(), $context_entity->getCacheTags()),
+            'tags' => Cache::mergeTags($block->getCacheTags(), !empty($context_entity) ? $context_entity->getCacheTags() : []),
             'contexts' => $block->getCacheContexts(),
             'max-age' => $block->getCacheMaxAge(),
           ],
