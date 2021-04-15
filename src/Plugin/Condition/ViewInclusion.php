@@ -110,7 +110,13 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
    * {@inheritdoc}
    */
   public function summary() {
-    return t('Select views pages');
+    $viewsPages = $this->configuration['view_inclusion'];
+    if (!empty($viewsPages)) {
+      return t('Selected views pages: @viewsPages', ['@viewsPages' => implode(', ', $viewsPages)]);
+    }
+    else {
+      return t('No views pages selected');
+    }
   }
 
   /**
