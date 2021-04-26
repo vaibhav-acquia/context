@@ -85,13 +85,32 @@ class HttpStatusCode extends ConditionPluginBase implements ContainerFactoryPlug
    * {@inheritdoc}
    */
   public function summary() {
+    if (empty($this->configuration['status_codes'])) {
+      return $this->t('The http status code is not specified');
+    }
+
     if (count($this->configuration['status_codes']) > 1) {
       $status_codes = $this->configuration['status_codes'];
       $last = array_pop($status_codes);
       $status_codes = implode(', ', $status_codes);
-      return $this->t('The http status code is @status_codes or @last', ['@status_codes' => $status_codes, '@last' => $last]);
+      if ($this->isNegated()) {
+        return $this->t(
+          'The http status code is not @status_codes or @last',
+          ['@status_codes' => $status_codes, '@last' => $last]
+        );
+      }
+
+      return $this->t(
+        'The http status code is @status_codes or @last',
+        ['@status_codes' => $status_codes, '@last' => $last]
+      );
     }
     $status_code = reset($this->configuration['status_codes']);
+
+    if ($this->isNegated()) {
+      return $this->t('The http status code is not @status_code', ['@status_code' => $status_code]);
+    }
+
     return $this->t('The http status code is @status_code', ['@status_code' => $status_code]);
   }
 

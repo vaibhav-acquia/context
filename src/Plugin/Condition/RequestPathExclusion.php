@@ -3,7 +3,6 @@
 namespace Drupal\context\Plugin\Condition;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\system\Plugin\Condition\RequestPath;
 
 /**
@@ -14,28 +13,46 @@ use Drupal\system\Plugin\Condition\RequestPath;
  *   label = @Translation("Request path exclusion"),
  * )
  */
-class RequestPathExclusion extends RequestPath implements ContainerFactoryPluginInterface {
+class RequestPathExclusion extends RequestPath {
 
   /**
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
-    unset($form['negate']);
+    // Hide the negate checkbox.
+    $form['negate']['#access'] = FALSE;
     return $form;
   }
 
   /**
    * {@inheritdoc}
    */
+  public function defaultConfiguration() {
+    return ['negate' => TRUE] + parent::defaultConfiguration();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    parent::submitConfigurationForm($form, $form_state);
+    // Defaults negation to TRUE.
+    $this->configuration['negate'] = TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function evaluate() {
-    // Set the negate condition to true instead of negating the result.
-    $this->setConfig('negate', TRUE);
+    // As a failsafe, ensure it's always set to negate before evaluating.
+    $this->configuration['negate'] = TRUE;
     // Allow this to pass through gracefully when blank.
     $pages = mb_strtolower($this->configuration['pages']);
     if (!$pages) {
       return FALSE;
     }
+
     return parent::evaluate();
   }
 
