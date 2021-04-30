@@ -42,7 +42,7 @@ class HttpStatusCodeTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['context'];
+  protected static $modules = ['context'];
 
   /**
    * Current path stack.
@@ -54,7 +54,7 @@ class HttpStatusCodeTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->pluginManager = $this->container->get('plugin.manager.condition');
