@@ -32,6 +32,7 @@ use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Security\TrustedCallbackInterface;
+use Drupal\Component\Plugin\DependentPluginInterface;
 
 /**
  * Provides a content reaction.
@@ -43,7 +44,7 @@ use Drupal\Core\Security\TrustedCallbackInterface;
  *   label = @Translation("Blocks")
  * )
  */
-class Blocks extends ContextReactionPluginBase implements ContainerFactoryPluginInterface, TrustedCallbackInterface {
+class Blocks extends ContextReactionPluginBase implements ContainerFactoryPluginInterface, TrustedCallbackInterface, DependentPluginInterface {
 
   use AjaxFormTrait;
 
