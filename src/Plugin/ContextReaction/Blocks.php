@@ -273,7 +273,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           $block_build += static::buildPreRenderableBlock(
             $block_id,
             $block->getPluginId(),
-            $block->getConfiguration()['context_id'],
+            $block->getConfiguration()['context_id']
           );
         }
         else {
