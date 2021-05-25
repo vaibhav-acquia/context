@@ -254,20 +254,6 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
         // Create the render array for the block as a whole.
         // @see template_preprocess_block().
         $block_build = [
-          '#theme' => 'block',
-          // Must be defined to avoid array merge error in preRender().
-          '#attributes' => [],
-          '#configuration' => $configuration,
-          '#plugin_id' => $block->getPluginId(),
-          '#base_plugin_id' => $block->getBaseId(),
-          '#derivative_plugin_id' => $block->getDerivativeId(),
-          '#id' => $block->getConfiguration()['custom_id'],
-          '#block_plugin' => $block,
-          // Add a block entity with the configuration of the block plugin so
-          // modules depending on the block property in e.g.
-          // hook_block_view_alter will still work.
-          '#block' => Block::create($this->blocks[$block_id] + ['plugin' => $block->getPluginId()]),
-          '#pre_render' => [[$this, 'preRenderBlock']],
           '#cache' => [
             'keys' => [
               'context_blocks_reaction',
@@ -281,25 +267,35 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           ],
         ];
 
-        // Add additional contextual link, for editing block configuration.
-        $block_build['#contextual_links']['context_block'] = [
-          'route_parameters' => [
-            'context' => $configuration['context_id'],
-            'reaction_id' => 'blocks',
-            'block_id' => $block->getConfiguration()['uuid'],
-          ],
-        ];
+        if ($block instanceof MainContentBlockPluginInterface || $block instanceof TitleBlockPluginInterface) {
+          // Immediately build a #pre_render-able block, since this block cannot
+          // be built lazily.
+          $block_build += static::buildPreRenderableBlock(
+            $block_id,
+            $block->getPluginId(),
+            $block->getConfiguration()['context_id'],
+          );
+        }
+        else {
+          // Assign a #lazy_builder callback, which will generate a #pre_render-
+          // able block lazily (when necessary).
+          $block_build += [
+            '#lazy_builder' => [
+              static::class . '::lazyBuilder', [
+                $block_id,
+                $block->getPluginId(),
+                $block->getConfiguration()['context_id'],
+              ],
+            ],
+          ];
+        }
 
         if (array_key_exists('weight', $configuration)) {
           $block_build['#weight'] = $configuration['weight'];
         }
 
-        // Invoke block_view_alter().
-        // If an alter hook wants to modify the block contents, it can append
-        // another #pre_render hook.
-        \Drupal::moduleHandler()->alter(['block_view', 'block_view_' . $block->getBaseId()], $block_build, $block);
-
-        // Allow altering of cacheability metadata or setting #create_placeholder.
+        // Allow altering of cacheability metadata or setting
+        // #create_placeholder.
         \Drupal::moduleHandler()->alter(['block_build', "block_build_" . $block->getBaseId()], $block_build, $block);
 
         $build[$region][$block_placement_key] = $block_build;
@@ -326,15 +322,63 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   }
 
   /**
-   * Renders the content using the provided block plugin.
-   *
-   * @param array $build
-   *   The block to be rendered.
-   *
-   * @return array
-   *   The block already rendered.
+   * Lazy builder.
    */
-  public function preRenderBlock(array $build) {
+  public static function lazyBuilder($uuid, $plugin_id, $context_id) {
+    return static::buildPreRenderableBlock($uuid, $plugin_id, $context_id);
+  }
+
+  /**
+   * Prerenders the content using the provided block plugin.
+   */
+  public static function buildPreRenderableBlock($uuid, $plugin_id, $context_id) {
+    // Get context from config.
+    $configFactory = \Drupal::configFactory();
+    $storage = $configFactory->get('context.context.' . $context_id);
+    $block_configuration = $storage->get('reactions')['blocks']['blocks'][$uuid];
+
+    // Create block instance.
+    $block_manager = \Drupal::service('plugin.manager.block');
+    $block = $block_manager->createInstance($plugin_id, !empty($block_configuration) ? $block_configuration : []);
+    // Inject runtime contexts.
+    if ($block instanceof ContextAwarePluginInterface) {
+      $contexts = \Drupal::service('context.repository')->getRuntimeContexts($block->getContextMapping());
+      \Drupal::service('context.handler')->applyContextMapping($block, $contexts);
+    }
+
+    // Create the render array for the block as a whole.
+    // @see template_preprocess_block().
+    $block_build = [
+      '#theme' => 'block',
+      // Must be defined to avoid array merge error in preRender().
+      '#attributes' => [],
+      '#configuration' => $block_configuration,
+      '#plugin_id' => $block->getPluginId(),
+      '#base_plugin_id' => $block->getBaseId(),
+      '#derivative_plugin_id' => $block->getDerivativeId(),
+      '#id' => $block->getConfiguration()['custom_id'],
+      '#block_plugin' => $block,
+      '#pre_render' => [[static::class, 'preRenderBlock']],
+    ];
+    // Add additional contextual link, for editing block configuration.
+    $block_build['#contextual_links']['context_block'] = [
+      'route_parameters' => [
+        'context' => $block_configuration['context_id'],
+        'reaction_id' => 'blocks',
+        'block_id' => $block->getConfiguration()['uuid'],
+      ],
+    ];
+    // Invoke block_view_alter().
+    // If an alter hook wants to modify the block contents, it can append
+    // another #pre_render hook.
+    \Drupal::moduleHandler()->alter(['block_view', 'block_view_' . $block->getBaseId()], $block_build, $block);
+    return $block_build;
+  }
+
+  /**
+   * Renders the content using the provided block plugin.
+   */
+  public static function preRenderBlock(array $build) {
 
     $content = $build['#block_plugin']->build();
 
