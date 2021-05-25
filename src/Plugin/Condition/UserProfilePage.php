@@ -86,11 +86,13 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       'field_value' => $this->t('Has a value in selected user field'),
     ];
     $form['user_status'] = [
-      '#name' => 'user_status',
+      '#attributes' => [
+        'name' => 'user_status',
+      ],
       '#title' => $this->t('User status'),
+      '#description' => 'If nothing is checked, the evaluation will return TRUE.',
       '#type' => 'radios',
       '#options' => $options,
-      '#required' => TRUE,
       '#default_value' => isset($configuration['user_status']) ? $configuration['user_status'] : FALSE,
     ];
 
@@ -102,7 +104,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       '#states' => [
         // Show this field only if the radio 'field_value' is selected above.
         'visible' => [
-          ':input[name="conditions[user_status][user_status]"]' => ['value' => 'field_value'],
+          ':input[name="user_status"]' => ['value' => 'field_value'],
         ],
       ],
     ];
@@ -184,10 +186,10 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
           break;
 
         default:
-          return FALSE;
+          return TRUE;
       }
     }
-    return FALSE;
+    return TRUE;
   }
 
 }
