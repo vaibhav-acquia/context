@@ -72,6 +72,14 @@ condition.plugin.http_status_code:
           type: integer
           label: '404'
 
+condition.plugin.request_domain:
+  type: condition.plugin
+  label: 'Request domain'
+  mapping:
+    domains:
+      type: string
+      label: 'Domains'
+
 reaction.plugin.menu:
   type: reaction.plugin
   mapping:
