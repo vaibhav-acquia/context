@@ -163,8 +163,8 @@ class ContextAny extends ConditionPluginBase implements ContainerFactoryPluginIn
     /** @var \Drupal\context\ContextInterface $asterisk_contexts */
     if ($asterisk_contexts = $this->contextManager->getContext($asterisk_context)) {
       foreach ($asterisk_contexts as $context) {
-        if (!$this->contextManager->evaluateContextConditions($context) && !$context->disabled()) {
-          return FALSE;
+        if ($this->contextManager->evaluateContextConditions($context) && !$context->disabled()) {
+          return TRUE;
         }
       }
     }

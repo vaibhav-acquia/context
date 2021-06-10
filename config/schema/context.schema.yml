@@ -80,6 +80,22 @@ condition.plugin.request_domain:
       type: string
       label: 'Domains'
 
+condition.plugin.context_all:
+  type: condition.plugin
+  label: 'Context (all)'
+  mapping:
+    values:
+      type: string
+      label: 'Context (all)'
+
+condition.plugin.context:
+  type: condition.plugin
+  label: 'Context (any)'
+  mapping:
+    values:
+      type: string
+      label: 'Context (any)'
+
 reaction.plugin.menu:
   type: reaction.plugin
   mapping:
