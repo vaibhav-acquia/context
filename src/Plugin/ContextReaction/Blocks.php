@@ -3,6 +3,7 @@
 namespace Drupal\context\Plugin\ContextReaction;
 
 use Drupal\block\BlockRepositoryInterface;
+use Drupal\block\Entity\Block;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Plugin\PluginDependencyTrait;
 use Drupal\Core\Session\AccountInterface;
@@ -262,6 +263,10 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           '#derivative_plugin_id' => $block->getDerivativeId(),
           '#id' => $block->getConfiguration()['custom_id'],
           '#block_plugin' => $block,
+          // Add a block entity with the configuration of the block plugin so
+          // modules depending on the block property in e.g.
+          // hook_block_view_alter will still work.
+          '#block' => Block::create($this->blocks[$block_id] + ['plugin' => $block->getPluginId()]),
           '#pre_render' => [[$this, 'preRenderBlock']],
           '#cache' => [
             'keys' => [
