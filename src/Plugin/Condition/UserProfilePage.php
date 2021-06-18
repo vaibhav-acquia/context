@@ -80,18 +80,15 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
     }
     $configuration = $this->getConfiguration();
     $options = [
-      'viewing_profile' => $this->t('Viewing user profile.'),
-      'logged_viewing_profile' => $this->t('Logged in viewing user profile.'),
+      'viewing_profile' => $this->t('Viewing any user profile.'),
+      'logged_viewing_profile' => $this->t('Logged in and viewing any user profile.'),
       'own_page_true' => $this->t('User viewing own profile.'),
       'field_value' => $this->t('Has a value in selected user field'),
     ];
     $form['user_status'] = [
-      '#attributes' => [
-        'name' => 'user_status',
-      ],
       '#title' => $this->t('User status'),
-      '#description' => 'If nothing is checked, the evaluation will return TRUE.',
-      '#type' => 'radios',
+      '#description' => 'If nothing is checked, the evaluation will return TRUE. If more than one option is checked, the evaluation will return TRUE if any of the options matches the condition.',
+      '#type' => 'checkboxes',
       '#options' => $options,
       '#default_value' => isset($configuration['user_status']) ? $configuration['user_status'] : FALSE,
     ];
@@ -102,14 +99,25 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       '#options' => $ufields,
       '#default_value' => isset($configuration['user_fields']) ? $configuration['user_fields'] : FALSE,
       '#states' => [
-        // Show this field only if the radio 'field_value' is selected above.
+        // Show this field only if the 'field_value' is selected above.
         'visible' => [
-          ':input[name="user_status"]' => ['value' => 'field_value'],
+          ':input[name*="[user_status][user_status][field_value]"]' => ['checked' => TRUE],
         ],
       ],
     ];
 
     return parent::buildConfigurationForm($form, $form_state);
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'user_status' => NULL,
+      'user_fields' => 'uid',
+    ] + parent::defaultConfiguration();
 
   }
 
@@ -126,7 +134,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
    * {@inheritdoc}
    */
   public function summary() {
-    return t('Select user profile page status');
+    return $this->t('Select user profile page status');
   }
 
   /**
@@ -135,12 +143,17 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
   public function evaluate() {
     $route = $this->currentRouteMatch->getCurrentRouteMatch();
     $configuration = $this->getConfiguration();
-    // Fix for undefined index.
-    if (isset($configuration['user_status'])) {
-      $user_conf = $configuration['user_status'];
+    // Check if no option is checked.
+    foreach ($configuration['user_status'] as $key => $value) {
+      if (empty($value)) {
+        unset($configuration['user_status'][$key]);
+      }
+    }
+    if (empty($configuration['user_status'])) {
+      return TRUE;
     }
     else {
-      $user_conf = NULL;
+      $user_conf = $configuration['user_status'];
     }
 
     // Match all entity.user.* routes having user parameter,
@@ -152,44 +165,32 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
         return FALSE;
       }
 
-      switch ($user_conf) {
-        case "viewing_profile":
+      if (in_array("viewing_profile", $user_conf)) {
+        return TRUE;
+      }
+      else if (in_array("logged_viewing_profile", $user_conf) && $this->currentUser->isAuthenticated()) {
+        return TRUE;
+      }
+      else if (in_array("own_page_true", $user_conf) && $this->currentUser->isAuthenticated() && $user_id == $this->currentUser->id()) {
+        return TRUE;
+      }
+      else if (in_array("field_value", $user_conf)) {
+        $user = User::load($user_id);
+        // Check if field is entity_reference or normal field with values.
+        $field_target = $user->get($configuration['user_fields'])->target_id;
+        if ($field_target) {
+          $field = $field_target;
+        }
+        else {
+          $field = $user->get($configuration['user_fields'])->value;
+        }
+        // Condition check.
+        if ($field || !$field == 0) {
           return TRUE;
-
-        case "logged_viewing_profile":
-          if ($this->currentUser->isAuthenticated()) {
-            return TRUE;
-          }
-          break;
-
-        case "own_page_true":
-          // "Own" assumes user is logged in, if not logged in, id() would be 0.
-          if ($this->currentUser->isAuthenticated() && $user_id == $this->currentUser->id()) {
-            return TRUE;
-          }
-          break;
-
-        case "field_value":
-          $user = User::load($user_id);
-          // Check if field is entity_reference or normal field with values.
-          $field_target = $user->get($configuration['user_fields'])->target_id;
-          if ($field_target) {
-            $field = $field_target;
-          }
-          else {
-            $field = $user->get($configuration['user_fields'])->value;
-          }
-          // Condition check.
-          if ($field || !$field == 0) {
-            return TRUE;
-          }
-          break;
-
-        default:
-          return TRUE;
+        }
       }
     }
-    return TRUE;
+    return FALSE;
   }
 
 }
