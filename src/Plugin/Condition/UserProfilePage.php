@@ -144,15 +144,15 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
     $route = $this->currentRouteMatch->getCurrentRouteMatch();
     $configuration = $this->getConfiguration();
     // Check if no option is checked.
-    foreach ($configuration['user_status'] as $key => $value) {
-      if (empty($value)) {
-        unset($configuration['user_status'][$key]);
-      }
-    }
     if (empty($configuration['user_status'])) {
       return TRUE;
     }
     else {
+      foreach ($configuration['user_status'] as $key => $value) {
+        if (empty($value)) {
+          unset($configuration['user_status'][$key]);
+        }
+      }
       $user_conf = $configuration['user_status'];
     }
 
