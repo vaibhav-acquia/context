@@ -17,7 +17,7 @@ use Drupal\Core\Session\AccountProxy;
  * @Condition(
  *   id = "user_status",
  *   label = @Translation("User profile pages"),
- *   context = {
+ *   context_definitions = {
  *     "user" = @ContextDefinition("entity:user", label = @Translation("User")),
  *   }
  * )
@@ -134,7 +134,11 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
    * {@inheritdoc}
    */
   public function summary() {
-    return $this->t('Select user profile page status');
+    if (empty($this->configuration['user_status'])) {
+      return $this->t('No user status field is selected.');
+    }
+    return t('Select user profile page status');
+
   }
 
   /**
