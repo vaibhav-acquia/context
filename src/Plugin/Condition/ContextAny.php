@@ -89,7 +89,7 @@ class ContextAny extends ConditionPluginBase implements ContainerFactoryPluginIn
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
-    unset($form['negate']);
+    $form['negate']['#access'] = FALSE;
     $form['values'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Context (any)'),

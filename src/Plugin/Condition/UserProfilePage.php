@@ -125,8 +125,10 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['user_status'] = $form_state->getValue('user_status');
-    $this->configuration['user_fields'] = $form_state->getValue('user_fields');
+    $this->configuration['user_status'] = array_filter($form_state->getValue('user_status'));
+    if (isset($form_state->getValue['user_status']['field_value'])) {
+      $this->configuration['user_fields'] = $form_state->getValue('user_fields');
+    }
     parent::submitConfigurationForm($form, $form_state);
   }
 
