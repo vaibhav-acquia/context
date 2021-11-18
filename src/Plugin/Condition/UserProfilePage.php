@@ -90,7 +90,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       '#description' => 'If nothing is checked, the evaluation will return TRUE. If more than one option is checked, the evaluation will return TRUE if any of the options matches the condition.',
       '#type' => 'checkboxes',
       '#options' => $options,
-      '#default_value' => isset($configuration['user_status']) ? $configuration['user_status'] : [],
+      '#default_value' => $configuration['user_status'] ?? [],
     ];
 
     $form['user_fields'] = [
