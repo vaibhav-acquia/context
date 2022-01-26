@@ -852,7 +852,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * {@inheritdoc}
    */
   public static function trustedCallbacks() {
-    return ['preRenderBlock'];
+    return ['preRenderBlock', 'lazyBuilder'];
   }
 
 }
