@@ -1,3 +1,32 @@
+context.reaction.block_plugin.*:
+  type: block.settings.[id]
+  mapping:
+    region:
+      type: string
+      label: 'Region'
+    weight:
+      type: integer
+      label: 'Weight'
+    uuid:
+      type: uuid
+    custom_id:
+      type: string
+    theme:
+      type: string
+    css_class:
+      type: string
+    context_id:
+      type: string
+    unique:
+      type: integer
+    context_mapping:
+      type: sequence
+      label: 'Block context'
+      sequence:
+        - type: string
+    third_party_settings:
+      type: string
+
 reaction.plugin:
   type: mapping
   label: 'Reaction'
@@ -19,37 +48,7 @@ reaction.plugin:
       type: sequence
       label: 'Blocks'
       sequence:
-        type: mapping
-        mapping:
-          uuid:
-            type: string
-          id:
-            type: string
-          label:
-            type: label
-          provider:
-            type: string
-          label_display:
-            type: string
-          region:
-            type: string
-          weight:
-            type: string
-          custom_id:
-            type: string
-          theme:
-            type: string
-          css_class:
-            type: string
-          unique:
-            type: integer
-          context_id:
-            type: string
-          context_mapping:
-            type: sequence
-            label: 'Block Context'
-            sequence:
-              type: string
+        - type: context.reaction.block_plugin.[id]
 
 condition.plugin:
   type: mapping
