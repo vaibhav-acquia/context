@@ -238,6 +238,7 @@ abstract class BlockFormBase extends FormBase {
       '#default_value' => isset($configuration['custom_id']) ? $configuration['custom_id'] : preg_replace("/\W+/", "_", $this->block->getPluginId()),
       '#machine_name' => [
         'source' => ['settings', 'label'],
+        'exists' => [$this, 'exists'],
       ],
       '#required' => TRUE,
     ];
@@ -424,6 +425,16 @@ abstract class BlockFormBase extends FormBase {
    */
   public function getEntity() {
     return Block::create($this->block->getConfiguration() + ['plugin' => $this->block->getPluginId()]);
+  }
+
+  /**
+   * Exists callback for machine name (custom_id) that always returns FALSE.
+   *
+   * @return bool
+   *   Always returns FALSE.
+   */
+  public function exists() {
+    return FALSE;
   }
 
 }
