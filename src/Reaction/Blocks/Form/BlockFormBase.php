@@ -4,6 +4,7 @@ namespace Drupal\context\Reaction\Blocks\Form;
 
 use Drupal\block\BlockRepositoryInterface;
 use Drupal\block\Entity\Block;
+use Drupal\Component\Utility\Html;
 use Drupal\context\ContextManager;
 use Drupal\context\ContextReactionManager;
 use Drupal\context\Form\AjaxFormTrait;
@@ -289,6 +290,8 @@ abstract class BlockFormBase extends FormBase {
     // changing the block_form will also be called here for e.g. adding
     // third party settings.
     $dummy_form_id = 'block_form';
+    $form['#form_id'] = $this->getFormId();
+    $form['#id'] = Html::getUniqueId($form['#form_id']);
     $this->moduleHandler->alter(['form', 'form_block_form'], $form, $form_state, $dummy_form_id);
 
     return $form;
