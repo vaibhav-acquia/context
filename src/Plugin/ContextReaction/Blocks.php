@@ -594,7 +594,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
     $blocks = $this->getBlocks()->getAllByRegion($theme);
 
     // Get regions of the selected theme.
-    $regions = $this->getSystemRegionList($theme);
+    $regions = $this->getSystemRegionList($theme, BlockRepositoryInterface::REGIONS_VISIBLE);
 
     // Add each region.
     foreach ($regions as $region => $title) {
