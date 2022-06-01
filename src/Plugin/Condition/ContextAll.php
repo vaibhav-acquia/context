@@ -74,6 +74,9 @@ class ContextAll extends ConditionPluginBase implements ContainerFactoryPluginIn
 
       /** @var \Drupal\context\ContextInterface $context */
       $context = $this->contextManager->getContext($id);
+      if (empty($context)) {
+        continue;
+      }
       /** @var \Drupal\Core\Condition\ConditionInterface[] $context_conditions */
       $context_conditions = $context->getConditions();
       foreach ($context_conditions as $condition) {
