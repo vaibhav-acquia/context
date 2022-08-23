@@ -156,10 +156,13 @@ class ContextAll extends ConditionPluginBase implements ContainerFactoryPluginIn
     // Now handle required contexts.
     foreach ($required_contexts as $name) {
       /** @var \Drupal\context\ContextInterface $required_context */
-      if ($required_context = $this->contextManager->getContext($name)) {
-        if (!$this->contextManager->evaluateContextConditions($required_context) && !$required_context->disabled()) {
-          return FALSE;
-        }
+      $required_context = $this->contextManager->getContext($name);
+      // A non-existent context can never be active.
+      if (!isset($required_context)) {
+        return FALSE;
+      }
+      if (!$this->contextManager->evaluateContextConditions($required_context) && !$required_context->disabled()) {
+        return FALSE;
       }
     }
 
