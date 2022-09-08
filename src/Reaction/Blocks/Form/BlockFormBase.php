@@ -428,12 +428,38 @@ abstract class BlockFormBase extends FormBase {
   }
 
   /**
-   * Exists callback for machine name (custom_id) that always returns FALSE.
+   * Checks if block's custom machine name already exists.
    *
    * @return bool
-   *   Always returns FALSE.
+   *   Returns TRUE if already exists and FALSE if not.
    */
-  public function exists() {
+  public function exists($id) {
+
+    // Load all blocks.
+    $blocks = Block::loadMultiple();
+
+    // Check if id of the block being added already exists.
+    foreach ($blocks as $block) {
+      if ($block->id() == $id) {
+        return TRUE;
+      }
+    }
+
+    // Load all contexts.
+    $contexts = $this->contextManager->getContexts();
+
+    // Check if the context blocks have the same id as the block being added.
+    foreach ($contexts as $context) {
+      $contextBlocks = $context->getReactions()
+        ->getConfiguration()['blocks']['blocks'];
+
+      foreach ($contextBlocks as $block) {
+        if ($block['custom_id'] == $id) {
+          return TRUE;
+        }
+      }
+    }
+
     return FALSE;
   }
 
