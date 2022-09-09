@@ -26,6 +26,7 @@ use Drupal\Core\Render\Element\StatusMessages;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Provides a Block Form Base for blocks reactions.
@@ -112,6 +113,13 @@ abstract class BlockFormBase extends FormBase {
   protected $moduleHandler;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * Constructs a new VariantPluginFormBase.
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $block_manager
@@ -130,6 +138,8 @@ abstract class BlockFormBase extends FormBase {
    *   The current request.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
    *   The module handler.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager service.
    */
   public function __construct(
     PluginManagerInterface $block_manager,
@@ -139,7 +149,8 @@ abstract class BlockFormBase extends FormBase {
     ContextReactionManager $contextReactionManager,
     ContextManager $contextManager,
     RequestStack $requestStack,
-    ModuleHandlerInterface $moduleHandler
+    ModuleHandlerInterface $moduleHandler,
+    EntityTypeManagerInterface $entityTypeManager
   ) {
     $this->blockManager = $block_manager;
     $this->contextRepository = $contextRepository;
@@ -149,6 +160,7 @@ abstract class BlockFormBase extends FormBase {
     $this->contextManager = $contextManager;
     $this->request = $requestStack->getCurrentRequest();
     $this->moduleHandler = $moduleHandler;
+    $this->entityTypeManager = $entityTypeManager;
   }
 
   /**
@@ -163,7 +175,8 @@ abstract class BlockFormBase extends FormBase {
       $container->get('plugin.manager.context_reaction'),
       $container->get('context.manager'),
       $container->get('request_stack'),
-      $container->get('module_handler')
+      $container->get('module_handler'),
+      $container->get('entity_type.manager'),
     );
   }
 
@@ -238,6 +251,7 @@ abstract class BlockFormBase extends FormBase {
       '#default_value' => isset($configuration['custom_id']) ? $configuration['custom_id'] : preg_replace("/\W+/", "_", $this->block->getPluginId()),
       '#machine_name' => [
         'source' => ['settings', 'label'],
+        'exists' => [$this, 'exists'],
       ],
       '#required' => TRUE,
     ];
@@ -424,6 +438,42 @@ abstract class BlockFormBase extends FormBase {
    */
   public function getEntity() {
     return Block::create($this->block->getConfiguration() + ['plugin' => $this->block->getPluginId()]);
+  }
+
+  /**
+   * Checks if block's custom machine name already exists.
+   *
+   * @return bool
+   *   Returns TRUE if already exists and FALSE if not.
+   */
+  public function exists($id) {
+
+    // Load all blocks.
+    $blocks = $this->entityTypeManager->getStorage('block')->loadMultiple();
+
+    // Check if id of the block being added already exists.
+    foreach ($blocks as $block) {
+      if ($block->id() == $id) {
+        return TRUE;
+      }
+    }
+
+    // Load all contexts.
+    $contexts = $this->contextManager->getContexts();
+
+    // Check if the context blocks have the same id as the block being added.
+    foreach ($contexts as $context) {
+      $contextBlocks = $context->getReactions()
+        ->getConfiguration()['blocks']['blocks'];
+
+      foreach ($contextBlocks as $block) {
+        if ($block['custom_id'] == $id) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
   }
 
 }
