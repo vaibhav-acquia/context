@@ -273,7 +273,8 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           $block_build += static::buildPreRenderableBlock(
             $block_id,
             $block->getPluginId(),
-            $block->getConfiguration()['context_id']
+            $block->getConfiguration()['context_id'],
+            $main_content
           );
         }
         else {
@@ -331,7 +332,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * Prerenders the content using the provided block plugin.
    */
-  public static function buildPreRenderableBlock($uuid, $plugin_id, $context_id) {
+  public static function buildPreRenderableBlock($uuid, $plugin_id, $context_id, $main_content = NULL) {
     // Get context from config.
     $configFactory = \Drupal::configFactory();
     $storage = $configFactory->get('context.context.' . $context_id);
@@ -340,6 +341,11 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
     // Create block instance.
     $block_manager = \Drupal::service('plugin.manager.block');
     $block = $block_manager->createInstance($plugin_id, !empty($block_configuration) ? $block_configuration : []);
+
+    if ($block instanceof MainContentBlockPluginInterface) {
+      $block->setMainContent($main_content);
+    }
+
     // Inject runtime contexts.
     if ($block instanceof ContextAwarePluginInterface) {
       $contexts = \Drupal::service('context.repository')->getRuntimeContexts($block->getContextMapping());
