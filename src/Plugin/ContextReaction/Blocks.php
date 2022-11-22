@@ -261,7 +261,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           '#plugin_id' => $block->getPluginId(),
           '#base_plugin_id' => $block->getBaseId(),
           '#derivative_plugin_id' => $block->getDerivativeId(),
-          '#id' => $block->getConfiguration()['custom_id'],
+          '#id' => isset($block->getConfiguration()['custom_id']) ? $block->getConfiguration()['custom_id'] : '',
           '#block_plugin' => $block,
           // Add a block entity with the configuration of the block plugin so
           // modules depending on the block property in e.g.
