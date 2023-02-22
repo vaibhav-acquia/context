@@ -2,4 +2,4 @@ name: Context
 description: 'Set conditions and configure reactions that should be implemented when conditions pass.'
 package: Context
 type: module
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^9.3 || ^10
