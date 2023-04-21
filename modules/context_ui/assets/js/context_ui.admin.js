@@ -2,7 +2,7 @@
  * @file
  * Context admin behaviors.
  */
-(function ($, Drupal) {
+(function (Drupal, $, once) {
 
   'use strict';
 
@@ -16,8 +16,8 @@
    *   Attaches the behavior for the block filtering.
    */
   Drupal.behaviors.contextTableFilter = {
-    attach: function () {
-      var $input = $('input.context-table-filter').once('.context-table-filter');
+    attach: function (context) {
+      var $input = once('context-table-filter', 'input.context-table-filter', context);
       var $table = $($input.attr('data-element'));
       var $filter_rows;
 
@@ -66,4 +66,4 @@
     }
   };
 
-}(jQuery, Drupal));
+})(Drupal, jQuery, once);
