@@ -34,7 +34,7 @@ class ContextInspector extends BlockBase {
       /** @var \Drupal\context\ContextManager $context_manager */
       $context_manager = \Drupal::service('context.manager');
       /** @codingStandardsIgnoreStart * */
-      $output = kpr($context_manager->getActiveContexts(), TRUE);
+      $output = \Drupal::service('devel.dumper')->dumpOrExport($context_manager->getActiveContexts(), NULL, TRUE);
       /** @codingStandardsIgnoreEnd * */
     }
     elseif ($module && !$permission) {
