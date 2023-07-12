@@ -2,7 +2,7 @@
  * @file
  * Context admin behaviors.
  */
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -16,16 +16,20 @@
    *   Attaches the behavior for the block filtering.
    */
   Drupal.behaviors.contextTableFilter = {
-    attach: function () {
-      var $input = $('input.context-table-filter').once('.context-table-filter');
-      var $table = $($input.attr('data-element'));
-      var $filter_rows;
-
-      // Only attach the filter listener if there is a table to filter.
-      if ($table.length) {
-        $filter_rows = $table.find('.context-table-filter-text-source');
-        $input.on('keyup', filterTableRows);
+    attach: function (context) {
+      const $input = once('context-table-filter', 'input.context-table-filter', context);
+      if (!$input || $input.length === 0) {
+        return;
       }
+      const $tableElement = $input[0].getAttribute('data-element');
+      const $table = $tableElement ? $($tableElement) : [];
+
+      if (!$table.length) {
+        return;
+      }
+      const $filter_rows = $table.find('.context-table-filter-text-source');
+
+      $($input[0]).on('keyup', filterTableRows);
 
       /**
        * Filters the table rows.
@@ -66,4 +70,4 @@
     }
   };
 
-}(jQuery, Drupal));
+})(jQuery, Drupal, once);
