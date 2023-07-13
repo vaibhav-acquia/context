@@ -4,6 +4,8 @@ namespace Drupal\context\Reaction\Blocks\Form;
 
 use Drupal\block\BlockRepositoryInterface;
 use Drupal\block\Entity\Block;
+use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
 use Drupal\context\ContextReactionManager;
 use Drupal\context\Form\AjaxFormTrait;
@@ -15,11 +17,9 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormBuilderInterface;
-use Drupal\context\ContextInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
-use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\Element\StatusMessages;
@@ -235,7 +235,7 @@ abstract class BlockFormBase extends FormBase {
       '#type' => 'machine_name',
       '#maxlength' => 64,
       '#description' => $this->t('A unique name for this block instance. Must be alpha-numeric and underscore separated.'),
-      '#default_value' => isset($configuration['custom_id']) ? $configuration['custom_id'] : preg_replace("/\W+/", "_", $this->block->getPluginId()),
+      '#default_value' => $configuration['custom_id'] ?? preg_replace("/\W+/", "_", $this->block->getPluginId()),
       '#machine_name' => [
         'source' => ['settings', 'label'],
       ],
@@ -247,14 +247,14 @@ abstract class BlockFormBase extends FormBase {
       '#title' => $this->t('Region'),
       '#description' => $this->t('Select the region where this block should be displayed.'),
       '#options' => $this->getThemeRegionOptions($theme),
-      '#default_value' => isset($configuration['region']) ? $configuration['region'] : '',
+      '#default_value' => $configuration['region'] ?? '',
     ];
 
     $form['unique'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Unique'),
       '#description' => $this->t('Check if the block should be uniquely placed. This means that the block can not be overridden by other blocks of the same type in the selected region. Most often you want this checked if a block unintentionally contains the same content as another block on the same page.'),
-      '#default_value' => isset($configuration['unique']) ? $configuration['unique'] : FALSE,
+      '#default_value' => $configuration['unique'] ?? FALSE,
     ];
 
     $form['theme'] = [
@@ -265,7 +265,7 @@ abstract class BlockFormBase extends FormBase {
     $form['css_class'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Block Class'),
-      '#default_value' => isset($configuration['css_class']) ? $configuration['css_class'] : '',
+      '#default_value' => $configuration['css_class'] ?? '',
     ];
 
     $form['actions']['submit'] = [

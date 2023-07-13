@@ -3,9 +3,9 @@
 namespace Drupal\context_ui\Form;
 
 use Drupal\context\ContextManager;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\MachineName;
 use Drupal\Core\Url;
-use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

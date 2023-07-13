@@ -2,15 +2,15 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\context\ContextManager;
 use Drupal\context\ContextInterface;
+use Drupal\context\ContextManager;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 
 /**
  * Provides a context reaction delete form.

@@ -4,36 +4,36 @@ namespace Drupal\context\Plugin\ContextReaction;
 
 use Drupal\block\BlockRepositoryInterface;
 use Drupal\block\Entity\Block;
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Plugin\PluginDependencyTrait;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Url;
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Form\FormState;
-use Drupal\Core\Render\Element;
-use Drupal\Core\Block\BlockManager;
-use Drupal\context\ContextInterface;
-use Drupal\context\Form\AjaxFormTrait;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\Component\Plugin\Exception\MissingValueContextException;
 use Drupal\Component\Uuid\UuidInterface;
-use Drupal\Core\Block\BlockPluginInterface;
-use Drupal\Core\Theme\ThemeManagerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\context\ContextInterface;
 use Drupal\context\ContextReactionPluginBase;
-use Drupal\Core\Block\TitleBlockPluginInterface;
-use Drupal\Core\Extension\ThemeHandlerInterface;
+use Drupal\context\Form\AjaxFormTrait;
 use Drupal\context\Reaction\Blocks\BlockCollection;
-use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Block\BlockManager;
+use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Block\MainContentBlockPluginInterface;
+use Drupal\Core\Block\TitleBlockPluginInterface;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ThemeHandlerInterface;
+use Drupal\Core\Form\FormState;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Plugin\PluginDependencyTrait;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Security\TrustedCallbackInterface;
-use Drupal\Component\Plugin\DependentPluginInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Theme\ThemeManagerInterface;
+use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a content reaction.
@@ -195,7 +195,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
     // Add each block to the page build.
     foreach ($regions as $region => $blocks) {
 
-      /** @var $blocks BlockPluginInterface[] */
+      /** @var \Drupal\block\Entity\BlockPluginInterface[] $blocks */
       foreach ($blocks as $block_id => $block) {
         $configuration = $block->getConfiguration();
 
@@ -551,7 +551,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
       '#title' => $this->t('Include blocks from Block layout'),
       '#description' => $this->t('if checked, all blocks from default Block layout will also be included in page build.'),
       '#weight' => -10,
-      '#default_value' => isset($this->getConfiguration()['include_default_blocks']) ? $this->getConfiguration()['include_default_blocks'] : FALSE,
+      '#default_value' => $this->getConfiguration()['include_default_blocks'] ?? FALSE,
     ];
 
     $form['blocks']['block_add'] = [
@@ -703,7 +703,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
             ],
             'weight' => [
               '#type' => 'weight',
-              '#default_value' => isset($configuration['weight']) ? $configuration['weight'] : 0,
+              '#default_value' => $configuration['weight'] ?? 0,
               '#title' => $this->t('Weight for @block block', ['@block' => $block->label()]),
               '#title_display' => 'invisible',
               '#attributes' => [
@@ -773,7 +773,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    */
   public function includeDefaultBlocks() {
     $config = $this->getConfiguration();
-    return isset($config['include_default_blocks']) ? $config['include_default_blocks'] : FALSE;
+    return $config['include_default_blocks'] ?? FALSE;
   }
 
   /**

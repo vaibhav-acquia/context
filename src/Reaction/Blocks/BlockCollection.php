@@ -40,9 +40,7 @@ class BlockCollection extends DefaultLazyPluginCollection {
         continue;
       }
 
-      $region = isset($configuration['region'])
-        ? $configuration['region']
-        : NULL;
+      $region = $configuration['region'] ?? NULL;
 
       $region_assignments[$region][$block_id] = $block;
     }
@@ -51,10 +49,10 @@ class BlockCollection extends DefaultLazyPluginCollection {
       // @todo Determine the reason this needs error suppression.
       @uasort($region_assignment, function (BlockPluginInterface $a, BlockPluginInterface $b) {
         $a_config = $a->getConfiguration();
-        $a_weight = isset($a_config['weight']) ? $a_config['weight'] : 0;
+        $a_weight = $a_config['weight'] ?? 0;
 
         $b_config = $b->getConfiguration();
-        $b_weight = isset($b_config['weight']) ? $b_config['weight'] : 0;
+        $b_weight = $b_config['weight'] ?? 0;
 
         if ($a_weight == $b_weight) {
           return strcmp($a->label(), $b->label());

@@ -2,14 +2,13 @@
 
 namespace Drupal\context\Plugin\Condition;
 
-use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Condition\ConditionPluginBase;
+use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\user\Entity\User;
+use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountProxyInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'User profile page status' condition.
@@ -30,7 +29,12 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
    * @var \Drupal\Core\Routing\CurrentRouteMatch
    */
   private $currentRouteMatch;
-
+  /**
+   * The Entity Manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  private $entityManager;
   /**
    * Service entity_field.manager.
    *
@@ -48,11 +52,12 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
   /**
    * UserProfilePage constructor.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentRouteMatch $currentRouteMatch, EntityFieldManager $entityFieldManager, AccountProxyInterface $currentUser) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentRouteMatch $currentRouteMatch, EntityManagerInterface $entityManager, EntityFieldManager $entityFieldManager, AccountProxyInterface $currentUser) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->currentRouteMatch = $currentRouteMatch;
     $this->entityFieldManager = $entityFieldManager;
     $this->currentUser = $currentUser;
+    $this->entityManager = $entityManager;
   }
 
   /**
@@ -87,7 +92,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
     ];
     $form['user_status'] = [
       '#title' => $this->t('User status'),
-      '#description' => 'If nothing is checked, the evaluation will return TRUE. If more than one option is checked, the evaluation will return TRUE if any of the options matches the condition.',
+      '#description' => $this->t('If nothing is checked, the evaluation will return TRUE. If more than one option is checked, the evaluation will return TRUE if any of the options matches the condition.'),
       '#type' => 'checkboxes',
       '#options' => $options,
       '#default_value' => $configuration['user_status'] ?? [],
@@ -97,7 +102,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       '#type' => 'select',
       '#title' => $this->t('User field'),
       '#options' => $ufields,
-      '#default_value' => isset($configuration['user_fields']) ? $configuration['user_fields'] : FALSE,
+      '#default_value' => $configuration['user_fields'] ?? FALSE,
       '#states' => [
         // Show this field only if the 'field_value' is selected above.
         'visible' => [
@@ -139,7 +144,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
     if (empty($this->configuration['user_status'])) {
       return $this->t('No user status field is selected.');
     }
-    return t('Select user profile page status');
+    return $this->t('Select user profile page status');
 
   }
 
@@ -174,14 +179,14 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       if (in_array("viewing_profile", $user_conf)) {
         return TRUE;
       }
-      else if (in_array("logged_viewing_profile", $user_conf) && $this->currentUser->isAuthenticated()) {
+      elseif (in_array("logged_viewing_profile", $user_conf) && $this->currentUser->isAuthenticated()) {
         return TRUE;
       }
-      else if (in_array("own_page_true", $user_conf) && $this->currentUser->isAuthenticated() && $user_id == $this->currentUser->id()) {
+      elseif (in_array("own_page_true", $user_conf) && $this->currentUser->isAuthenticated() && $user_id == $this->currentUser->id()) {
         return TRUE;
       }
-      else if (in_array("field_value", $user_conf)) {
-        $user = User::load($user_id);
+      elseif (in_array("field_value", $user_conf)) {
+        $user = $this->entityManager->getStorage('user')->load($user_id);
         // Check if field is entity_reference or normal field with values.
         $field_target = $user->get($configuration['user_fields'])->target_id;
         if ($field_target) {

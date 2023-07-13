@@ -2,13 +2,13 @@
 
 namespace Drupal\context_ui\Form;
 
+use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
 use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\context\ContextInterface;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

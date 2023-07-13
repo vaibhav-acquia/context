@@ -2,12 +2,10 @@
 
 namespace Drupal\context\Entity;
 
-use Drupal;
-use InvalidArgumentException;
 use Drupal\context\ContextInterface;
-use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\Core\Condition\ConditionPluginCollection;
 use Drupal\context\Plugin\ContextReactionPluginCollection;
+use Drupal\Core\Condition\ConditionPluginCollection;
+use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
  * Defines the Context entity.
@@ -152,7 +150,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
   public function setName($name) {
 
     if (!is_string($name)) {
-      throw new InvalidArgumentException('The context name must be a string.');
+      throw new \InvalidArgumentException('The context name must be a string.');
     }
 
     $this->name = $name;
@@ -173,7 +171,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
   public function setLabel($label) {
 
     if (!is_string($label)) {
-      throw new InvalidArgumentException('The context label must be a string.');
+      throw new \InvalidArgumentException('The context label must be a string.');
     }
 
     $this->label = $label;
@@ -194,7 +192,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
   public function setDescription($description) {
 
     if (!is_string($description)) {
-      throw new InvalidArgumentException('The context description must be a string.');
+      throw new \InvalidArgumentException('The context description must be a string.');
     }
 
     $this->description = $description;
@@ -255,7 +253,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
    */
   public function getConditions() {
     if (!$this->conditionsCollection) {
-      $conditionManager = Drupal::service('plugin.manager.condition');
+      $conditionManager = \Drupal::service('plugin.manager.condition');
       $this->conditionsCollection = new ConditionPluginCollection($conditionManager, $this->conditions);
     }
 
@@ -304,7 +302,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
    */
   public function getReactions() {
     if (!$this->reactionsCollection) {
-      $reactionManager = Drupal::service('plugin.manager.context_reaction');
+      $reactionManager = \Drupal::service('plugin.manager.context_reaction');
       $this->reactionsCollection = new ContextReactionPluginCollection($reactionManager, $this->reactions);
     }
 

@@ -39,7 +39,7 @@ class PageTemplateSuggestions extends ContextReactionPluginBase {
     $form['suggestions'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Page template suggestions'),
-      '#default_value' => isset($config['suggestions']) ? $config['suggestions'] : '',
+      '#default_value' => $config['suggestions'] ?? '',
       '#description' => $this->t('Enter page template suggestions such as "page__front", one per line, in order of preference (using underscores instead of hyphens). Entered template suggestions will override page.html.twig template.'),
     ];
 

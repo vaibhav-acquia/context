@@ -80,7 +80,7 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
    * Executes the plugin.
    */
   public function execute() {
-    // TODO: Implement execute() method.
+    // @todo Implement execute() method.
   }
 
   /**

@@ -71,7 +71,7 @@ class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginIn
       '#type' => 'select',
       '#options' => $parent_element['#options'],
       '#multiple' => TRUE,
-      '#default_value' => isset($config['menu']) ? $config['menu'] : '',
+      '#default_value' => $config['menu'] ?? '',
       '#size' => 15,
     ];
 

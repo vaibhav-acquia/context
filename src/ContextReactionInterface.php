@@ -2,9 +2,9 @@
 
 namespace Drupal\context;
 
-use Drupal\Core\Executable\ExecutableInterface;
-use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Component\Plugin\ConfigurableInterface;
+use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Executable\ExecutableInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 
 /**

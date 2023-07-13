@@ -2,16 +2,16 @@
 
 namespace Drupal\context\Reaction\Blocks\Controller;
 
+use Drupal\Component\Serialization\Json;
+use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
-use Drupal\Core\Extension\ThemeHandlerInterface;
-use Drupal\Core\Url;
-use Drupal\context\ContextInterface;
-use Drupal\Component\Serialization\Json;
-use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Block\BlockManagerInterface;
+use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
