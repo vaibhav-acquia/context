@@ -15,57 +15,53 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
 
   /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  private ConfigFactoryInterface $configFactory;
+
+  /**
    * ContextManager.
    *
    * @var \Drupal\context\ContextManager
    */
-  private $contextManager;
+  private ContextManager $contextManager;
 
   /**
    * Theme machine name.
    *
    * @var string
    */
-  protected $theme;
+  protected string $theme;
 
   /**
    * A boolean indicating if the applies method has already been evaluated.
    *
    * @var bool
    */
-  protected $evaluated;
-  /**
-   * The config.factory service.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
+  protected bool $evaluated;
 
   /**
-   * Constructs a new ThemeSwitcherNegotiator object..
+   * Service constructor.
    *
    * @param \Drupal\context\ContextManager $contextManager
-   *   ContextManager.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config.factory service.
+   *   ContextManager parameter.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
    */
-  public function __construct(ContextManager $contextManager, ConfigFactoryInterface $config_factory) {
+  public function __construct(ContextManager $contextManager, ConfigFactoryInterface $configFactory) {
     $this->contextManager = $contextManager;
-    $this->configFactory = $config_factory;
+    $this->configFactory = $configFactory;
     $this->evaluated = FALSE;
   }
 
   /**
-   * Creates an instance of this class.
-   *
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   *   The container to resolve services.
-   *
-   * @return static
-   *   The instance of this class.
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('context.manager'),
       $container->get('config.factory')
     );
   }

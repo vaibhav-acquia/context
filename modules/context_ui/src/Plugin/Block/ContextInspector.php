@@ -2,9 +2,10 @@
 
 namespace Drupal\context_ui\Plugin\Block;
 
+use Drupal\context\ContextManager;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Plugin\Context\ContextManagerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -17,66 +18,80 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   category = @Translation("Debugging")
  * )
  */
-class ContextInspector extends BlockBase {
+class ContextInspector extends BlockBase implements ContainerFactoryPluginInterface {
+
   /**
-   * The Module handler service.
+   * The module handler.
    *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
-  protected $moduleHandler;
+  protected ModuleHandlerInterface $moduleHandler;
+
   /**
-   * The Current User service.
+   * The context manager.
+   *
+   * @var \Drupal\context\ContextManager
+   */
+  private ContextManager $contextManager;
+
+  /**
+   * The account interface.
    *
    * @var \Drupal\Core\Session\AccountInterface
    */
-  protected $currentUser;
-  /**
-   * The Context Manager service.
-   *
-   * @var \Drupal\Core\Plugin\Context\ContextManagerInterface
-   */
-  protected $contextManager;
+  protected AccountInterface $account;
 
   /**
-   * Contructs a new objects.
+   * ContextInspector constructor.
+   *
+   * @param array $configuration
+   *   Container configuration.
+   * @param string $plugin_id
+   *   Plugin ID.
+   * @param mixed $plugin_definition
+   *   Plugin definition.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   AccountInterface.
+   * @param \Drupal\context\ContextManager $contextManager
+   *   ContextManager.
    */
-  public function __construct(ModuleHandlerInterface $moduleHandler, AccountInterface $currentUser, ContextManagerInterface $contextManager) {
-    $this->moduleHandler = $moduleHandler;
-    $this->currentUser = $currentUser;
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, AccountInterface $account, ContextManager $contextManager) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->moduleHandler = $module_handler;
+    $this->account = $account;
     $this->contextManager = $contextManager;
   }
 
   /**
-   * Creates an instance of this class.
-   *
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   *   The container to resolve services.
-   *
-   * @return static
-   *   The instance of this class.
+   * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): ContextInspector {
     return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
       $container->get('module_handler'),
       $container->get('current_user'),
       $container->get('context.manager')
-
     );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCacheMaxAge() {
+  public function getCacheMaxAge(): int {
     return 0;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function build() {
+  public function build(): array {
     $module = $this->moduleHandler->moduleExists('devel');
-    $permission = $this->currentUser->hasPermission('access devel information');
+    $permission = $this->account->hasPermission('access devel information');
+    $output = NULL;
     if ($module && $permission) {
       /** @codingStandardsIgnoreStart * */
       $output = kpr($this->contextManager->getActiveContexts(), TRUE);

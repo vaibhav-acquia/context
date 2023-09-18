@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\user\UserStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -24,40 +25,42 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
-   * Service current_route_match.
+   * Current route match.
    *
    * @var \Drupal\Core\Routing\CurrentRouteMatch
    */
-  private $currentRouteMatch;
+  private CurrentRouteMatch $currentRouteMatch;
+
   /**
-   * The Entity Manager service.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  private $entityManager;
-  /**
-   * Service entity_field.manager.
+   * Entity field manager.
    *
    * @var \Drupal\Core\Entity\EntityFieldManager
    */
-  private $entityFieldManager;
+  private EntityFieldManager $entityFieldManager;
 
   /**
-   * Service current_user.
+   * Account proxy interface.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
-  private $currentUser;
+  private AccountProxyInterface $currentUser;
 
   /**
-   * UserProfilePage constructor.
+   * User storage interface.
+   *
+   * @var \Drupal\user\UserStorageInterface
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentRouteMatch $currentRouteMatch, EntityManagerInterface $entityManager, EntityFieldManager $entityFieldManager, AccountProxyInterface $currentUser) {
+  private UserStorageInterface $userStorage;
+
+  /**
+   * Constructor for UserProfilePage class.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentRouteMatch $currentRouteMatch, EntityFieldManager $entityFieldManager, AccountProxyInterface $currentUser, UserStorageInterface $user_storage) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->currentRouteMatch = $currentRouteMatch;
     $this->entityFieldManager = $entityFieldManager;
     $this->currentUser = $currentUser;
-    $this->entityManager = $entityManager;
+    $this->userStorage = $user_storage;
   }
 
   /**
@@ -70,7 +73,8 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       $plugin_definition,
       $container->get('current_route_match'),
       $container->get('entity_field.manager'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('entity_type.manager')->getStorage('user')
     );
   }
 
@@ -92,7 +96,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
     ];
     $form['user_status'] = [
       '#title' => $this->t('User status'),
-      '#description' => $this->t('If nothing is checked, the evaluation will return TRUE. If more than one option is checked, the evaluation will return TRUE if any of the options matches the condition.'),
+      '#description' => 'If nothing is checked, the evaluation will return TRUE. If more than one option is checked, the evaluation will return TRUE if any of the options matches the condition.',
       '#type' => 'checkboxes',
       '#options' => $options,
       '#default_value' => $configuration['user_status'] ?? [],
@@ -102,7 +106,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       '#type' => 'select',
       '#title' => $this->t('User field'),
       '#options' => $ufields,
-      '#default_value' => $configuration['user_fields'] ?? FALSE,
+      '#default_value' => isset($configuration['user_fields']) ? $configuration['user_fields'] : FALSE,
       '#states' => [
         // Show this field only if the 'field_value' is selected above.
         'visible' => [
@@ -144,7 +148,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
     if (empty($this->configuration['user_status'])) {
       return $this->t('No user status field is selected.');
     }
-    return $this->t('Select user profile page status');
+    return t('Select user profile page status');
 
   }
 
@@ -179,14 +183,14 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       if (in_array("viewing_profile", $user_conf)) {
         return TRUE;
       }
-      elseif (in_array("logged_viewing_profile", $user_conf) && $this->currentUser->isAuthenticated()) {
+      else if (in_array("logged_viewing_profile", $user_conf) && $this->currentUser->isAuthenticated()) {
         return TRUE;
       }
-      elseif (in_array("own_page_true", $user_conf) && $this->currentUser->isAuthenticated() && $user_id == $this->currentUser->id()) {
+      else if (in_array("own_page_true", $user_conf) && $this->currentUser->isAuthenticated() && $user_id == $this->currentUser->id()) {
         return TRUE;
       }
-      elseif (in_array("field_value", $user_conf)) {
-        $user = $this->entityManager->getStorage('user')->load($user_id);
+      else if (in_array("field_value", $user_conf)) {
+        $user = $this->userStorage->load($user_id);
         // Check if field is entity_reference or normal field with values.
         $field_target = $user->get($configuration['user_fields'])->target_id;
         if ($field_target) {
