@@ -72,7 +72,7 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
    * Executes the plugin.
    */
   public function execute() {
-    // TODO: Implement execute() method.
+    // @todo Implement execute() method.
   }
 
   /**
@@ -85,8 +85,8 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
     $admin_theme = \Drupal::config('system.theme')->get('admin');
 
     $theme_options = [
-      '_default' => t('Default theme (@name)', ['@name' => $this->themeHandler->getName($default_theme)]),
-      '_admin' => t('Admin theme (@name)', ['@name' => $this->themeHandler->getName($admin_theme)]),
+      '_default' => $this->t('Default theme (@name)', ['@name' => $this->themeHandler->getName($default_theme)]),
+      '_admin' => $this->t('Admin theme (@name)', ['@name' => $this->themeHandler->getName($admin_theme)]),
     ];
 
     foreach ($themes as $theme_id => $theme) {
@@ -98,7 +98,7 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
       '#type' => 'radios',
       '#options' => $theme_options,
       '#title' => $this->t('Select theme'),
-      '#default_value' => isset($configuration['theme']) ? $configuration['theme'] : $default_theme,
+      '#default_value' => $configuration['theme'] ?? $default_theme,
     ];
 
     return $form;

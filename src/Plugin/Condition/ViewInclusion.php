@@ -2,11 +2,11 @@
 
 namespace Drupal\context\Plugin\Condition;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Condition\ConditionPluginBase;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Routing\CurrentRouteMatch;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

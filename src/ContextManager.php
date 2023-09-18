@@ -2,16 +2,16 @@
 
 namespace Drupal\context;
 
+use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\context\Entity\Context;
 use Drupal\context\Plugin\ContextReaction\Blocks;
+use Drupal\Core\Condition\ConditionAccessResolverTrait;
+use Drupal\Core\Condition\ConditionPluginCollection;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Plugin\ContextAwarePluginInterface;
-use Drupal\Core\Condition\ConditionPluginCollection;
-use Drupal\Component\Plugin\Exception\ContextException;
-use Drupal\Core\Condition\ConditionAccessResolverTrait;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Theme\ThemeManagerInterface;
@@ -85,14 +85,15 @@ class ContextManager {
    */
   protected $themeManager;
 
-  /** The route match service.
+  /**
+   * The route match service.
    *
    * @var \Drupal\Core\Routing\RouteMatchInterface
    */
   protected $currentRouteMatch;
 
   /**
-   * Construct.
+   * Constructs anew object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The Drupal entity manager service.
@@ -104,6 +105,8 @@ class ContextManager {
    *   The Drupal EntityFormBuilder service.
    * @param \Drupal\Core\Theme\ThemeManagerInterface $themeManager
    *   The Drupal theme manager service.
+   * @param \Drupal\Core\Routing\RouteMatchInterface $currentRouteMatch
+   *   The route match service.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,

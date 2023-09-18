@@ -2,16 +2,16 @@
 
 namespace Drupal\context_ui;
 
+use Drupal\Component\Utility\Html;
 use Drupal\context\ContextManager;
 use Drupal\context\Entity\Context;
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Form\FormInterface;
 use Drupal\context\Form\AjaxFormTrait;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Form\FormBuilderInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Form\FormInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -210,7 +210,10 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
             '#default_value' => $context->getGroup() ?? 'not_grouped',
             '#options' => $group_options,
             '#attributes' => [
-              'class' => ['context-group-select', 'context-group-' . $group_class],
+              'class' =>
+               ['context-group-select',
+                 'context-group-' . $group_class,
+               ],
             ],
           ],
           'weight' => [

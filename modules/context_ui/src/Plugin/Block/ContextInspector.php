@@ -2,7 +2,12 @@
 
 namespace Drupal\context_ui\Plugin\Block;
 
+use Drupal\context\ContextManager;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'context inspector' block.
@@ -13,28 +18,83 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Debugging")
  * )
  */
-class ContextInspector extends BlockBase {
+class ContextInspector extends BlockBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected ModuleHandlerInterface $moduleHandler;
+
+  /**
+   * The context manager.
+   *
+   * @var \Drupal\context\ContextManager
+   */
+  private ContextManager $contextManager;
+
+  /**
+   * The account interface.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected AccountInterface $account;
+
+  /**
+   * ContextInspector constructor.
+   *
+   * @param array $configuration
+   *   Container configuration.
+   * @param string $plugin_id
+   *   Plugin ID.
+   * @param mixed $plugin_definition
+   *   Plugin definition.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   AccountInterface.
+   * @param \Drupal\context\ContextManager $contextManager
+   *   ContextManager.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, AccountInterface $account, ContextManager $contextManager) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->moduleHandler = $module_handler;
+    $this->account = $account;
+    $this->contextManager = $contextManager;
+  }
 
   /**
    * {@inheritdoc}
    */
-  public function getCacheMaxAge() {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): ContextInspector {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('module_handler'),
+      $container->get('current_user'),
+      $container->get('context.manager')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMaxAge(): int {
     return 0;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function build() {
-    /** @var \Drupal\Core\Extension\ModuleHandler $moduleHandler */
-    $moduleHandler = \Drupal::service('module_handler');
-    $module = $moduleHandler->moduleExists('devel');
-    $permission = \Drupal::currentUser()->hasPermission('access devel information');
+  public function build(): array {
+    $module = $this->moduleHandler->moduleExists('devel');
+    $permission = $this->account->hasPermission('access devel information');
+    $output = NULL;
     if ($module && $permission) {
-      /** @var \Drupal\context\ContextManager $context_manager */
-      $context_manager = \Drupal::service('context.manager');
       /** @codingStandardsIgnoreStart * */
-      $output = kpr($context_manager->getActiveContexts(), TRUE);
+      $output = kpr($this->contextManager->getActiveContexts(), TRUE);
       /** @codingStandardsIgnoreEnd * */
     }
     elseif ($module && !$permission) {

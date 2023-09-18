@@ -2,11 +2,11 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\Core\Url;
-use Drupal\Core\Form\FormState;
-use Drupal\context\Form\AjaxFormTrait;
 use Drupal\Component\Serialization\Json;
+use Drupal\context\Form\AjaxFormTrait;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 /**
  * Provides a form to edit context.
@@ -242,13 +242,13 @@ class ContextEditForm extends ContextFormBase {
     $element['submit'] = [
       '#type' => 'submit',
       '#dropbutton' => 'save',
-      '#value' => t('Save and continue'),
+      '#value' => $this->t('Save and continue'),
       '#submit' => ['::submitForm', '::save'],
     ];
     $element['submit_exit'] = [
       '#type' => 'submit',
       '#dropbutton' => 'save',
-      '#value' => t('Save and exit'),
+      '#value' => $this->t('Save and exit'),
       '#submit' => ['::submitForm', '::save', '::collection'],
     ];
 

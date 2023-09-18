@@ -2,14 +2,14 @@
 
 namespace Drupal\context\Plugin\Condition;
 
-use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Condition\ConditionPluginBase;
+use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\user\Entity\User;
+use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\user\UserStorageInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'User profile page status' condition.
@@ -25,34 +25,42 @@ use Drupal\Core\Session\AccountProxyInterface;
 class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
-   * Service current_route_match.
+   * Current route match.
    *
    * @var \Drupal\Core\Routing\CurrentRouteMatch
    */
-  private $currentRouteMatch;
+  private CurrentRouteMatch $currentRouteMatch;
 
   /**
-   * Service entity_field.manager.
+   * Entity field manager.
    *
    * @var \Drupal\Core\Entity\EntityFieldManager
    */
-  private $entityFieldManager;
+  private EntityFieldManager $entityFieldManager;
 
   /**
-   * Service current_user.
+   * Account proxy interface.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
-  private $currentUser;
+  private AccountProxyInterface $currentUser;
 
   /**
-   * UserProfilePage constructor.
+   * User storage interface.
+   *
+   * @var \Drupal\user\UserStorageInterface
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentRouteMatch $currentRouteMatch, EntityFieldManager $entityFieldManager, AccountProxyInterface $currentUser) {
+  private UserStorageInterface $userStorage;
+
+  /**
+   * Constructor for UserProfilePage class.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentRouteMatch $currentRouteMatch, EntityFieldManager $entityFieldManager, AccountProxyInterface $currentUser, UserStorageInterface $user_storage) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->currentRouteMatch = $currentRouteMatch;
     $this->entityFieldManager = $entityFieldManager;
     $this->currentUser = $currentUser;
+    $this->userStorage = $user_storage;
   }
 
   /**
@@ -65,7 +73,8 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
       $plugin_definition,
       $container->get('current_route_match'),
       $container->get('entity_field.manager'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('entity_type.manager')->getStorage('user')
     );
   }
 
@@ -181,7 +190,7 @@ class UserProfilePage extends ConditionPluginBase implements ContainerFactoryPlu
         return TRUE;
       }
       else if (in_array("field_value", $user_conf)) {
-        $user = User::load($user_id);
+        $user = $this->userStorage->load($user_id);
         // Check if field is entity_reference or normal field with values.
         $field_target = $user->get($configuration['user_fields'])->target_id;
         if ($field_target) {

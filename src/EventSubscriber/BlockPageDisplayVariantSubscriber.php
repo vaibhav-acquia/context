@@ -3,9 +3,9 @@
 namespace Drupal\context\EventSubscriber;
 
 use Drupal\context\ContextManager;
-use Drupal\Core\Render\RenderEvents;
 use Drupal\context\Plugin\ContextReaction\Blocks;
 use Drupal\Core\Render\PageDisplayVariantSelectionEvent;
+use Drupal\Core\Render\RenderEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**

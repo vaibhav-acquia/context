@@ -38,7 +38,7 @@ class PageTitle extends ContextReactionPluginBase {
     $form['page_title'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Page title'),
-      '#default_value' => isset($config['page_title']) ? $config['page_title'] : '',
+      '#default_value' => $config['page_title'] ?? '',
       '#description' => $this->t('Enter the title you wish to display.'),
     ];
 
