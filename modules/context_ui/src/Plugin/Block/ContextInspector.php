@@ -18,14 +18,14 @@ class ContextInspector extends BlockBase {
   /**
    * {@inheritdoc}
    */
-  public function getCacheMaxAge() {
+  public function getCacheMaxAge(): int {
     return 0;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function build() {
+  public function build(): array {
     /** @var \Drupal\Core\Extension\ModuleHandler $moduleHandler */
     $moduleHandler = \Drupal::service('module_handler');
     $module = $moduleHandler->moduleExists('devel');

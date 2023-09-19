@@ -2,12 +2,12 @@
 
 namespace Drupal\context\Entity;
 
-use Drupal;
-use InvalidArgumentException;
 use Drupal\context\ContextInterface;
-use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\Core\Condition\ConditionPluginCollection;
+use Drupal\context\ContextReactionInterface;
 use Drupal\context\Plugin\ContextReactionPluginCollection;
+use Drupal\Core\Condition\ConditionInterface;
+use Drupal\Core\Condition\ConditionPluginCollection;
+use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
  * Defines the Context entity.
@@ -56,105 +56,103 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * The machine name of the context.
    *
-   * @var string
+   * @var string|null
    */
-  protected $name;
+  protected ?string $name;
 
   /**
    * The label of the context.
    *
-   * @var string
+   * @var string|null
    */
-  protected $label;
+  protected ?string $label;
 
   /**
    * A description for this context.
    *
    * @var string
    */
-  protected $description = '';
+  protected string $description = '';
 
   /**
    * The group this context belongs to.
    *
    * @var string|null
    */
-  protected $group = self::CONTEXT_GROUP_NONE;
+  protected ?string $group = self::CONTEXT_GROUP_NONE;
 
   /**
    * If all conditions must validate for this context.
    *
    * @var bool
    */
-  protected $requireAllConditions = FALSE;
+  protected bool $requireAllConditions = FALSE;
 
   /**
    * The context conditions as a collection.
    *
    * @var \Drupal\Core\Condition\ConditionPluginCollection
    */
-  protected $conditionsCollection;
+  protected ConditionPluginCollection $conditionsCollection;
 
   /**
    * The context reactions as a collection.
    *
    * @var \Drupal\context\Plugin\ContextReactionPluginCollection
    */
-  protected $reactionsCollection;
+  protected ContextReactionPluginCollection $reactionsCollection;
 
   /**
    * A list of conditions this context should react to.
    *
    * @var array
    */
-  protected $conditions = [];
+  protected array $conditions = [];
 
   /**
    * A list of reactions that should be taken when conditions match.
    *
    * @var array
    */
-  protected $reactions = [];
+  protected array $reactions = [];
 
   /**
    * If the context is disabled or not.
    *
    * @var bool
    */
-  protected $disabled = FALSE;
+  protected bool $disabled = FALSE;
 
   /**
    * The weight for this context.
    *
    * @var int
    */
-  protected $weight = 0;
+  protected int $weight = 0;
 
   /**
    * Returns the ID of the context.
    *
    * The ID is the unique machine name of the context.
+   *
+   * @return string
+   *   The ID of the context.
    */
-  public function id() {
-    return $this->name;
+  public function id(): string {
+    return !empty($this->name) ? $this->name : '';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getName() {
-    return $this->name;
+  public function getName(): string {
+    return !empty($this->name) ? $this->name : '';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setName($name) {
-
-    if (!is_string($name)) {
-      throw new InvalidArgumentException('The context name must be a string.');
-    }
-
+  public function setName(string $name): Context {
     $this->name = $name;
 
     return $this;
@@ -163,19 +161,14 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLabel() {
-    return $this->label;
+  public function getLabel(): string {
+    return !empty($this->label) ? $this->label : '';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setLabel($label) {
-
-    if (!is_string($label)) {
-      throw new InvalidArgumentException('The context label must be a string.');
-    }
-
+  public function setLabel(string $label): Context {
     $this->label = $label;
 
     return $this;
@@ -184,19 +177,14 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function getDescription() {
+  public function getDescription(): string {
     return $this->description;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setDescription($description) {
-
-    if (!is_string($description)) {
-      throw new InvalidArgumentException('The context description must be a string.');
-    }
-
+  public function setDescription(string $description): Context {
     $this->description = $description;
 
     return $this;
@@ -205,14 +193,14 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function getGroup() {
+  public function getGroup(): ?string {
     return $this->group;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setGroup($group) {
+  public function setGroup(?string $group): Context {
     $this->group = (is_string($group) && !empty($group)) ? $group : self::CONTEXT_GROUP_NONE;
 
     return $this;
@@ -221,15 +209,15 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function getWeight() {
+  public function getWeight(): int {
     return $this->weight;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setWeight($weight) {
-    $this->weight = (int) $weight;
+  public function setWeight(int $weight): Context {
+    $this->weight = $weight;
 
     return $this;
   }
@@ -237,15 +225,15 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function requiresAllConditions() {
+  public function requiresAllConditions(): bool {
     return $this->requireAllConditions;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setRequireAllConditions($require) {
-    $this->requireAllConditions = (bool) $require;
+  public function setRequireAllConditions(bool $require): Context {
+    $this->requireAllConditions = $require;
 
     return $this;
   }
@@ -253,9 +241,9 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConditions() {
-    if (!$this->conditionsCollection) {
-      $conditionManager = Drupal::service('plugin.manager.condition');
+  public function getConditions(): ConditionPluginCollection {
+    if (empty($this->conditionsCollection)) {
+      $conditionManager = \Drupal::service('plugin.manager.condition');
       $this->conditionsCollection = new ConditionPluginCollection($conditionManager, $this->conditions);
     }
 
@@ -265,14 +253,14 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCondition($condition_id) {
+  public function getCondition(string $condition_id): ConditionInterface {
     return $this->getConditions()->get($condition_id);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function addCondition(array $configuration) {
+  public function addCondition(array $configuration): string {
     // Add an UUID to the condition to make sure the configuration is saved
     // since the configuration export from the conditions collection wont
     // export configuration that has not been "configured".
@@ -286,7 +274,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function removeCondition($condition_id) {
+  public function removeCondition(string $condition_id): Context {
     $this->getConditions()->removeInstanceId($condition_id);
 
     return $this;
@@ -295,16 +283,16 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function hasCondition($condition_id) {
+  public function hasCondition(string $condition_id): bool {
     return $this->getConditions()->has($condition_id);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getReactions() {
-    if (!$this->reactionsCollection) {
-      $reactionManager = Drupal::service('plugin.manager.context_reaction');
+  public function getReactions(): ContextReactionPluginCollection {
+    if (empty($this->reactionsCollection)) {
+      $reactionManager = \Drupal::service('plugin.manager.context_reaction');
       $this->reactionsCollection = new ContextReactionPluginCollection($reactionManager, $this->reactions);
     }
 
@@ -314,14 +302,14 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function getReaction($reaction_id) {
+  public function getReaction(string $reaction_id): ContextReactionInterface {
     return $this->getReactions()->get($reaction_id);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function addReaction(array $configuration) {
+  public function addReaction(array $configuration): string {
     // Add an UUID to the condition to make sure the configuration is saved
     // since the configuration export from the conditions collection wont
     // export configuration that has not been "configured".
@@ -335,7 +323,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function removeReaction($reaction_id) {
+  public function removeReaction(string $reaction_id): ContextInterface {
     $this->getReactions()->removeInstanceId($reaction_id);
 
     return $this;
@@ -344,7 +332,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function hasReaction($reaction_id) {
+  public function hasReaction(string $reaction_id): bool {
     return $this->getReactions()->has($reaction_id);
   }
 
@@ -355,7 +343,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
    *   An array of plugin collections, keyed by the property name they use to
    *   store their configuration.
    */
-  public function getPluginCollections() {
+  public function getPluginCollections(): array {
     return [
       'reactions' => $this->getReactions(),
       'conditions' => $this->getConditions(),
@@ -364,23 +352,36 @@ class Context extends ConfigEntityBase implements ContextInterface {
 
   /**
    * Disable context.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function disable() {
+  public function disable(): void {
     $this->disabled = !$this->disabled();
     $this->save();
   }
 
   /**
-   * {@inheritdoc}
+   * Disables the context.
    */
-  public function disabled() {
+  public function disabled(): bool {
     return $this->disabled;
   }
 
   /**
    * Duplicates the context.
+   *
+   * @param string $label
+   *   The label of the new context.
+   * @param string $name
+   *   The name of the new context.
+   * @param string $description
+   *   The description of the new context.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function duplicate($label, $name, $description) {
+  public function duplicate(string $label, string $name, string $description): void {
     $context = $this->entityTypeManager()->getStorage('context')->load($this->id());
     $clone = $context->createDuplicate();
     $clone->setName($name);
@@ -399,9 +400,6 @@ class Context extends ConfigEntityBase implements ContextInterface {
     $reaction_collection = $this->getReactions();
     /** @var \Drupal\Core\Condition\ConditionPluginCollection $condition_collection */
     $condition_collection = $this->getConditions();
-    if (empty($reaction_collection) && empty($condition_collection)) {
-      return $dependencies;
-    }
     $this->calculateConditionDependencies($condition_collection);
     $this->calculateReactionDependencies($reaction_collection);
 
@@ -414,7 +412,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
    * @param \Drupal\context\Plugin\ContextReactionPluginCollection $reaction_collection
    *   The Reaction Plugin collection.
    */
-  public function calculateReactionDependencies(ContextReactionPluginCollection $reaction_collection) {
+  public function calculateReactionDependencies(ContextReactionPluginCollection $reaction_collection): void {
     $instance_ids = $reaction_collection->getInstanceIds();
     foreach ($instance_ids as $instance_id) {
       /** @var \Drupal\context\ContextReactionPluginBase $plugin */
@@ -430,7 +428,7 @@ class Context extends ConfigEntityBase implements ContextInterface {
    * @param \Drupal\Core\Condition\ConditionPluginCollection $condition_collection
    *   The Condition Plugin collection.
    */
-  public function calculateConditionDependencies(ConditionPluginCollection $condition_collection) {
+  public function calculateConditionDependencies(ConditionPluginCollection $condition_collection): void {
     $instance_ids = $condition_collection->getInstanceIds();
     foreach ($instance_ids as $instance_id) {
       /** @var \Drupal\Core\Condition\ConditionPluginBase $plugin */

@@ -3,8 +3,8 @@
 namespace Drupal\context\Plugin\DisplayVariant;
 
 use Drupal\context\ContextManager;
-use Drupal\Core\Display\VariantBase;
 use Drupal\Core\Display\PageVariantInterface;
+use Drupal\Core\Display\VariantBase;
 use Drupal\Core\Display\VariantManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\BubbleableMetadata;
@@ -30,14 +30,14 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * The render array representing the main page content.
    *
    * @var array
    */
-  protected $mainContent = [];
+  protected array $mainContent = [];
 
   /**
    * The page title: a string (plain title) or a render array (formatted title).
@@ -51,14 +51,14 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
    *
    * @var \Drupal\Core\Display\VariantManager
    */
-  protected $displayVariant;
+  protected VariantManager $displayVariant;
 
   /**
    * The theme manager.
    *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
-  protected $themeManager;
+  protected ThemeManagerInterface $themeManager;
 
   /**
    * Constructs a new ContextBlockPageVariant.
@@ -86,7 +86,7 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): ContextBlockPageVariant {
     return new static(
       $configuration,
       $plugin_id,
@@ -100,7 +100,7 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
   /**
    * {@inheritdoc}
    */
-  public function setMainContent(array $main_content) {
+  public function setMainContent(array $main_content): ContextBlockPageVariant {
     $this->mainContent = $main_content;
     return $this;
   }
@@ -108,13 +108,15 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
   /**
    * {@inheritdoc}
    */
-  public function setTitle($title) {
+  public function setTitle($title): ContextBlockPageVariant {
     $this->title = $title;
     return $this;
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function build() {
     $build = [
@@ -180,6 +182,8 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
 
   /**
    * Get build from Block layout.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function getBuildFromBlockLayout() {
     $display_variant = $this->displayVariant->createInstance('block_page', $this->displayVariant->getDefinition('block_page'));

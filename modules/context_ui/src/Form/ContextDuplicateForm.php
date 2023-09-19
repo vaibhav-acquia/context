@@ -2,11 +2,10 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\context\ContextManager;
-use Drupal\Core\Render\Element\MachineName;
-use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Render\Element\MachineName;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 
 /**
  * Form for duplicating Context.
@@ -14,60 +13,34 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ContextDuplicateForm extends ContextFormBase {
 
   /**
-   * Context manager.
-   *
-   * @var \Drupal\context\ContextManager
+   * Returns the question for the confirmation form.
    */
-  protected $contextManager;
-
-  /**
-   * Constructor.
-   *
-   * @param \Drupal\context\ContextManager $contextManager
-   *   Context manager.
-   */
-  public function __construct(ContextManager $contextManager) {
-    $this->contextManager = $contextManager;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-        $container->get('context.manager')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getQuestion() {
+  public function getQuestion(): TranslatableMarkup {
     return $this->t('Are you sure you want to duplicate the %label context?', [
       '%label' => $this->entity->getLabel(),
     ]);
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the description for the confirmation form.
    */
-  public function getDescription() {
+  public function getDescription(): TranslatableMarkup {
     return $this->t('This action will duplicate the %label context.', [
       '%label' => $this->entity->getLabel(),
     ]);
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the URL to redirect to after the form is canceled.
    */
-  public function getCancelUrl() {
+  public function getCancelUrl(): Url {
     return new Url('entity.context.collection');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['general'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('General details'),
@@ -114,14 +87,21 @@ class ContextDuplicateForm extends ContextFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function submitForm(array &$form, FormStateInterface $formState) {
-    MachineName::validateMachineName($form["general"]["name"], $formState, $form);
-    $this->entity->duplicate($form["general"]["label"]["#value"], $form["general"]["name"]["#value"], $form["general"]["description"]["#value"]);
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
+    MachineName::validateMachineName($form["general"]["name"], $form_state, $form);
+    $label = $form["general"]["label"]["#value"];
+    $name = $form["general"]["name"]["#value"];
+    $description = $form["general"]["description"]["#value"];
+    $this->entity->duplicate($label, $name, $description);
     $this->messenger()->addMessage($this->t('The context %title has been duplicated.', [
       '%title' => $this->entity->getLabel(),
     ]));
-    $formState->setRedirectUrl($this->getCancelUrl());
+    $form_state->setRedirectUrl($this->getCancelUrl());
   }
 
 }

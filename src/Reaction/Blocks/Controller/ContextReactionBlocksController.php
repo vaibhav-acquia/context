@@ -2,16 +2,16 @@
 
 namespace Drupal\context\Reaction\Blocks\Controller;
 
+use Drupal\Component\Serialization\Json;
+use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
-use Drupal\Core\Extension\ThemeHandlerInterface;
-use Drupal\Core\Url;
-use Drupal\context\ContextInterface;
-use Drupal\Component\Serialization\Json;
-use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Block\BlockManagerInterface;
+use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,28 +25,28 @@ class ContextReactionBlocksController extends ControllerBase {
    *
    * @var \Drupal\Core\Block\BlockManagerInterface
    */
-  protected $blockManager;
+  protected BlockManagerInterface $blockManager;
 
   /**
    * The Drupal context repository.
    *
    * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
-  protected $contextRepository;
+  protected ContextRepositoryInterface $contextRepository;
 
   /**
    * The handler of the available themes.
    *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
-  protected $themeHandler;
+  protected ThemeHandlerInterface $themeHandler;
 
   /**
    * The Context modules context manager.
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * Constructs a new ContextReactionBlocksController object.
@@ -75,7 +75,7 @@ class ContextReactionBlocksController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): ContextReactionBlocksController {
     return new static(
       $container->get('plugin.manager.block'),
       $container->get('context.repository'),
@@ -98,7 +98,7 @@ class ContextReactionBlocksController extends ControllerBase {
    * @return array
    *   Array to build the add block page.
    */
-  public function blocksLibrary(Request $request, ContextInterface $context, $reaction_id) {
+  public function blocksLibrary(Request $request, ContextInterface $context, string $reaction_id): array {
 
     // If a theme has been defined in the query string then use this for
     // the add block link, default back to the default theme.
@@ -201,8 +201,8 @@ class ContextReactionBlocksController extends ControllerBase {
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The ajax response.
    */
-  public function blocksFormThemeSelect(Request $request, ContextInterface $context) {
-    $theme = $request->request->get('reactions[blocks][theme]', '', TRUE);
+  public function blocksFormThemeSelect(Request $request, ContextInterface $context): AjaxResponse {
+    $theme = $request->request->get('reactions[blocks][theme]', '');
 
     // Get the context form and supply it with the blocks theme value.
     $form = $this->contextManager->getForm($context, 'edit', [

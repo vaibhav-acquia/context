@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\context\Kernel;
 
+use Drupal\Core\Condition\ConditionManager;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\KernelTests\KernelTestBase;
@@ -32,21 +33,21 @@ class UserProfilePageTest extends KernelTestBase {
    *
    * @var \Drupal\Core\Condition\ConditionManager
    */
-  protected $pluginManager;
+  protected ConditionManager $pluginManager;
 
   /**
    * The request stack used for testing.
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $requestStack;
+  protected RequestStack $requestStack;
 
   /**
    * The current path.
    *
    * @var \Drupal\Core\Path\CurrentPathStack
    */
-  protected $currentPath;
+  protected CurrentPathStack $currentPath;
 
   /**
    * {@inheritdoc}

@@ -2,9 +2,11 @@
 
 namespace Drupal\Tests\context\Kernel;
 
+use Drupal\Core\Condition\ConditionManager;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\path_alias\AliasManagerInterface;
 use Drupal\system\Tests\Routing\MockAliasManager;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,28 +36,28 @@ class ContextAllAnyTest extends KernelTestBase {
    *
    * @var \Drupal\Core\Condition\ConditionManager
    */
-  protected $pluginManager;
+  protected ConditionManager $pluginManager;
 
   /**
    * The path alias manager used for testing.
    *
    * @var \Drupal\path_alias\AliasManagerInterface
    */
-  protected $aliasManager;
+  protected AliasManagerInterface $aliasManager;
 
   /**
    * The request stack used for testing.
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $requestStack;
+  protected RequestStack $requestStack;
 
   /**
    * The current path.
    *
    * @var \Drupal\Core\Path\CurrentPathStack
    */
-  protected $currentPath;
+  protected CurrentPathStack $currentPath;
 
   /**
    * {@inheritdoc}
@@ -95,25 +97,25 @@ class ContextAllAnyTest extends KernelTestBase {
     // Test if condition is true for one context.
     $condition->setConfig('values', 'another_context');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: another_context', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: another_context', $condition->summary(), 'Context applied.');
 
     $condition->setConfig('values', 'test');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: test', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: test', $condition->summary(), 'Context applied.');
 
     // Test if condition is true for two contexts.
     $condition->setConfig('values', "another_context\r\ntest");
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: another_context, test', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: another_context, test', $condition->summary(), 'Context applied.');
 
     // Test if condition is true for one context with an asterisks.
     $condition->setConfig('values', 'ano*');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: ano*', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: ano*', $condition->summary(), 'Context applied.');
 
     $condition->setConfig('values', 'te*');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: te*', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: te*', $condition->summary(), 'Context applied.');
 
     // Test that condition is false on specific route for one context and true
     // for the other.
@@ -135,16 +137,16 @@ class ContextAllAnyTest extends KernelTestBase {
 
     $condition->setConfig('values', 'test');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: test', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: test', $condition->summary(), 'Context applied.');
 
     $condition->setConfig('values', 'te*');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: te*', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: te*', $condition->summary(), 'Context applied.');
 
     // Test that condition is true with the tilde.
     $condition->setConfig('values', "~another_context\r\ntest");
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: ~another_context, test', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: ~another_context, test', $condition->summary(), 'Context applied.');
 
     // Test that a non-existent context evaluates to false.
     $condition->setConfig('values', 'does_not_exist');
@@ -169,25 +171,25 @@ class ContextAllAnyTest extends KernelTestBase {
     // Test if condition is true for one context.
     $condition->setConfig('values', 'another_context');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: another_context', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: another_context', $condition->summary(), 'Context applied.');
 
     $condition->setConfig('values', 'test');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: test', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: test', $condition->summary(), 'Context applied.');
 
     // Test if condition is true for two contexts.
     $condition->setConfig('values', "another_context\r\ntest");
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: another_context, test', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: another_context, test', $condition->summary(), 'Context applied.');
 
     // Test if condition is true for one context with an asterisks.
     $condition->setConfig('values', 'anoth*');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: anoth*', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: anoth*', $condition->summary(), 'Context applied.');
 
     $condition->setConfig('values', 'tes*');
     $this->assertTrue($condition->evaluate(), 'All contexts are active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: tes*', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: tes*', $condition->summary(), 'Context applied.');
 
     // Test that condition is false on specific route for one context and true
     // for the other.
@@ -206,15 +208,15 @@ class ContextAllAnyTest extends KernelTestBase {
 
     $condition->setConfig('values', "another_context\r\ntest");
     $this->assertTrue($condition->evaluate(), 'Any context is active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: another_context, test', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: another_context, test', $condition->summary(), 'Context applied.');
 
     $condition->setConfig('values', 'test');
     $this->assertTrue($condition->evaluate(), 'Any context is active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: test', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: test', $condition->summary(), 'Context applied.');
 
     $condition->setConfig('values', 'tes*');
     $this->assertTrue($condition->evaluate(), 'Any context is active');
-    $this->assertEquals($condition->summary(), 'Return true on the basis of other active contexts: tes*', 'Context applied.');
+    $this->assertEquals('Return true on the basis of other active contexts: tes*', $condition->summary(), 'Context applied.');
 
     // Test that condition is false with the tilde.
     $condition->setConfig('values', "another_context\r\n~test");

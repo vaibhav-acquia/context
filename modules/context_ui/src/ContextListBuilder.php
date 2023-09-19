@@ -2,16 +2,16 @@
 
 namespace Drupal\context_ui;
 
-use Drupal\context\ContextManager;
-use Drupal\context\Entity\Context;
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Form\FormInterface;
+use Drupal\context\ContextInterface;
+use Drupal\context\ContextManager;
 use Drupal\context\Form\AjaxFormTrait;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Form\FormBuilderInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Form\FormInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -27,14 +27,14 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * The form builder.
    *
    * @var \Drupal\Core\Form\FormBuilderInterface
    */
-  protected $formBuilder;
+  protected FormBuilderInterface $formBuilder;
 
   /**
    * The messenger.
@@ -74,7 +74,7 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
   /**
    * {@inheritdoc}
    */
-  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type): ContextListBuilder {
     return new static(
       $entity_type,
       $container->get('entity_type.manager')->getStorage($entity_type->id()),
@@ -89,21 +89,25 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
    *
    * {@inheritdoc}
    */
-  public function render() {
+  public function render(): array {
     return $this->formBuilder->getForm($this);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'context_ui_admin_display_form';
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $groups = $this->contextManager->getContextsByGroup();
 
     $form['contexts'] = [
@@ -210,7 +214,9 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
             '#default_value' => $context->getGroup() ?? 'not_grouped',
             '#options' => $group_options,
             '#attributes' => [
-              'class' => ['context-group-select', 'context-group-' . $group_class],
+              'class' => ['context-group-select',
+                'context-group-' . $group_class,
+              ],
             ],
           ],
           'weight' => [
@@ -255,8 +261,10 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $contexts = $this->storage->loadMultiple(array_keys($form_state->getValue('contexts')));
 
     /*** @var \Drupal\context\ContextInterface $context */
@@ -267,7 +275,7 @@ class ContextListBuilder extends ConfigEntityListBuilder implements FormInterfac
 
       // Not grouped contexts needs a specific group value.
       if ($context_values['group'] === 'not_grouped') {
-        $context->setGroup(Context::CONTEXT_GROUP_NONE);
+        $context->setGroup(ContextInterface::CONTEXT_GROUP_NONE);
       }
       else {
         $context->setGroup($context_values['group']);

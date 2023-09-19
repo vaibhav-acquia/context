@@ -6,6 +6,7 @@ use Drupal\context\ContextReactionPluginBase;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Theme\ThemeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -24,14 +25,14 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
    *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
-  protected $themeManager;
+  protected ThemeManagerInterface $themeManager;
 
   /**
    * The handler of the available themes.
    *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
-  protected $themeHandler;
+  protected ThemeHandlerInterface $themeHandler;
 
   /**
    * {@inheritdoc}
@@ -51,11 +52,11 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): Theme {
     return new static(
       $configuration,
-      $pluginId,
-      $pluginDefinition,
+      $plugin_id,
+      $plugin_definition,
       $container->get('theme.manager'),
       $container->get('theme_handler')
     );
@@ -64,7 +65,7 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
   /**
    * {@inheritdoc}
    */
-  public function summary() {
+  public function summary(): TranslatableMarkup {
     return $this->t('Gives you ability to change theme.');
   }
 
@@ -72,21 +73,21 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
    * Executes the plugin.
    */
   public function execute() {
-    // TODO: Implement execute() method.
+    // @todo Implement execute() method.
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
 
     $themes = $this->themeHandler->listInfo();
     $default_theme = $this->themeHandler->getDefault();
     $admin_theme = \Drupal::config('system.theme')->get('admin');
 
     $theme_options = [
-      '_default' => t('Default theme (@name)', ['@name' => $this->themeHandler->getName($default_theme)]),
-      '_admin' => t('Admin theme (@name)', ['@name' => $this->themeHandler->getName($admin_theme)]),
+      '_default' => $this->t('Default theme (@name)', ['@name' => $this->themeHandler->getName($default_theme)]),
+      '_admin' => $this->t('Admin theme (@name)', ['@name' => $this->themeHandler->getName($admin_theme)]),
     ];
 
     foreach ($themes as $theme_id => $theme) {
@@ -98,7 +99,7 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
       '#type' => 'radios',
       '#options' => $theme_options,
       '#title' => $this->t('Select theme'),
-      '#default_value' => isset($configuration['theme']) ? $configuration['theme'] : $default_theme,
+      '#default_value' => $configuration['theme'] ?? $default_theme,
     ];
 
     return $form;
@@ -107,7 +108,7 @@ class Theme extends ContextReactionPluginBase implements ContainerFactoryPluginI
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $configuration['theme'] = $form_state->getValue('theme');
     $configuration += $this->getConfiguration();
     $this->setConfiguration($configuration);

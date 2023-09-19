@@ -2,10 +2,11 @@
 
 namespace Drupal\context;
 
-use Drupal\Core\Executable\ExecutableInterface;
-use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Component\Plugin\ConfigurableInterface;
+use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Executable\ExecutableInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides an interface for ContextReaction.
@@ -18,7 +19,7 @@ interface ContextReactionInterface extends ConfigurableInterface, PluginFormInte
    * @return string|null
    *   The Reaction id or null if reaction was not found.
    */
-  public function getId();
+  public function getId(): ?string;
 
   /**
    * Provides a human readable summary of the condition's configuration.
@@ -26,6 +27,6 @@ interface ContextReactionInterface extends ConfigurableInterface, PluginFormInte
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   An object that, when cast to a string, returns the translated string.
    */
-  public function summary();
+  public function summary(): TranslatableMarkup;
 
 }

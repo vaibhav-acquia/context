@@ -24,7 +24,7 @@ class HttpStatusCode extends ConditionPluginBase implements ContainerFactoryPlug
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $requestStack;
+  protected RequestStack $requestStack;
 
   /**
    * Constructs a HttpStatusCode condition plugin.
@@ -46,7 +46,7 @@ class HttpStatusCode extends ConditionPluginBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): HttpStatusCode {
     return new static(
       $configuration,
       $plugin_id,
@@ -58,7 +58,7 @@ class HttpStatusCode extends ConditionPluginBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['status_codes'] = [
       '#title' => $this->t('Http status codes'),
       '#type' => 'checkboxes',
@@ -76,7 +76,7 @@ class HttpStatusCode extends ConditionPluginBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['status_codes'] = array_filter($form_state->getValue('status_codes'));
     parent::submitConfigurationForm($form, $form_state);
   }
@@ -117,7 +117,7 @@ class HttpStatusCode extends ConditionPluginBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
-  public function evaluate() {
+  public function evaluate(): bool {
     if (empty($this->configuration['status_codes']) && !$this->isNegated()) {
       return TRUE;
     }
@@ -138,14 +138,14 @@ class HttpStatusCode extends ConditionPluginBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return ['status_codes' => []] + parent::defaultConfiguration();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCacheContexts() {
+  public function getCacheContexts(): array {
     $contexts = parent::getCacheContexts();
     $contexts[] = 'url.path';
     return $contexts;

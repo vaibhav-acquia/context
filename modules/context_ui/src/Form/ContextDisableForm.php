@@ -2,10 +2,11 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\Core\Url;
 use Drupal\context\ContextManager;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityConfirmFormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,7 +19,7 @@ class ContextDisableForm extends EntityConfirmFormBase {
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * The ContextDisableForm constructor.
@@ -33,7 +34,7 @@ class ContextDisableForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): ContextDisableForm {
     return new static(
       $container->get('context.manager')
     );
@@ -42,7 +43,7 @@ class ContextDisableForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getQuestion() {
+  public function getQuestion(): TranslatableMarkup {
     return $this->t('Are you sure you want to %status the %label context?', [
       '%status' => $this->entity->disabled() ? "enable" : "disable",
       '%label' => $this->entity->getLabel(),
@@ -52,7 +53,7 @@ class ContextDisableForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getDescription() {
+  public function getDescription(): TranslatableMarkup {
     return $this->t('This action will %status the %label context.', [
       '%status' => $this->entity->disabled() ? "enable" : "disable",
       '%label' => $this->entity->getLabel(),
@@ -62,7 +63,7 @@ class ContextDisableForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getCancelUrl() {
+  public function getCancelUrl(): Url {
     return new Url('entity.context.collection');
   }
 
@@ -85,14 +86,14 @@ class ContextDisableForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $formState) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $this->entity->disable();
     $this->messenger()->addMessage($this->t('The context %title has been %status.', [
       '%title' => $this->entity->getLabel(),
       '%status' => $this->entity->disabled() ? "disabled" : "enabled",
     ]));
 
-    $formState->setRedirectUrl($this->getCancelUrl());
+    $form_state->setRedirectUrl($this->getCancelUrl());
   }
 
 }

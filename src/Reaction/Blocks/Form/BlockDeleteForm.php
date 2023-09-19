@@ -4,11 +4,15 @@ namespace Drupal\context\Reaction\Blocks\Form;
 
 use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
+use Drupal\context\Plugin\ContextReaction\Blocks;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -21,28 +25,28 @@ class BlockDeleteForm extends ConfirmFormBase {
    *
    * @var \Drupal\context\ContextInterface
    */
-  protected $context;
+  protected ContextInterface $context;
 
   /**
-   * The blocks reaction.
+   * The blocks' reaction.
    *
    * @var \Drupal\context\Plugin\ContextReaction\Blocks
    */
-  protected $reaction;
+  protected Blocks $reaction;
 
   /**
    * The block that is being removed.
    *
    * @var \Drupal\Core\Block\BlockPluginInterface
    */
-  protected $block;
+  protected BlockPluginInterface $block;
 
   /**
    * The Context module context manager.
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * Construct a condition delete form.
@@ -57,7 +61,7 @@ class BlockDeleteForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): BlockDeleteForm {
     return new static(
       $container->get('context.manager')
     );
@@ -66,17 +70,17 @@ class BlockDeleteForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'context_reaction_blocks_delete_block_form';
   }
 
   /**
    * Returns the question to ask the user.
    *
-   * @return string
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The form question. The page title will be set to this value.
    */
-  public function getQuestion() {
+  public function getQuestion(): TranslatableMarkup {
     return $this->t('Are you sure you want to remove the %label block?', [
       '%label' => $this->block->getConfiguration()['label'],
     ]);
@@ -84,15 +88,17 @@ class BlockDeleteForm extends ConfirmFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function getCancelUrl() {
+  public function getCancelUrl(): Url {
     return $this->context->toUrl();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $block_id = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $block_id = NULL): array {
     $this->context = $context;
 
     $this->reaction = $this->context->getReaction('blocks');
@@ -116,8 +122,11 @@ class BlockDeleteForm extends ConfirmFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $configuration = $this->block->getConfiguration();
 
     $this->reaction->removeBlock($configuration['uuid']);
@@ -141,8 +150,8 @@ class BlockDeleteForm extends ConfirmFormBase {
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The ajax response.
    */
-  public function submitFormAjax() {
-    $contextForm = $this->contextManager->getForm($this->context, 'edit');
+  public function submitFormAjax(): AjaxResponse {
+    $contextForm = $this->contextManager->getForm($this->context);
 
     $response = new AjaxResponse();
 

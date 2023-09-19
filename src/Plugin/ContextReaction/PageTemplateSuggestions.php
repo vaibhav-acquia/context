@@ -4,6 +4,7 @@ namespace Drupal\context\Plugin\ContextReaction;
 
 use Drupal\context\ContextReactionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides a content reaction that will let you change theme.
@@ -18,7 +19,7 @@ class PageTemplateSuggestions extends ContextReactionPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function summary() {
+  public function summary(): TranslatableMarkup {
     return $this->t('Gives you ability to add template suggestions.');
   }
 
@@ -33,13 +34,13 @@ class PageTemplateSuggestions extends ContextReactionPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $config = $this->getConfiguration();
 
     $form['suggestions'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Page template suggestions'),
-      '#default_value' => isset($config['suggestions']) ? $config['suggestions'] : '',
+      '#default_value' => $config['suggestions'] ?? '',
       '#description' => $this->t('Enter page template suggestions such as "page__front", one per line, in order of preference (using underscores instead of hyphens). Entered template suggestions will override page.html.twig template.'),
     ];
 
@@ -49,7 +50,7 @@ class PageTemplateSuggestions extends ContextReactionPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $config['suggestions'] = str_replace("\r\n", "\n", $form_state->getValue('suggestions'));
     $this->setConfiguration($config);
   }

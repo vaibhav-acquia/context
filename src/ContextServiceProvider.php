@@ -14,7 +14,7 @@ class ContextServiceProvider extends ServiceProviderBase {
   /**
    * {@inheritdoc}
    */
-  public function alter(ContainerBuilder $container) {
+  public function alter(ContainerBuilder $container): void {
     // Override the menu active trail with a new class.
     $definition = $container->getDefinition('menu.active_trail');
     if (!is_subclass_of($definition, 'Drupal\Core\Menu\MenuActiveTrail') && $definition instanceof MenuActiveTrail) {

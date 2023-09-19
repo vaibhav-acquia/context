@@ -2,22 +2,22 @@
 
 namespace Drupal\context_ui\Controller;
 
-use Drupal\Core\Ajax\OpenModalDialogCommand;
-use Drupal\Core\Url;
-use Drupal\Component\Utility\Html;
-use Drupal\context\ContextManager;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\ReplaceCommand;
-use Drupal\context\ContextInterface;
-use Drupal\context\ContextReactionManager;
-use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Condition\ConditionManager;
-use Drupal\Core\Ajax\CloseModalDialogCommand;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\Component\Plugin\Exception\PluginException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Drupal\Component\Utility\Html;
+use Drupal\context\ContextInterface;
+use Drupal\context\ContextManager;
+use Drupal\context\ContextReactionManager;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
+use Drupal\Core\Ajax\OpenModalDialogCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Condition\ConditionManager;
+use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Provides the Context UI Controller.
@@ -29,21 +29,21 @@ class ContextUIController extends ControllerBase {
    *
    * @var \Drupal\context\ContextReactionManager
    */
-  protected $contextReactionManager;
+  protected ContextReactionManager $contextReactionManager;
 
   /**
    * The Context module context manager.
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * The Drupal core condition manager.
    *
    * @var \Drupal\Core\Condition\ConditionManager
    */
-  protected $conditionManager;
+  protected ConditionManager $conditionManager;
 
   /**
    * Construct a new context controller.
@@ -68,7 +68,7 @@ class ContextUIController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): ContextUIController {
     return new static(
       $container->get('context.manager'),
       $container->get('plugin.manager.context_reaction'),
@@ -84,8 +84,11 @@ class ContextUIController extends ControllerBase {
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   A JSON response with groups matching the query.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  public function groupsAutocomplete(Request $request) {
+  public function groupsAutocomplete(Request $request): JsonResponse {
     $query = $request->query->get('q');
 
     $matches = [];
@@ -118,7 +121,7 @@ class ContextUIController extends ControllerBase {
    * @return array
    *   An array with the build information.
    */
-  public function listConditions(ContextInterface $context) {
+  public function listConditions(ContextInterface $context): array {
 
     // Get a list of all available conditions.
     $conditions = $this->conditionManager->getDefinitions();
@@ -194,7 +197,7 @@ class ContextUIController extends ControllerBase {
    * @return array
    *   An array with the build information.
    */
-  public function listReactions(ContextInterface $context) {
+  public function listReactions(ContextInterface $context): array {
 
     // Get a list of all available conditions.
     $reactions = $this->contextReactionManager->getDefinitions();
@@ -271,10 +274,13 @@ class ContextUIController extends ControllerBase {
    * @param string $reaction_id
    *   The ID of the reaction to add.
    *
-   * @return \Drupal\Core\Ajax\AjaxResponse|RedirectResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\RedirectResponse
    *   An AJAX response or a redirect response.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function addReaction(Request $request, ContextInterface $context, $reaction_id) {
+  public function addReaction(Request $request, ContextInterface $context, string $reaction_id) {
 
     if ($context->hasReaction($reaction_id)) {
       throw new HttpException(403, 'The specified reaction had already been added to the context.');
@@ -315,7 +321,7 @@ class ContextUIController extends ControllerBase {
     if ($request->isXmlHttpRequest()) {
       $response = new AjaxResponse();
 
-      $contextForm = $this->contextManager->getForm($context, 'edit');
+      $contextForm = $this->contextManager->getForm($context);
 
       $response->addCommand(new CloseModalDialogCommand());
       $response->addCommand(new ReplaceCommand('#context-reactions', $contextForm['reactions']));
@@ -338,10 +344,13 @@ class ContextUIController extends ControllerBase {
    * @param string $condition_id
    *   The ID of the condition to add.
    *
-   * @return \Drupal\Core\Ajax\AjaxResponse|RedirectResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\RedirectResponse
    *   An AJAX response or A redirect response.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function addCondition(Request $request, ContextInterface $context, $condition_id) {
+  public function addCondition(Request $request, ContextInterface $context, string $condition_id) {
 
     if ($context->hasCondition($condition_id)) {
       throw new HttpException(403, 'The specified condition had already been added to the context.');
@@ -381,7 +390,7 @@ class ContextUIController extends ControllerBase {
     if ($request->isXmlHttpRequest()) {
       $response = new AjaxResponse();
 
-      $contextForm = $this->contextManager->getForm($context, 'edit');
+      $contextForm = $this->contextManager->getForm($context);
 
       $response->addCommand(new CloseModalDialogCommand());
       $response->addCommand(new ReplaceCommand('#context-conditions', $contextForm['conditions']));

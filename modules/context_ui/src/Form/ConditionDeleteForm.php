@@ -2,13 +2,16 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\context\ContextManager;
-use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\context\ContextInterface;
+use Drupal\context\ContextManager;
+use Drupal\context\Entity\Context;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Condition\ConditionInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Ajax\CloseModalDialogCommand;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -21,21 +24,21 @@ class ConditionDeleteForm extends ConfirmFormBase {
    *
    * @var \Drupal\context\Entity\Context
    */
-  protected $context;
+  protected Context $context;
 
   /**
    * The condition to delete from the context.
    *
    * @var \Drupal\Core\Condition\ConditionInterface
    */
-  protected $condition;
+  protected ConditionInterface $condition;
 
   /**
    * The Context module context manager.
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * Construct a condition delete form.
@@ -50,7 +53,7 @@ class ConditionDeleteForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): ConditionDeleteForm {
     return new static(
       $container->get('context.manager')
     );
@@ -59,14 +62,14 @@ class ConditionDeleteForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'context_ui_condition_delete_form';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getQuestion() {
+  public function getQuestion(): TranslatableMarkup {
     return $this->t('Are you sure you want to delete the %label condition?', [
       '%label' => $this->condition->getPluginDefinition()['label'],
     ]);
@@ -74,22 +77,24 @@ class ConditionDeleteForm extends ConfirmFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function getCancelUrl() {
-    return $this->context->toUrl('edit-form');
+    return $this->context->toUrl();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getConfirmText() {
+  public function getConfirmText(): TranslatableMarkup {
     return $this->t('Delete');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $condition_id = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $condition_id = NULL): array {
     $this->context = $context;
     $this->condition = $context->getCondition($condition_id);
 
@@ -112,8 +117,11 @@ class ConditionDeleteForm extends ConfirmFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     // Remove the condition and save the context.
     $this->context->removeCondition($this->condition->getConfiguration()['id'])->save();
 
@@ -134,8 +142,8 @@ class ConditionDeleteForm extends ConfirmFormBase {
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   An AJAX response.
    */
-  public function submitFormAjax() {
-    $contextForm = $this->contextManager->getForm($this->context, 'edit');
+  public function submitFormAjax(): AjaxResponse {
+    $contextForm = $this->contextManager->getForm($this->context);
 
     $response = new AjaxResponse();
 

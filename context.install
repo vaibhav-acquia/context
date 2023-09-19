@@ -13,7 +13,7 @@ use Drupal\context\Plugin\ContextReaction\Blocks;
  *
  * Add in the reaction configuration an additional "context_id" property.
  */
-function context_update_8001() {
+function context_update_8001(): void {
   foreach (Drupal::service('context.manager')->getContexts() as $context) {
     foreach ($context->getReactions() as $reaction) {
       if ($reaction instanceof Blocks) {
@@ -35,7 +35,7 @@ function context_update_8001() {
  *
  * Add in the reaction configuration an additional "css_class" property.
  */
-function context_update_8002() {
+function context_update_8002(): void {
   $context_manager = \Drupal::service('context.manager');
   foreach ($context_manager->getContexts() as $context) {
     foreach ($context->getReactions() as $reaction) {
@@ -57,7 +57,7 @@ function context_update_8002() {
 /**
  * Add default "custom_id" property to all blocks reactions.
  */
-function context_update_8003() {
+function context_update_8003(): void {
   foreach (Drupal::service('context.manager')->getContexts() as $context) {
     foreach ($context->getReactions() as $reaction) {
       if ($reaction instanceof Blocks) {
@@ -78,7 +78,7 @@ function context_update_8003() {
 /**
  * Remove unnecessary block dependencies.
  */
-function context_update_8004() {
+function context_update_8004(): void {
   $blocks = Block::loadMultiple();
   foreach ($blocks as $block) {
     $block_visiblity_settings = $block->getVisibility();

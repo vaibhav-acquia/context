@@ -11,13 +11,6 @@ use Drupal\Core\Plugin\DefaultLazyPluginCollection;
 class BlockCollection extends DefaultLazyPluginCollection {
 
   /**
-   * {@inheritdoc}
-   */
-  public function &get($instance_id) {
-    return parent::get($instance_id);
-  }
-
-  /**
    * Returns all blocks keyed by their region.
    *
    * Base code from the ctools block plugin collection.
@@ -29,7 +22,7 @@ class BlockCollection extends DefaultLazyPluginCollection {
    *   An associative array keyed by region, containing an associative array of
    *   block plugins.
    */
-  public function getAllByRegion($theme) {
+  public function getAllByRegion(string $theme): array {
     $region_assignments = [];
 
     /** @var \Drupal\Core\Block\BlockPluginInterface[] $this */
@@ -40,9 +33,7 @@ class BlockCollection extends DefaultLazyPluginCollection {
         continue;
       }
 
-      $region = isset($configuration['region'])
-        ? $configuration['region']
-        : NULL;
+      $region = $configuration['region'] ?? NULL;
 
       $region_assignments[$region][$block_id] = $block;
     }
@@ -51,10 +42,10 @@ class BlockCollection extends DefaultLazyPluginCollection {
       // @todo Determine the reason this needs error suppression.
       @uasort($region_assignment, function (BlockPluginInterface $a, BlockPluginInterface $b) {
         $a_config = $a->getConfiguration();
-        $a_weight = isset($a_config['weight']) ? $a_config['weight'] : 0;
+        $a_weight = $a_config['weight'] ?? 0;
 
         $b_config = $b->getConfiguration();
-        $b_weight = isset($b_config['weight']) ? $b_config['weight'] : 0;
+        $b_weight = $b_config['weight'] ?? 0;
 
         if ($a_weight == $b_weight) {
           return strcmp($a->label(), $b->label());

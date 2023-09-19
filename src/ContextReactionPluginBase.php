@@ -21,7 +21,7 @@ abstract class ContextReactionPluginBase extends PluginBase implements ContextRe
   /**
    * {@inheritdoc}
    */
-  public function getId() {
+  public function getId(): ?string {
     if (isset($this->getConfiguration()['id'])) {
       return $this->getConfiguration()['id'];
     }
@@ -32,7 +32,7 @@ abstract class ContextReactionPluginBase extends PluginBase implements ContextRe
   /**
    * {@inheritdoc}
    */
-  public function getConfiguration() {
+  public function getConfiguration(): array {
     return [
       'id' => $this->getPluginId(),
     ] + $this->configuration;
@@ -41,7 +41,7 @@ abstract class ContextReactionPluginBase extends PluginBase implements ContextRe
   /**
    * {@inheritdoc}
    */
-  public function setConfiguration(array $configuration) {
+  public function setConfiguration(array $configuration): ContextReactionPluginBase {
     $this->configuration = $configuration + $this->defaultConfiguration();
     return $this;
   }
@@ -56,16 +56,16 @@ abstract class ContextReactionPluginBase extends PluginBase implements ContextRe
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return [
       'saved' => FALSE,
     ];
   }
 
   /**
-   * {@inheritdoc}
+   * Returns context dependencies.
    */
-  public function calculateDependencies() {
+  public function calculateDependencies(): array {
     return [];
   }
 

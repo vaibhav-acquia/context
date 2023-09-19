@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\context\Kernel;
 
+use Drupal\Core\Condition\ConditionManager;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\system\Tests\Routing\MockAliasManager;
@@ -27,28 +28,28 @@ class RequestPathExclusionTest extends KernelTestBase {
    *
    * @var \Drupal\Core\Condition\ConditionManager
    */
-  protected $pluginManager;
+  protected ConditionManager $pluginManager;
 
   /**
    * The path alias manager used for testing.
    *
    * @var \Drupal\system\Tests\Routing\MockAliasManager
    */
-  protected $aliasManager;
+  protected MockAliasManager $aliasManager;
 
   /**
    * The request stack used for testing.
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $requestStack;
+  protected RequestStack $requestStack;
 
   /**
    * The current path.
    *
    * @var \Drupal\Core\Path\CurrentPathStack
    */
-  protected $currentPath;
+  protected CurrentPathStack $currentPath;
 
   /**
    * {@inheritdoc}
@@ -119,7 +120,7 @@ class RequestPathExclusionTest extends KernelTestBase {
     $this->requestStack->pop();
     $this->requestStack->push($request);
     $this->assertTrue($condition->evaluate(), 'The request_path my/exclude/page3 passes for wildcard paths.');
-    $this->assertEquals($condition->summary(), 'Do not return true on the following pages: /my/exclude/*', 'The condition summary matches for a wildcard path');
+    $this->assertEquals('Do not return true on the following pages: /my/exclude/*', $condition->summary(), 'The condition summary matches for a wildcard path');
   }
 
 }
