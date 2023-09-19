@@ -18,7 +18,7 @@ class RequestPathExclusion extends RequestPath {
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildConfigurationForm($form, $form_state);
     // Hide the negate checkbox.
     $form['negate']['#access'] = FALSE;
@@ -28,14 +28,14 @@ class RequestPathExclusion extends RequestPath {
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return ['negate' => TRUE] + parent::defaultConfiguration();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     parent::submitConfigurationForm($form, $form_state);
     // Defaults negation to TRUE.
     $this->configuration['negate'] = TRUE;
@@ -44,7 +44,7 @@ class RequestPathExclusion extends RequestPath {
   /**
    * {@inheritdoc}
    */
-  public function evaluate() {
+  public function evaluate(): bool {
     // As a failsafe, ensure it's always set to negate before evaluating.
     $this->configuration['negate'] = TRUE;
     // Allow this to pass through gracefully when blank.

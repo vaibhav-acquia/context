@@ -2,13 +2,13 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\Core\Form\FormState;
+use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
-use Drupal\context\Entity\Context;
 use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -28,21 +28,21 @@ abstract class ContextFormBase extends EntityForm {
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * The Drupal context repository.
    *
-   * @var \Drupal\context\Entity\ContextRepositoryInterface
+   * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
-  protected $contextRepository;
+  protected ContextRepositoryInterface $contextRepository;
 
   /**
    * Construct a new context form.
    *
    * @param \Drupal\context\ContextManager $contextManager
    *   The Context module context manager.
-   * @param \Drupal\context\Entity\ContextRepositoryInterface $contextRepository
+   * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $contextRepository
    *   The Drupal context repository.
    */
   public function __construct(ContextManager $contextManager, ContextRepositoryInterface $contextRepository) {
@@ -53,7 +53,7 @@ abstract class ContextFormBase extends EntityForm {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): ContextFormBase {
     return new static(
       $container->get('context.manager'),
       $container->get('context.repository')
@@ -63,7 +63,7 @@ abstract class ContextFormBase extends EntityForm {
   /**
    * {@inheritdoc}
    */
-  public function form(array $form, FormStateInterface $formState) {
+  public function form(array $form, FormStateInterface $form_state): array {
 
     $form['general'] = [
       '#type' => 'fieldset',
@@ -118,7 +118,7 @@ abstract class ContextFormBase extends EntityForm {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     if ($form_state->hasValue('conditions')) {
       $this->validateConditions($form, $form_state);
     }
@@ -131,13 +131,13 @@ abstract class ContextFormBase extends EntityForm {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     // Enable or disable context.
     if ($this->entity->disabled() == $form_state->getValue('enable') && $this->entity->id()) {
       $this->entity->disable();
     }
 
-    // Save entity values that the built in submit handler cant take care of.
+    // Save entity values that the built-in submit handler cant take care of.
     if ($form_state->hasValue('require_all_conditions')) {
       $this->entity->setRequireAllConditions($form_state->getValue('require_all_conditions'));
     }
@@ -153,7 +153,7 @@ abstract class ContextFormBase extends EntityForm {
     // If the group is empty set it to the context no group value,
     // otherwise Drupal will save it as an empty string instead.
     if ($form_state->hasValue('group') && empty($form_state->getValue('group'))) {
-      $form_state->setValue('group', Context::CONTEXT_GROUP_NONE);
+      $form_state->setValue('group', ContextInterface::CONTEXT_GROUP_NONE);
     }
 
     // Run the default submit method.
@@ -168,7 +168,7 @@ abstract class ContextFormBase extends EntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
-  private function handleConditions(array &$form, FormStateInterface $form_state) {
+  private function handleConditions(array &$form, FormStateInterface $form_state): void {
     $conditions = $form_state->getValue('conditions', []);
 
     // Loop trough each condition and update the configuration values by
@@ -195,7 +195,7 @@ abstract class ContextFormBase extends EntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
-  private function handleReactions(array &$form, FormStateInterface $form_state) {
+  private function handleReactions(array &$form, FormStateInterface $form_state): void {
     $reactions = $form_state->getValue('reactions', []);
 
     // Loop trough each reaction and update the configuration values by
@@ -216,7 +216,7 @@ abstract class ContextFormBase extends EntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
-  private function validateConditions(array &$form, FormStateInterface $form_state) {
+  private function validateConditions(array &$form, FormStateInterface $form_state): void {
     $conditions = $form_state->getValue('conditions', []);
 
     // Loop trough each condition and update the configuration values by
@@ -244,7 +244,7 @@ abstract class ContextFormBase extends EntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
-  private function validateReactions(array &$form, FormStateInterface $form_state) {
+  private function validateReactions(array &$form, FormStateInterface $form_state): void {
     $reactions = $form_state->getValue('reactions', []);
 
     // Loop trough each reaction and update the configuration values by
@@ -288,8 +288,11 @@ abstract class ContextFormBase extends EntityForm {
    *
    * @return bool
    *   TRUE if context exists. FALSE if context doesn't exist.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function contextExists($name) {
+  public function contextExists(string $name): bool {
     return $this->contextManager->contextExists($name);
   }
 

@@ -8,7 +8,7 @@
 /**
  * Issue #3280556: Remove context menus links.
  */
-function context_ui_update_8001() {
+function context_ui_update_8001(): void {
   $menu_link_manager = \Drupal::service('plugin.manager.menu.link');
   $child_ids = $menu_link_manager->getChildIds('entity.context.collection');
   foreach ($child_ids as $key => $value) {

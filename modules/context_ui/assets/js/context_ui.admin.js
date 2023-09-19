@@ -17,9 +17,9 @@
    */
   Drupal.behaviors.contextTableFilter = {
     attach: function () {
-      var $input = $('input.context-table-filter').once('.context-table-filter');
-      var $table = $($input.attr('data-element'));
-      var $filter_rows;
+      const $input = $('input.context-table-filter').once('.context-table-filter');
+      const $table = $($input.attr('data-element'));
+      let $filter_rows;
 
       // Only attach the filter listener if there is a table to filter.
       if ($table.length) {
@@ -34,7 +34,7 @@
        *   The jQuery event for the keyup event that triggered the filter.
        */
       function filterTableRows(e) {
-        var query = $(e.target).val().toLowerCase();
+        const query = $(e.target).val().toLowerCase();
 
         /**
          * Shows or hides the Table rows based on the query.
@@ -46,9 +46,9 @@
          *   The label of the block.
          */
         function toggleTableRow(index, label) {
-          var $label = $(label);
-          var $row = $label.parent().parent();
-          var textMatch = $label.text().toLowerCase().indexOf(query) !== -1;
+          const $label = $(label);
+          const $row = $label.parent().parent();
+          const textMatch = $label.text().toLowerCase().indexOf(query) !== -1;
 
           $row.toggle(textMatch);
         }

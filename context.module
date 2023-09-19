@@ -5,35 +5,35 @@
  * Defines Drupal hooks for context module.
  */
 
-use Drupal\Core\Render\Markup;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\context\ContextInterface;
 use Drupal\context\ContextMenuActiveTrail;
 use Drupal\context\Plugin\ContextReaction\Blocks;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  * Implements hook_help().
  */
-function context_help($route_name, RouteMatchInterface $route_match) {
-  switch ($route_name) {
-    case 'help.page.context':
-      $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('The Context module lets users define conditions for when certain reactions should take place.') . '</p>';
-      $output .= '<p>' . t('An example of a condition could be when viewing a certain node type and blocks should be placed as a reaction when viewing a page with this node type.') . '</p>';
-      $output .= '<h3>' . t('Uses') . '</h3>';
-      $output .= '<dl>';
-      $output .= '<dt>' . t('Managing context') . '</dt>';
-      $output .= '<dd>' . t('Users with <em>Administer contexts</em> permission can add contextual conditions and reactions for different portions of their site. For each context, they can choose the conditions that trigger this context to be active and choose different aspects of their site that should react to this active context.') . '</dd>';
-      $output .= '<dt>' . t('Adding new custom reactions') . '</dt>';
-      $output .= '<dd>' . t('Reactions for the context module are defined trough the new <a href=":link">Drupal 8 Plugin API</a>.', [':link' => 'https://www.drupal.org/developing/api/8/plugins']) . '</dd>';
-      $output .= '<dd>' . t('The Context module defines a plugin type named ContextReaction that users can extend when creating their own plugins.') . '</dd>';
-      $output .= '<dd>' . t('A context reaction requires a configuration form and execute method. The execution of the plugin is also something that will have to be handled by the author of the reaction.') . '</dd>';
-      $output .= '</dl>';
-      return $output;
+function context_help($route_name, RouteMatchInterface $route_match): string {
+  if ($route_name == 'help.page.context') {
+    $output = '<h3>' . t('About') . '</h3>';
+    $output .= '<p>' . t('The Context module lets users define conditions for when certain reactions should take place.') . '</p>';
+    $output .= '<p>' . t('An example of a condition could be when viewing a certain node type and blocks should be placed as a reaction when viewing a page with this node type.') . '</p>';
+    $output .= '<h3>' . t('Uses') . '</h3>';
+    $output .= '<dl>';
+    $output .= '<dt>' . t('Managing context') . '</dt>';
+    $output .= '<dd>' . t('Users with <em>Administer contexts</em> permission can add contextual conditions and reactions for different portions of their site. For each context, they can choose the conditions that trigger this context to be active and choose different aspects of their site that should react to this active context.') . '</dd>';
+    $output .= '<dt>' . t('Adding new custom reactions') . '</dt>';
+    $output .= '<dd>' . t('Reactions for the context module are defined trough the new <a href=":link">Drupal 8 Plugin API</a>.', [':link' => 'https://www.drupal.org/developing/api/8/plugins']) . '</dd>';
+    $output .= '<dd>' . t('The Context module defines a plugin type named ContextReaction that users can extend when creating their own plugins.') . '</dd>';
+    $output .= '<dd>' . t('A context reaction requires a configuration form and execute method. The execution of the plugin is also something that will have to be handled by the author of the reaction.') . '</dd>';
+    $output .= '</dl>';
+    return $output;
   }
+
+  return '';
 }
 
 /**
@@ -42,7 +42,7 @@ function context_help($route_name, RouteMatchInterface $route_match) {
  * Run the body class context reactions if there are any and let them add
  * classes to the page body.
  */
-function context_preprocess_html(&$variables) {
+function context_preprocess_html(&$variables): void {
   /** @var \Drupal\context\ContextManager $context_manager */
   $context_manager = \Drupal::service('context.manager');
   // Active theme for route.
@@ -71,7 +71,7 @@ function context_preprocess_html(&$variables) {
 /**
  * Implements hook_preprocess_HOOK().
  */
-function context_preprocess_page_title(&$variables) {
+function context_preprocess_page_title(&$variables): void {
   /** @var \Drupal\context\ContextManager $context_manager */
   $context_manager = \Drupal::service('context.manager');
 
@@ -83,7 +83,7 @@ function context_preprocess_page_title(&$variables) {
 /**
  * Implements hook_theme_suggestions_page_alter().
  */
-function context_theme_suggestions_page_alter(array &$suggestions, array $variables) {
+function context_theme_suggestions_page_alter(array &$suggestions, array $variables): void {
   $context_manager = \Drupal::service('context.manager');
   foreach ($context_manager->getActiveReactions('page_template_suggestions') as $reaction) {
     $template_suggestions = explode(PHP_EOL, $reaction->execute());
@@ -94,7 +94,7 @@ function context_theme_suggestions_page_alter(array &$suggestions, array $variab
 /**
  * Implements hook_form_alter().
  */
-function context_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+function context_form_alter($form, FormStateInterface $form_state, $form_id): void {
   // If this is Context form.
   if ($form_id === 'context_edit_form') {
     $reactions = $form["reactions"]["#process"];
@@ -137,7 +137,7 @@ function context_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 /**
  * Implements hook_ENTITY_TYPE_presave().
  */
-function context_context_presave(ContextInterface $context) {
+function context_context_presave(ContextInterface $context): void {
   $context_id = $context->id();
   // Update the 'context_id' from block reactions.
   foreach ($context->getReactions() as $reaction) {

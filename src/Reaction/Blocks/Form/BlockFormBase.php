@@ -2,29 +2,34 @@
 
 namespace Drupal\context\Reaction\Blocks\Form;
 
+use Drupal\block\BlockInterface;
 use Drupal\block\BlockRepositoryInterface;
 use Drupal\block\Entity\Block;
+use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\context\ContextInterface;
 use Drupal\context\ContextManager;
 use Drupal\context\ContextReactionManager;
 use Drupal\context\Form\AjaxFormTrait;
+use Drupal\context\Plugin\ContextReaction\Blocks;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormBuilderInterface;
-use Drupal\context\ContextInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
-use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\Element\StatusMessages;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -39,77 +44,77 @@ abstract class BlockFormBase extends FormBase {
    *
    * @var \Drupal\Core\Block\BlockPluginInterface
    */
-  protected $block;
+  protected BlockPluginInterface $block;
 
   /**
    * The context entity the reaction belongs to.
    *
    * @var \Drupal\context\ContextInterface
    */
-  protected $context;
+  protected ContextInterface $context;
 
   /**
    * The blocks reaction this block should be added to.
    *
    * @var \Drupal\context\Plugin\ContextReaction\Blocks
    */
-  protected $reaction;
+  protected Blocks $reaction;
 
   /**
    * The block manager.
    *
    * @var \Drupal\Component\Plugin\PluginManagerInterface
    */
-  protected $blockManager;
+  protected PluginManagerInterface $blockManager;
 
   /**
    * The Drupal context repository.
    *
    * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
-  protected $contextRepository;
+  protected ContextRepositoryInterface $contextRepository;
 
   /**
    * The handler of the available themes.
    *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
-  protected $themeHandler;
+  protected ThemeHandlerInterface $themeHandler;
 
   /**
    * The form builder.
    *
    * @var \Drupal\Core\Form\FormBuilderInterface
    */
-  protected $formBuilder;
+  protected FormBuilderInterface $formBuilder;
 
   /**
    * The context reaction manager.
    *
    * @var \Drupal\context\ContextReactionManager
    */
-  protected $contextReactionManager;
+  protected ContextReactionManager $contextReactionManager;
 
   /**
    * The Context modules context manager.
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * The current request.
    *
-   * @var \Symfony\Component\HttpFoundation\Request
+   * @var null|\Symfony\Component\HttpFoundation\Request
    */
-  protected $request;
+  protected ?Request $request;
 
   /**
    * The module handler.
    *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
-  protected $moduleHandler;
+  protected ModuleHandlerInterface $moduleHandler;
 
   /**
    * Constructs a new VariantPluginFormBase.
@@ -154,7 +159,7 @@ abstract class BlockFormBase extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): BlockFormBase {
     return new static(
       $container->get('plugin.manager.block'),
       $container->get('context.repository'),
@@ -176,7 +181,7 @@ abstract class BlockFormBase extends FormBase {
    * @return \Drupal\Core\Block\BlockPluginInterface
    *   The block plugin.
    */
-  abstract protected function prepareBlock($block_id);
+  abstract protected function prepareBlock(string $block_id): BlockPluginInterface;
 
   /**
    * Get the value to use for the submit button.
@@ -184,7 +189,7 @@ abstract class BlockFormBase extends FormBase {
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   An object that, when cast to a string, returns the translated string.
    */
-  abstract protected function getSubmitValue();
+  abstract protected function getSubmitValue(): TranslatableMarkup;
 
   /**
    * Form constructor.
@@ -193,17 +198,17 @@ abstract class BlockFormBase extends FormBase {
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
-   * @param \Drupal\context\ContextInterface $context
+   * @param \Drupal\context\ContextInterface|null $context
    *   The context the reaction belongs to.
-   * @param string|null $reaction_id
+   * @param null $reaction_id
    *   The ID of the blocks reaction the block should be added to.
-   * @param string|null $block_id
+   * @param null $block_id
    *   The ID of the block to show a configuration form for.
    *
    * @return array
    *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL, $block_id = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL, $block_id = NULL): array {
     $this->context = $context;
 
     $this->reaction = $this->context->getReaction($reaction_id);
@@ -235,7 +240,7 @@ abstract class BlockFormBase extends FormBase {
       '#type' => 'machine_name',
       '#maxlength' => 64,
       '#description' => $this->t('A unique name for this block instance. Must be alpha-numeric and underscore separated.'),
-      '#default_value' => isset($configuration['custom_id']) ? $configuration['custom_id'] : preg_replace("/\W+/", "_", $this->block->getPluginId()),
+      '#default_value' => $configuration['custom_id'] ?? preg_replace("/\W+/", "_", $this->block->getPluginId()),
       '#machine_name' => [
         'source' => ['settings', 'label'],
       ],
@@ -247,14 +252,14 @@ abstract class BlockFormBase extends FormBase {
       '#title' => $this->t('Region'),
       '#description' => $this->t('Select the region where this block should be displayed.'),
       '#options' => $this->getThemeRegionOptions($theme),
-      '#default_value' => isset($configuration['region']) ? $configuration['region'] : '',
+      '#default_value' => $configuration['region'] ?? '',
     ];
 
     $form['unique'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Unique'),
       '#description' => $this->t('Check if the block should be uniquely placed. This means that the block can not be overridden by other blocks of the same type in the selected region. Most often you want this checked if a block unintentionally contains the same content as another block on the same page.'),
-      '#default_value' => isset($configuration['unique']) ? $configuration['unique'] : FALSE,
+      '#default_value' => $configuration['unique'] ?? FALSE,
     ];
 
     $form['theme'] = [
@@ -265,7 +270,7 @@ abstract class BlockFormBase extends FormBase {
     $form['css_class'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Block Class'),
-      '#default_value' => isset($configuration['css_class']) ? $configuration['css_class'] : '',
+      '#default_value' => $configuration['css_class'] ?? '',
     ];
 
     $form['actions']['submit'] = [
@@ -302,7 +307,7 @@ abstract class BlockFormBase extends FormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     $settings = (new FormState())->setValues($form_state->getValue('settings'));
 
     // Call the plugin validate handler.
@@ -322,8 +327,10 @@ abstract class BlockFormBase extends FormBase {
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $settings = SubformState::createForSubform($form['settings'], $form, $form_state);
 
     // Call the plugin submit handler.
@@ -334,7 +341,8 @@ abstract class BlockFormBase extends FormBase {
 
     // Add available contexts if this is a context aware block.
     if ($this->block instanceof ContextAwarePluginInterface) {
-      $this->block->setContextMapping($form_state->getValue(['settings', 'context_mapping'], []));
+      $this->block->setContextMapping($form_state
+        ->getValue(['settings', 'context_mapping'], []));
     }
 
     $configuration = array_merge($this->block->getConfiguration(), [
@@ -368,11 +376,11 @@ abstract class BlockFormBase extends FormBase {
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   An AJAX response.
    */
-  public function submitFormAjax(array &$form, FormStateInterface $form_state) {
+  public function submitFormAjax(array &$form, FormStateInterface $form_state): AjaxResponse {
     $response = new AjaxResponse();
 
     if ($form_state->getErrors()) {
-      $messages = StatusMessages::renderMessages(NULL);
+      $messages = StatusMessages::renderMessages();
       $output[] = $messages;
       $output[] = $form;
       $form_class = '.' . str_replace('_', '-', $form_state->getFormObject()->getFormId());
@@ -382,7 +390,7 @@ abstract class BlockFormBase extends FormBase {
       $response->addCommand(new ReplaceCommand($form_class, $output));
     }
     else {
-      $form = $this->contextManager->getForm($this->context, 'edit');
+      $form = $this->contextManager->getForm($this->context);
       $response->addCommand(new CloseModalDialogCommand());
       $response->addCommand(new ReplaceCommand('#context-reactions', $form['reactions']));
     }
@@ -401,7 +409,7 @@ abstract class BlockFormBase extends FormBase {
    * @return array
    *   The regions of the theme.
    */
-  protected function getThemeRegionOptions($theme, $show = BlockRepositoryInterface::REGIONS_ALL) {
+  protected function getThemeRegionOptions(string $theme, string $show = BlockRepositoryInterface::REGIONS_ALL): array {
     $regions = system_region_list($theme, $show);
 
     foreach ($regions as $region => $title) {
@@ -422,7 +430,7 @@ abstract class BlockFormBase extends FormBase {
    * @return \Drupal\block\BlockInterface
    *   A block entity.
    */
-  public function getEntity() {
+  public function getEntity(): BlockInterface {
     return Block::create($this->block->getConfiguration() + ['plugin' => $this->block->getPluginId()]);
   }
 

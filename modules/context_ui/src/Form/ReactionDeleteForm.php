@@ -2,15 +2,18 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\context\ContextManager;
 use Drupal\context\ContextInterface;
+use Drupal\context\ContextManager;
+use Drupal\context\ContextReactionInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Ajax\CloseModalDialogCommand;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 
 /**
  * Provides a context reaction delete form.
@@ -22,21 +25,21 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
    *
    * @var \Drupal\context\ContextInterface
    */
-  protected $context;
+  protected ContextInterface $context;
 
   /**
    * The context reaction.
    *
    * @var \Drupal\context\ContextReactionInterface
    */
-  protected $reaction;
+  protected ContextReactionInterface $reaction;
 
   /**
    * The Context module context manager.
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * Construct.
@@ -51,7 +54,7 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): ReactionDeleteForm {
     return new static(
       $container->get('context.manager')
     );
@@ -60,10 +63,10 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
   /**
    * Returns the question to ask the user.
    *
-   * @return string
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The form question. The page title will be set to this value.
    */
-  public function getQuestion() {
+  public function getQuestion(): TranslatableMarkup {
     return $this->t('Are you sure you want to remove the %reaction reaction.', [
       '%reaction' => $this->reaction->getPluginDefinition()['label'],
     ]);
@@ -74,8 +77,10 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
    *
    * @return \Drupal\Core\Url
    *   A URL object.
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function getCancelUrl() {
+  public function getCancelUrl(): Url {
     return $this->context->toUrl();
   }
 
@@ -85,14 +90,14 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
    * @return string
    *   The unique string identifying the form.
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'context_reaction_delete_confirm';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL): array {
     $this->context = $context;
     $this->reaction = $this->context->getReaction($reaction_id);
 
@@ -114,8 +119,11 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $definition = $this->reaction->getPluginDefinition();
 
     $this->context->removeReaction($this->reaction->getPluginId());
@@ -139,10 +147,10 @@ class ReactionDeleteForm extends ConfirmFormBase implements ContainerInjectionIn
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   An AJAX response.
    */
-  public function submitFormAjax() {
+  public function submitFormAjax(): AjaxResponse {
     $response = new AjaxResponse();
 
-    $contextForm = $this->contextManager->getForm($this->context, 'edit');
+    $contextForm = $this->contextManager->getForm($this->context);
 
     $response->addCommand(new CloseModalDialogCommand());
     $response->addCommand(new ReplaceCommand('#context-reactions', $contextForm['reactions']));

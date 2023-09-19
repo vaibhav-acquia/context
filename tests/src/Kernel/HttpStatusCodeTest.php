@@ -2,8 +2,10 @@
 
 namespace Drupal\Tests\context\Kernel;
 
+use Drupal\Core\Condition\ConditionManager;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\path_alias\AliasManagerInterface;
 use Drupal\system\Tests\Routing\MockAliasManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -23,21 +25,21 @@ class HttpStatusCodeTest extends KernelTestBase {
    *
    * @var \Drupal\Core\Condition\ConditionManager
    */
-  protected $pluginManager;
+  protected ConditionManager $pluginManager;
 
   /**
    * The path alias manager used for testing.
    *
    * @var \Drupal\path_alias\AliasManagerInterface
    */
-  protected $aliasManager;
+  protected AliasManagerInterface $aliasManager;
 
   /**
    * The request stack used for testing.
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $requestStack;
+  protected RequestStack $requestStack;
 
   /**
    * {@inheritdoc}
@@ -49,7 +51,7 @@ class HttpStatusCodeTest extends KernelTestBase {
    *
    * @var \Drupal\Core\Path\CurrentPathStack
    */
-  protected $currentPath;
+  protected CurrentPathStack $currentPath;
 
   /**
    * {@inheritdoc}

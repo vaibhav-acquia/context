@@ -4,8 +4,10 @@ namespace Drupal\context\Plugin\ContextReaction;
 
 use Drupal\context\ContextReactionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Menu\MenuParentFormSelector;
 use Drupal\Core\Menu\MenuParentFormSelectorInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,7 +25,7 @@ class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginIn
    *
    * @var \Drupal\Core\Menu\MenuParentFormSelector
    */
-  protected $menuParentFormSelector;
+  protected MenuParentFormSelector $menuParentFormSelector;
 
   /**
    * {@inheritdoc}
@@ -36,7 +38,7 @@ class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): Menu {
     return new static(
       $configuration,
       $plugin_id,
@@ -48,7 +50,7 @@ class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function summary() {
+  public function summary(): TranslatableMarkup {
     return $this->t('Set active menu item based on conditions.');
   }
 
@@ -63,7 +65,7 @@ class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $parent_element = $this->menuParentFormSelector->parentSelectElement('main:');
     $config = $this->getConfiguration();
     $form['menu_items'] = [
@@ -71,7 +73,7 @@ class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginIn
       '#type' => 'select',
       '#options' => $parent_element['#options'],
       '#multiple' => TRUE,
-      '#default_value' => isset($config['menu']) ? $config['menu'] : '',
+      '#default_value' => $config['menu'] ?? '',
       '#size' => 15,
     ];
 
@@ -81,7 +83,7 @@ class Menu extends ContextReactionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $values = array_keys($form_state->getValue('menu_items'));
 
     $this->setConfiguration([

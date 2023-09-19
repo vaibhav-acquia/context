@@ -9,11 +9,9 @@ use Drupal\Core\Plugin\DefaultLazyPluginCollection;
  */
 class ContextReactionPluginCollection extends DefaultLazyPluginCollection {
 
-  /**
+  /*
    * {@inheritdoc}
    */
-  public function &get($instance_id) {
-    return parent::get($instance_id);
-  }
-
+  // Public function &get($instance_id) {
+  // return parent::get($instance_id);
 }

@@ -18,7 +18,7 @@ class ContextMenuActiveTrail extends MenuActiveTrail {
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * {@inheritdoc}
@@ -30,6 +30,10 @@ class ContextMenuActiveTrail extends MenuActiveTrail {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function getActiveLink($menu_name = NULL) {
     $found = parent::getActiveLink($menu_name);

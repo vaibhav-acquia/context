@@ -7,6 +7,7 @@ use Drupal\context\ContextReactionPluginBase;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Theme\ThemeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -25,21 +26,21 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
    *
    * @var array
    */
-  protected $regions = [];
+  protected array $regions = [];
 
   /**
    * The theme manager.
    *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
-  protected $themeManager;
+  protected ThemeManagerInterface $themeManager;
 
   /**
    * The handler of the available themes.
    *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
-  protected $themeHandler;
+  protected ThemeHandlerInterface $themeHandler;
 
   /**
    * {@inheritdoc}
@@ -59,11 +60,11 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): Regions {
     return new static(
       $configuration,
-      $pluginId,
-      $pluginDefinition,
+      $plugin_id,
+      $plugin_definition,
       $container->get('theme.manager'),
       $container->get('theme_handler')
     );
@@ -72,7 +73,7 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function summary() {
+  public function summary(): TranslatableMarkup {
     return $this->t('Lets you remove regions from selected theme.');
   }
 
@@ -80,13 +81,13 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
    * Executes the plugin.
    */
   public function execute() {
-    // TODO: Implement execute() method.
+    // @todo Implement execute() method.
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
 
     $themes = $this->themeHandler->listInfo();
     $default_theme = $this->themeHandler->getDefault();
@@ -130,19 +131,18 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $themes = $form_state->getValues();
     if (is_array($themes)) {
       foreach ($themes as $theme_name => $region) {
         $disabled_regions = array_keys(array_filter($region['regions']));
         if (!empty($disabled_regions)) {
           $configuration['regions'][$theme_name] = $disabled_regions;
-          $configuration += $this->getConfiguration();
         }
         else {
           $configuration['regions'][$theme_name] = [];
-          $configuration += $this->getConfiguration();
         }
+        $configuration += $this->getConfiguration();
         $this->setConfiguration($configuration);
       }
     }
@@ -161,7 +161,7 @@ class Regions extends ContextReactionPluginBase implements ContainerFactoryPlugi
    *
    * @todo This could be moved to a service since we use it in a couple of places.
    */
-  protected function getSystemRegionList($theme, $show = BlockRepositoryInterface::REGIONS_ALL) {
+  protected function getSystemRegionList(string $theme, string $show = BlockRepositoryInterface::REGIONS_ALL): array {
     return system_region_list($theme, $show);
   }
 

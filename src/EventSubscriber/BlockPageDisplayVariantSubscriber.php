@@ -3,9 +3,9 @@
 namespace Drupal\context\EventSubscriber;
 
 use Drupal\context\ContextManager;
-use Drupal\Core\Render\RenderEvents;
 use Drupal\context\Plugin\ContextReaction\Blocks;
 use Drupal\Core\Render\PageDisplayVariantSelectionEvent;
+use Drupal\Core\Render\RenderEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -20,7 +20,7 @@ class BlockPageDisplayVariantSubscriber implements EventSubscriberInterface {
    *
    * @var \Drupal\context\ContextManager
    */
-  private $contextManager;
+  private ContextManager $contextManager;
 
   /**
    * Construct a block page display variant.
@@ -37,8 +37,10 @@ class BlockPageDisplayVariantSubscriber implements EventSubscriberInterface {
    *
    * @param \Drupal\Core\Render\PageDisplayVariantSelectionEvent $event
    *   The event to process.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  public function onSelectPageDisplayVariant(PageDisplayVariantSelectionEvent $event) {
+  public function onSelectPageDisplayVariant(PageDisplayVariantSelectionEvent $event): void {
     // Activate the context block page display variant if any of the reactions
     // is a blocks reaction.
     foreach ($this->contextManager->getActiveReactions() as $reaction) {
@@ -52,7 +54,7 @@ class BlockPageDisplayVariantSubscriber implements EventSubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public static function getSubscribedEvents() {
+  public static function getSubscribedEvents(): array {
     $events[RenderEvents::SELECT_PAGE_DISPLAY_VARIANT][] = ['onSelectPageDisplayVariant'];
     return $events;
   }

@@ -17,21 +17,21 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
    *
    * @var \Drupal\context\ContextManager
    */
-  private $contextManager;
+  private ContextManager $contextManager;
 
   /**
    * Theme machine name.
    *
    * @var string
    */
-  protected $theme;
+  protected string $theme;
 
   /**
    * A boolean indicating if the applies method has already been evaluated.
    *
    * @var bool
    */
-  protected $evaluated;
+  protected bool $evaluated;
 
   /**
    * Service constructor.
@@ -47,7 +47,7 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(RouteMatchInterface $route_match) {
+  public function applies(RouteMatchInterface $route_match): bool {
     // If there is no Theme reaction set or this method has already been
     // executed, do not try to get active reactions, since this causes infinite
     // loop.
@@ -94,7 +94,7 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
   /**
    * {@inheritdoc}
    */
-  public function determineActiveTheme(RouteMatchInterface $route_match) {
+  public function determineActiveTheme(RouteMatchInterface $route_match): ?string {
     return $this->theme;
   }
 

@@ -2,6 +2,7 @@
 
 namespace Drupal\context;
 
+use Drupal\Core\Condition\ConditionInterface;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 
@@ -19,9 +20,9 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * Get the ID of the context.
    *
    * @return string
-   *   The the ID of the context.
+   *   The ID of the context.
    */
-  public function id();
+  public function id(): string;
 
   /**
    * Get the machine name of the context.
@@ -29,7 +30,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return string
    *   The machine name of the context.
    */
-  public function getName();
+  public function getName(): string;
 
   /**
    * Set the machine name of the context.
@@ -40,7 +41,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return $this
    *   This Context object.
    */
-  public function setName($name);
+  public function setName(string $name): ContextInterface;
 
   /**
    * Get the context label.
@@ -48,7 +49,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return string
    *   The context label.
    */
-  public function getLabel();
+  public function getLabel(): string;
 
   /**
    * Set the context label.
@@ -59,7 +60,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return $this
    *   This Context object.
    */
-  public function setLabel($label);
+  public function setLabel(string $label): ContextInterface;
 
   /**
    * Get the context description.
@@ -67,7 +68,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return string
    *   The context description.
    */
-  public function getDescription();
+  public function getDescription(): string;
 
   /**
    * Set the context description.
@@ -78,7 +79,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return $this
    *   This Context object.
    */
-  public function setDescription($description);
+  public function setDescription(string $description): ContextInterface;
 
   /**
    * Get the group this context belongs to.
@@ -86,18 +87,18 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return null|string
    *   The name of the group.
    */
-  public function getGroup();
+  public function getGroup(): ?string;
 
   /**
    * Set the group this context should belong to.
    *
-   * @param null|string $group
+   * @param string|null $group
    *   The name of the group to set.
    *
    * @return $this
    *   This Context object.
    */
-  public function setGroup($group);
+  public function setGroup(?string $group): ContextInterface;
 
   /**
    * Get the weight for this context.
@@ -105,7 +106,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return int
    *   The weight.
    */
-  public function getWeight();
+  public function getWeight(): int;
 
   /**
    * Set the weight for this context.
@@ -116,7 +117,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return $this
    *   This Context object.
    */
-  public function setWeight($weight);
+  public function setWeight(int $weight): ContextInterface;
 
   /**
    * If the context requires all conditions to validate.
@@ -124,7 +125,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return bool
    *   TRUE if all conditions are required, FALSE if not.
    */
-  public function requiresAllConditions();
+  public function requiresAllConditions(): bool;
 
   /**
    * Set if all conditions should be required for this context to validate.
@@ -135,12 +136,12 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return $this
    *   This Context object.
    */
-  public function setRequireAllConditions($require);
+  public function setRequireAllConditions(bool $require): ContextInterface;
 
   /**
    * Get a list of all conditions.
    *
-   * @return \Drupal\Core\Condition\ConditionInterface[]|ConditionPluginCollection
+   * @return \Drupal\Core\Condition\ConditionInterface[]|\Drupal\Core\Condition\ConditionPluginCollection
    *   The plugin collection.
    */
   public function getConditions();
@@ -154,7 +155,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return \Drupal\Core\Condition\ConditionInterface
    *   The specific Condition.
    */
-  public function getCondition($condition_id);
+  public function getCondition(string $condition_id): ConditionInterface;
 
   /**
    * Set the conditions.
@@ -165,7 +166,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return string
    *   The inserted condition ID.
    */
-  public function addCondition(array $configuration);
+  public function addCondition(array $configuration): string;
 
   /**
    * Remove the specified condition.
@@ -176,7 +177,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return $this
    *   This Context object.
    */
-  public function removeCondition($condition_id);
+  public function removeCondition(string $condition_id): ContextInterface;
 
   /**
    * Check to see if the context has the specified condition.
@@ -187,12 +188,12 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return bool
    *   TRUE if the context has the specified condition, FALSE if not.
    */
-  public function hasCondition($condition_id);
+  public function hasCondition(string $condition_id): bool;
 
   /**
    * Get a list of all the reactions.
    *
-   * @return ContextReactionInterface[]|ContextReactionPluginCollection
+   * @return ContextReactionInterface[]|\Drupal\context\Plugin\ContextReactionPluginCollection
    *   A reaction list.
    */
   public function getReactions();
@@ -206,7 +207,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return ContextReactionInterface
    *   A specific reaction.
    */
-  public function getReaction($reaction_id);
+  public function getReaction(string $reaction_id): ContextReactionInterface;
 
   /**
    * Add a context reaction.
@@ -217,7 +218,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return string
    *   The inserted reaction ID.
    */
-  public function addReaction(array $configuration);
+  public function addReaction(array $configuration): string;
 
   /**
    * Remove the specified reaction.
@@ -228,7 +229,7 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return $this
    *   This context object.
    */
-  public function removeReaction($reaction_id);
+  public function removeReaction(string $reaction_id): ContextInterface;
 
   /**
    * Check to see if the context has the specified reaction.
@@ -239,6 +240,6 @@ interface ContextInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @return bool
    *   TRUE if the context has the specified reaction, FALSE if not.
    */
-  public function hasReaction($reaction_id);
+  public function hasReaction(string $reaction_id): bool;
 
 }

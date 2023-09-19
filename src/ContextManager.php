@@ -2,17 +2,17 @@
 
 namespace Drupal\context;
 
-use Drupal\context\Entity\Context;
+use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\context\Plugin\ContextReaction\Blocks;
+use Drupal\Core\Condition\ConditionAccessResolverTrait;
+use Drupal\Core\Condition\ConditionPluginCollection;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Plugin\ContextAwarePluginInterface;
-use Drupal\Core\Condition\ConditionPluginCollection;
-use Drupal\Component\Plugin\Exception\ContextException;
-use Drupal\Core\Condition\ConditionAccessResolverTrait;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Theme\ThemeManagerInterface;
 
@@ -31,21 +31,21 @@ class ContextManager {
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityTypeManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The context repository service.
    *
    * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
-  protected $contextRepository;
+  protected ContextRepositoryInterface $contextRepository;
 
   /**
    * Wraps the context handler.
    *
    * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
    */
-  protected $contextHandler;
+  protected ContextHandlerInterface $contextHandler;
 
   /**
    * The context conditions evaluate.
@@ -55,55 +55,58 @@ class ContextManager {
    *
    * @var bool
    */
-  protected $contextConditionsEvaluated = FALSE;
+  protected bool $contextConditionsEvaluated = FALSE;
 
   /**
    * An array of all contexts.
    *
    * @var \Drupal\Context\ContextInterface[]
    */
-  protected $contexts = [];
+  protected array $contexts = [];
 
   /**
    * An array of contexts that have been evaluated and are active.
    *
    * @var array
    */
-  protected $activeContexts = [];
+  protected array $activeContexts = [];
 
   /**
    * The entity form builder.
    *
    * @var \Drupal\Core\Entity\EntityFormBuilderInterface
    */
-  private $entityFormBuilder;
+  private EntityFormBuilderInterface $entityFormBuilder;
 
   /**
    * The theme manager.
    *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
-  protected $themeManager;
+  protected ThemeManagerInterface $themeManager;
 
-  /** The route match service.
+  /**
+   * The route match service.
    *
    * @var \Drupal\Core\Routing\RouteMatchInterface
    */
-  protected $currentRouteMatch;
+  protected RouteMatchInterface $currentRouteMatch;
 
   /**
    * Construct.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The Drupal entity manager service.
-   * @param \Drupal\context\Entity\ContextRepositoryInterface $contextRepository
+   * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $contextRepository
    *   The drupal context repository service.
-   * @param \Drupal\context\Entity\ContextHandlerInterface $contextHandler
+   * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $contextHandler
    *   The Drupal context handler service.
    * @param \Drupal\Core\Entity\EntityFormBuilderInterface $entityFormBuilder
    *   The Drupal EntityFormBuilder service.
    * @param \Drupal\Core\Theme\ThemeManagerInterface $themeManager
    *   The Drupal theme manager service.
+   * @param \Drupal\Core\Routing\CurrentRouteMatch $currentRouteMatch
+   *   The Drupal route match service.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
@@ -126,8 +129,11 @@ class ContextManager {
    *
    * @return \Drupal\context\ContextInterface[]
    *   List of contexts, keyed by id.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function getContexts() {
+  public function getContexts(): array {
     if (!empty($this->contexts)) {
       return $this->contexts;
     }
@@ -146,10 +152,13 @@ class ContextManager {
    * @param string $id
    *   The context id.
    *
-   * @return array|\Drupal\context\ContextInterface
+   * @return \Drupal\context\ContextInterface[]|ContextInterface
    *   The context object if found, NULL otherwise.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function getContext($id) {
+  public function getContext(string $id) {
     $contexts = $this->getContexts();
     $currentContext = $this->currentRouteMatch->getParameter('context') ? $this->currentRouteMatch->getParameter('context')->id() : '';
     $ids = [];
@@ -172,18 +181,21 @@ class ContextManager {
         }
       }
     }
-
+    return NULL;
   }
 
   /**
    * Get all contexts sorted by their group.
    *
-   * It also sort the contexts by their weight inside of each group.
+   * It also sorts the contexts by their weight inside each group.
    *
    * @return array
    *   An array with all contexts by group.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function getContextsByGroup() {
+  public function getContextsByGroup(): array {
     $contexts = $this->getContexts();
 
     $groups = [];
@@ -192,7 +204,7 @@ class ContextManager {
     foreach ($contexts as $context_id => $context) {
       $group = $context->getGroup();
 
-      if ($group === Context::CONTEXT_GROUP_NONE) {
+      if ($group === ContextInterface::CONTEXT_GROUP_NONE) {
         $group = 'not_grouped';
       }
 
@@ -210,8 +222,11 @@ class ContextManager {
    *
    * @return bool
    *   TRUE on context name already exist, FALSE on context name not exist.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function contextExists($name) {
+  public function contextExists(string $name): bool {
     $entity = $this->entityTypeManager->getStorage('context')->loadByProperties(['name' => $name]);
 
     return (bool) $entity;
@@ -223,7 +238,7 @@ class ContextManager {
    * @return bool
    *   TRUE if context was already evaluated, FALSE if context was not.
    */
-  public function conditionsHasBeenEvaluated() {
+  public function conditionsHasBeenEvaluated(): bool {
     return $this->contextConditionsEvaluated;
   }
 
@@ -232,8 +247,11 @@ class ContextManager {
    *
    * @return \Drupal\context\ContextInterface[]
    *   An array with the evaluated and active contexts.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function getActiveContexts() {
+  public function getActiveContexts(): array {
     if ($this->conditionsHasBeenEvaluated()) {
       return $this->activeContexts;
     }
@@ -245,10 +263,11 @@ class ContextManager {
 
   /**
    * Evaluate all context conditions.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function evaluateContexts() {
-
-    /** @var \Drupal\context\ContextInterface $context */
+  public function evaluateContexts(): void {
     foreach ($this->getContexts() as $context) {
       if ($this->evaluateContextConditions($context) && !$context->disabled()) {
         $this->activeContexts[] = $context;
@@ -261,13 +280,16 @@ class ContextManager {
   /**
    * Get all active reactions or reactions of a certain type.
    *
-   * @param string $reactionType
+   * @param string|null $reactionType
    *   Either the reaction class name or the id of the reaction type to get.
    *
-   * @return \Drupal\context\Entity\ContextReactionInterface[]
+   * @return \Drupal\context\ContextReactionInterface[]
    *   An array with all active reactions or reactions of a certain type.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function getActiveReactions($reactionType = NULL) {
+  public function getActiveReactions(string $reactionType = NULL): array {
     $reactions = [];
 
     foreach ($this->getActiveContexts() as $context) {
@@ -310,7 +332,6 @@ class ContextManager {
 
         if ($reaction->getPluginId() === $reactionType) {
           $reactions[] = $reaction;
-          continue;
         }
       }
     }
@@ -321,13 +342,13 @@ class ContextManager {
   /**
    * Evaluate a contexts conditions.
    *
-   * @param \Drupal\context\Entity\ContextInterface $context
+   * @param \Drupal\context\ContextInterface $context
    *   The context to evaluate conditions for.
    *
    * @return bool
    *   Whether these conditions grant or deny access.
    */
-  public function evaluateContextConditions(ContextInterface $context) {
+  public function evaluateContextConditions(ContextInterface $context): bool {
     $conditions = $context->getConditions();
 
     // Apply context to any context aware conditions.
@@ -361,10 +382,10 @@ class ContextManager {
    *   TRUE if context was applied and FALSE if context
    *   is provided but has no value.
    */
-  protected function applyContexts(ConditionPluginCollection &$conditions) {
+  protected function applyContexts(ConditionPluginCollection $conditions): bool {
 
     // If no contexts to check, the return should be TRUE.
-    // For example, empty is the same as sitewide condition.
+    // For example, empty is the same as site wide condition.
     if (count($conditions) === 0) {
       return TRUE;
     }
@@ -397,7 +418,7 @@ class ContextManager {
    * @return array
    *   The processed form for the given entity and operation.
    */
-  public function getForm(ContextInterface $context, $formType = 'edit', array $form_state_additions = []) {
+  public function getForm(ContextInterface $context, string $formType = 'edit', array $form_state_additions = []): array {
     return $this->entityFormBuilder->getForm($context, $formType, $form_state_additions);
   }
 
@@ -406,15 +427,15 @@ class ContextManager {
    *
    * Callback for uasort().
    *
-   * @param \Drupal\context\Entity\ContextInterface $a
+   * @param \Drupal\context\ContextInterface $a
    *   First item for comparison.
-   * @param \Drupal\context\Entity\ContextInterface $b
+   * @param \Drupal\context\ContextInterface $b
    *   Second item for comparison.
    *
    * @return int
    *   The comparison result for uasort().
    */
-  public function sortContextsByWeight(ContextInterface $a, ContextInterface $b) {
+  public function sortContextsByWeight(ContextInterface $a, ContextInterface $b): int {
     if ($a->getWeight() == $b->getWeight()) {
       return 0;
     }
@@ -428,7 +449,7 @@ class ContextManager {
    * @return string
    *   Current active theme name.
    */
-  private function getCurrentTheme() {
+  private function getCurrentTheme(): string {
     return $this->themeManager->getActiveTheme()->getName();
   }
 

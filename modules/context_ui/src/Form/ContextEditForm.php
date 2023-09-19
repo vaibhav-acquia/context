@@ -2,11 +2,11 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\Core\Url;
-use Drupal\Core\Form\FormState;
-use Drupal\context\Form\AjaxFormTrait;
 use Drupal\Component\Serialization\Json;
+use Drupal\context\Form\AjaxFormTrait;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 /**
  * Provides a form to edit context.
@@ -18,7 +18,7 @@ class ContextEditForm extends ContextFormBase {
   /**
    * {@inheritdoc}
    */
-  public function form(array $form, FormStateInterface $form_state) {
+  public function form(array $form, FormStateInterface $form_state): array {
     $form = parent::form($form, $form_state);
 
     // Store contexts on the form state so that plugins can use these values
@@ -58,8 +58,8 @@ class ContextEditForm extends ContextFormBase {
   /**
    * {@inheritdoc}
    */
-  public function save(array $form, FormStateInterface $formState) {
-    $status = parent::save($form, $formState);
+  public function save(array $form, FormStateInterface $form_state): void {
+    $status = parent::save($form, $form_state);
 
     if ($status) {
       $this->messenger()->addMessage($this->t('The context %label has been saved.', [
@@ -83,7 +83,7 @@ class ContextEditForm extends ContextFormBase {
    * @return array
    *   An array with the condition element.
    */
-  public function processConditions(array &$element, FormStateInterface $form_state) {
+  public function processConditions(array &$element, FormStateInterface $form_state): array {
     $conditions = $this->entity->getConditions();
 
     $element['add_condition'] = [
@@ -123,7 +123,8 @@ class ContextEditForm extends ContextFormBase {
       ];
 
       $element['condition-' . $condition_id]['options'] = $condition->buildConfigurationForm([], $form_state);
-      $element['condition-' . $condition_id]['options']['#parents'] = ['conditions', $condition_id];
+      $element['condition-' . $condition_id]['options']['#parents'] =
+              ['conditions', $condition_id];
 
       $element['condition-' . $condition_id]['remove'] = [
         '#type' => 'link',
@@ -158,7 +159,7 @@ class ContextEditForm extends ContextFormBase {
    * @return array
    *   An array with the reaction element.
    */
-  public function processReactions(array &$element, FormStateInterface $form_state) {
+  public function processReactions(array &$element, FormStateInterface $form_state): array {
     $reactions = $this->entity->getReactions();
 
     $element['add_reaction'] = [
@@ -200,8 +201,10 @@ class ContextEditForm extends ContextFormBase {
       $reaction_values = $form_state->getValue(['reactions', $reaction_id], []);
       $reaction_state = (new FormState())->setValues($reaction_values);
 
-      $element['reaction-' . $reaction_id]['options'] = $reaction->buildConfigurationForm([], $reaction_state, $this->entity);
-      $element['reaction-' . $reaction_id]['options']['#parents'] = ['reactions', $reaction_id];
+      $element['reaction-' . $reaction_id]['options'] =
+       $reaction->buildConfigurationForm([], $reaction_state, $this->entity);
+      $element['reaction-' . $reaction_id]['options']['#parents'] =
+      ['reactions', $reaction_id];
 
       $element['reaction-' . $reaction_id]['remove'] = [
         '#type' => 'link',
@@ -233,22 +236,22 @@ class ContextEditForm extends ContextFormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state object.
    *
-   * @return mixed
+   * @return array
    *   Return mixed object.
    */
-  protected function actions(array $form, FormStateInterface $form_state) {
+  protected function actions(array $form, FormStateInterface $form_state): array {
     $element = parent::actions($form, $form_state);
 
     $element['submit'] = [
       '#type' => 'submit',
       '#dropbutton' => 'save',
-      '#value' => t('Save and continue'),
+      '#value' => $this->t('Save and continue'),
       '#submit' => ['::submitForm', '::save'],
     ];
     $element['submit_exit'] = [
       '#type' => 'submit',
       '#dropbutton' => 'save',
-      '#value' => t('Save and exit'),
+      '#value' => $this->t('Save and exit'),
       '#submit' => ['::submitForm', '::save', '::collection'],
     ];
 
@@ -263,7 +266,7 @@ class ContextEditForm extends ContextFormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   From state object.
    */
-  public function collection(array $form, FormStateInterface $form_state) {
+  public function collection(array $form, FormStateInterface $form_state): void {
     $form_state->setRedirect('entity.context.collection');
 
   }

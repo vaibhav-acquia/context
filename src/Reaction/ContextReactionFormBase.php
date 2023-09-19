@@ -3,6 +3,7 @@
 namespace Drupal\context\Reaction;
 
 use Drupal\context\ContextInterface;
+use Drupal\context\ContextReactionInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -16,14 +17,14 @@ abstract class ContextReactionFormBase extends FormBase {
    *
    * @var \Drupal\context\ContextInterface
    */
-  protected $context;
+  protected ContextInterface $context;
 
   /**
    * The context reaction.
    *
    * @var \Drupal\context\ContextReactionInterface
    */
-  protected $reaction;
+  protected ContextReactionInterface $reaction;
 
   /**
    * Form constructor.
@@ -32,15 +33,15 @@ abstract class ContextReactionFormBase extends FormBase {
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
-   * @param \Drupal\context\ContextInterface $context
+   * @param \Drupal\context\ContextInterface|null $context
    *   The context that contains the reaction.
-   * @param int $reaction_id
+   * @param null $reaction_id
    *   The id of the reaction that is being configured.
    *
    * @return array
    *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL, $reaction_id = NULL): array {
     $this->context = $context;
     $this->reaction = $this->context->getReaction($reaction_id);
 
@@ -63,8 +64,10 @@ abstract class ContextReactionFormBase extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $this->context->save();
   }
 

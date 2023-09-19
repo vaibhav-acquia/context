@@ -4,36 +4,37 @@ namespace Drupal\context\Plugin\ContextReaction;
 
 use Drupal\block\BlockRepositoryInterface;
 use Drupal\block\Entity\Block;
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Plugin\PluginDependencyTrait;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Url;
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Form\FormState;
-use Drupal\Core\Render\Element;
-use Drupal\Core\Block\BlockManager;
-use Drupal\context\ContextInterface;
-use Drupal\context\Form\AjaxFormTrait;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\Component\Plugin\Exception\MissingValueContextException;
 use Drupal\Component\Uuid\UuidInterface;
-use Drupal\Core\Block\BlockPluginInterface;
-use Drupal\Core\Theme\ThemeManagerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\context\ContextInterface;
 use Drupal\context\ContextReactionPluginBase;
-use Drupal\Core\Block\TitleBlockPluginInterface;
-use Drupal\Core\Extension\ThemeHandlerInterface;
+use Drupal\context\Form\AjaxFormTrait;
 use Drupal\context\Reaction\Blocks\BlockCollection;
-use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Block\BlockManager;
+use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Block\MainContentBlockPluginInterface;
+use Drupal\Core\Block\TitleBlockPluginInterface;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ThemeHandlerInterface;
+use Drupal\Core\Form\FormState;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Plugin\PluginDependencyTrait;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Security\TrustedCallbackInterface;
-use Drupal\Component\Plugin\DependentPluginInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Theme\ThemeManagerInterface;
+use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a content reaction.
@@ -58,70 +59,70 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    *
    * @var array
    */
-  protected $blocks = [];
+  protected array $blocks = [];
 
   /**
    * Contains a temporary collection of blocks.
    *
    * @var \Drupal\context\Reaction\Blocks\BlockCollection
    */
-  protected $blocksCollection;
+  protected BlockCollection $blocksCollection;
 
   /**
    * The Drupal UUID service.
    *
    * @var \Drupal\Component\Uuid\UuidInterface
    */
-  protected $uuid;
+  protected UuidInterface $uuid;
 
   /**
    * The theme manager.
    *
    * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
-  protected $themeManager;
+  protected ThemeManagerInterface $themeManager;
 
   /**
    * The handler of the available themes.
    *
    * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
-  protected $themeHandler;
+  protected ThemeHandlerInterface $themeHandler;
 
   /**
    * The Drupal context repository.
    *
    * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
    */
-  protected $contextRepository;
+  protected ContextRepositoryInterface $contextRepository;
 
   /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityTypeManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The plugin context handler.
    *
    * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
    */
-  protected $contextHandler;
+  protected ContextHandlerInterface $contextHandler;
 
   /**
    * The current account.
    *
    * @var \Drupal\Core\Session\AccountInterface
    */
-  protected $account;
+  protected AccountInterface $account;
 
   /**
    * The block manager.
    *
    * @var \Drupal\Core\Block\BlockManager
    */
-  protected $blockManager;
+  protected BlockManager $blockManager;
 
   /**
    * {@inheritdoc}
@@ -154,11 +155,11 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): Blocks {
     return new static(
       $configuration,
-      $pluginId,
-      $pluginDefinition,
+      $plugin_id,
+      $plugin_definition,
       $container->get('uuid'),
       $container->get('theme.manager'),
       $container->get('theme_handler'),
@@ -177,15 +178,18 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    *   The current build of the page.
    * @param string|null $title
    *   The page title.
-   * @param string|null $main_content
+   * @param array|null $main_content
    *   The main page content.
    *
    * @return array
    *   Blocks that will be built.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function execute(array $build = [], $title = NULL, $main_content = NULL) {
+  public function execute(array $build = [], string $title = NULL, array $main_content = NULL): array {
 
-    $cacheability = CacheableMetadata::createFromRenderArray($build);
+    $cacheableMetadata = CacheableMetadata::createFromRenderArray($build);
 
     // Use the currently active theme to fetch blocks.
     $theme = $this->themeManager->getActiveTheme()->getName();
@@ -195,7 +199,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
     // Add each block to the page build.
     foreach ($regions as $region => $blocks) {
 
-      /** @var $blocks BlockPluginInterface[] */
+      /** @var \Drupal\block\Entity\BlockPluginInterface[] $blocks */
       foreach ($blocks as $block_id => $block) {
         $configuration = $block->getConfiguration();
 
@@ -233,7 +237,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           $access = AccessResult::forbidden()->setCacheMaxAge(0);
         }
 
-        $cacheability->addCacheableDependency($access);
+        $cacheableMetadata->addCacheableDependency($access);
 
         // If the user is not allowed then do not render the block.
         if (!$access->isAllowed()) {
@@ -297,10 +301,16 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
         // Invoke block_view_alter().
         // If an alter hook wants to modify the block contents, it can append
         // another #pre_render hook.
-        \Drupal::moduleHandler()->alter(['block_view', 'block_view_' . $block->getBaseId()], $block_build, $block);
+        \Drupal::moduleHandler()->alter(['block_view',
+          'block_view_' . $block->getBaseId(),
+        ], $block_build, $block);
 
-        // Allow altering of cacheability metadata or setting #create_placeholder.
-        \Drupal::moduleHandler()->alter(['block_build', "block_build_" . $block->getBaseId()], $block_build, $block);
+        // Allow altering of cacheability metadata or
+        // setting #create_placeholder.
+        \Drupal::moduleHandler()->alter(['block_build',
+          "block_build_" . $block->getBaseId(),
+        ],
+         $block_build, $block);
 
         $build[$region][$block_placement_key] = $block_build;
 
@@ -316,11 +326,11 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           unset($build[$region][$block_placement_key]['#cache']['keys']);
         }
 
-        $cacheability->addCacheableDependency($block);
+        $cacheableMetadata->addCacheableDependency($block);
       }
     }
 
-    $cacheability->applyTo($build);
+    $cacheableMetadata->applyTo($build);
 
     return $build;
   }
@@ -334,7 +344,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * @return array
    *   The block already rendered.
    */
-  public function preRenderBlock(array $build) {
+  public function preRenderBlock(array $build): array {
 
     $content = $build['#block_plugin']->build();
 
@@ -390,7 +400,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return [
       'blocks' => [],
     ] + parent::defaultConfiguration();
@@ -399,7 +409,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public function setConfiguration(array $configuration) {
+  public function setConfiguration(array $configuration): Blocks {
     $this->configuration = $configuration + $this->defaultConfiguration();
 
     if (isset($configuration['blocks'])) {
@@ -412,7 +422,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public function getConfiguration() {
+  public function getConfiguration(): array {
     return [
       'blocks' => $this->getBlocks()->getConfiguration(),
     ] + parent::getConfiguration();
@@ -421,18 +431,18 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public function summary() {
+  public function summary(): TranslatableMarkup {
     return $this->t('Lets you add blocks to the selected themes regions');
   }
 
   /**
    * Get all blocks as a collection.
    *
-   * @return \Drupal\Core\Block\BlockPluginInterface[]|BlockCollection
+   * @return \Drupal\context\Reaction\Blocks\BlockCollection
    *   The collection of blocks.
    */
-  public function getBlocks() {
-    if (!$this->blocksCollection) {
+  public function getBlocks(): BlockCollection {
+    if (empty($this->blocksCollection)) {
       $this->blocksCollection = new BlockCollection($this->blockManager, $this->blocks);
     }
 
@@ -448,7 +458,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * @return \Drupal\Core\Block\BlockPluginInterface
    *   The specified block plugin.
    */
-  public function getBlock($blockId) {
+  public function getBlock(string $blockId): BlockPluginInterface {
     return $this->getBlocks()->get($blockId);
   }
 
@@ -461,7 +471,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * @return string
    *   The uuid from the block.
    */
-  public function addBlock(array $configuration) {
+  public function addBlock(array $configuration): string {
     $configuration['uuid'] = $this->uuid->generate();
 
     $this->getBlocks()->addInstanceId($configuration['uuid'], $configuration);
@@ -477,10 +487,10 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * @param array $configuration
    *   The updated configuration for the block.
    *
-   * @return Drupal\context\Plugin\ContextReaction
+   * @return $this
    *   This object.
    */
-  public function updateBlock($blockId, array $configuration) {
+  public function updateBlock(string $blockId, array $configuration): Blocks {
     $existingConfiguration = $this->getBlock($blockId)->getConfiguration();
 
     $this->getBlocks()->setInstanceConfiguration($blockId, $configuration + $existingConfiguration);
@@ -494,10 +504,10 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * @param string $blockId
    *   Block id to removed.
    *
-   * @return Drupal\context\Plugin\ContextReaction
+   * @return $this
    *   This object.
    */
-  public function removeBlock($blockId) {
+  public function removeBlock(string $blockId): Blocks {
     $this->getBlocks()->removeInstanceId($blockId);
 
     return $this;
@@ -506,7 +516,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state, ContextInterface $context = NULL): array {
     $form['#attached']['library'][] = 'block/drupal.block';
 
     $themes = $this->themeHandler->listInfo();
@@ -551,7 +561,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
       '#title' => $this->t('Include blocks from Block layout'),
       '#description' => $this->t('if checked, all blocks from default Block layout will also be included in page build.'),
       '#weight' => -10,
-      '#default_value' => isset($this->getConfiguration()['include_default_blocks']) ? $this->getConfiguration()['include_default_blocks'] : FALSE,
+      '#default_value' => $this->getConfiguration()['include_default_blocks'] ?? FALSE,
     ];
 
     $form['blocks']['block_add'] = [
@@ -703,7 +713,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
             ],
             'weight' => [
               '#type' => 'weight',
-              '#default_value' => isset($configuration['weight']) ? $configuration['weight'] : 0,
+              '#default_value' => $configuration['weight'] ?? 0,
               '#title' => $this->t('Weight for @block block', ['@block' => $block->label()]),
               '#title_display' => 'invisible',
               '#attributes' => [
@@ -731,7 +741,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * @return bool
    *   TRUE if block should be placed uniquely, FALSE if not.
    */
-  private function blockShouldBePlacedUniquely(BlockPluginInterface $block) {
+  private function blockShouldBePlacedUniquely(BlockPluginInterface $block): bool {
     $configuration = $block->getConfiguration();
     return (isset($configuration['unique']) && $configuration['unique']);
   }
@@ -739,12 +749,13 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $blocks = $form_state->getValue(['blocks', 'blocks'], []);
 
     // Save configuration for including default blocks.
     $config = $this->getConfiguration();
-    $config['include_default_blocks'] = $form_state->getValue(['blocks', 'include_default_blocks'], FALSE);
+    $config['include_default_blocks'] = $form_state->getValue(
+          ['blocks', 'include_default_blocks'], FALSE);
     $this->setConfiguration($config);
 
     if (is_array($blocks)) {
@@ -771,9 +782,9 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    * @return bool
    *   TRUE if default blocks will be included, FALSE if not.
    */
-  public function includeDefaultBlocks() {
+  public function includeDefaultBlocks(): bool {
     $config = $this->getConfiguration();
-    return isset($config['include_default_blocks']) ? $config['include_default_blocks'] : FALSE;
+    return $config['include_default_blocks'] ?? FALSE;
   }
 
   /**
@@ -789,14 +800,14 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
    *
    * @todo This could be moved to a service since we use it in a couple of places.
    */
-  protected function getSystemRegionList($theme, $show = BlockRepositoryInterface::REGIONS_ALL) {
+  protected function getSystemRegionList(string $theme, string $show = BlockRepositoryInterface::REGIONS_ALL): array {
     return system_region_list($theme, $show);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function calculateDependencies() {
+  public function calculateDependencies(): array {
     $this->dependencies = parent::calculateDependencies();
     foreach ($this->getBlocks() as $instance) {
       $this->calculatePluginDependencies($instance);
@@ -807,7 +818,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public static function trustedCallbacks() {
+  public static function trustedCallbacks(): array {
     return ['preRenderBlock'];
   }
 

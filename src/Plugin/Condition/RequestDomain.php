@@ -2,9 +2,10 @@
 
 namespace Drupal\context\Plugin\Condition;
 
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Condition\ConditionPluginBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Path\CurrentPathStack;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -23,14 +24,14 @@ class RequestDomain extends ConditionPluginBase implements ContainerFactoryPlugi
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $requestStack;
+  protected RequestStack $requestStack;
 
   /**
    * The current path.
    *
    * @var \Drupal\Core\Path\CurrentPathStack
    */
-  protected $currentPath;
+  protected CurrentPathStack $currentPath;
 
   /**
    * Constructs a RequestPath condition plugin.
@@ -52,7 +53,7 @@ class RequestDomain extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): RequestDomain {
     return new static(
       $container->get('request_stack'),
       $configuration,
@@ -63,7 +64,7 @@ class RequestDomain extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return ['domains' => ''] + parent::defaultConfiguration();
   }
 
@@ -82,7 +83,7 @@ class RequestDomain extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['domains'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Domains'),
@@ -95,7 +96,7 @@ class RequestDomain extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['domains'] = $form_state->getValue('domains');
     parent::submitConfigurationForm($form, $form_state);
   }
@@ -103,7 +104,7 @@ class RequestDomain extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function evaluate() {
+  public function evaluate(): bool {
     // Convert domain to lowercase.
     $domains = mb_strtolower($this->configuration['domains']);
     if (!$domains) {

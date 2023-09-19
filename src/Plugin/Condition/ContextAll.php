@@ -24,7 +24,7 @@ class ContextAll extends ConditionPluginBase implements ContainerFactoryPluginIn
    *
    * @var \Drupal\context\ContextManager
    */
-  private $contextManager;
+  private ContextManager $contextManager;
 
   /**
    * Constructs a ContextAny condition plugin.
@@ -46,7 +46,7 @@ class ContextAll extends ConditionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): ContextAll {
     return new static(
       $configuration,
       $plugin_id,
@@ -57,7 +57,7 @@ class ContextAll extends ConditionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return ['values' => ''] + parent::defaultConfiguration();
   }
 
@@ -90,7 +90,7 @@ class ContextAll extends ConditionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildConfigurationForm($form, $form_state);
     $form['negate']['#access'] = FALSE;
     $form['values'] = [
@@ -105,7 +105,7 @@ class ContextAll extends ConditionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['values'] = $form_state->getValue('values');
     parent::submitConfigurationForm($form, $form_state);
   }
@@ -122,7 +122,7 @@ class ContextAll extends ConditionPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function evaluate() {
+  public function evaluate(): bool {
     $required_contexts = $negated_contexts = [];
     $asterisk_context = '';
     $values = array_filter(array_map('trim', explode("\n", $this->configuration['values'])));

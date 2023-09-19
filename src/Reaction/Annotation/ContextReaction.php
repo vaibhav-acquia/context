@@ -3,6 +3,7 @@
 namespace Drupal\context\Reaction\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
+use Drupal\Core\Annotation\Translation;
 
 /**
  * Defines an context reaction annotation object.
@@ -18,7 +19,7 @@ class ContextReaction extends Plugin {
    *
    * @var string
    */
-  public $id;
+  public string $id;
 
   /**
    * The human-readable name of the context reaction.
@@ -27,7 +28,7 @@ class ContextReaction extends Plugin {
    *
    * @ingroup plugin_translatable
    */
-  public $label;
+  public Translation $label;
 
   /**
    * A brief description of the context reaction.

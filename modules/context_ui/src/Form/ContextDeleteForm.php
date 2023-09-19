@@ -2,10 +2,11 @@
 
 namespace Drupal\context_ui\Form;
 
-use Drupal\Core\Url;
 use Drupal\context\ContextManager;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityConfirmFormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,7 +19,7 @@ class ContextDeleteForm extends EntityConfirmFormBase {
    *
    * @var \Drupal\context\ContextManager
    */
-  protected $contextManager;
+  protected ContextManager $contextManager;
 
   /**
    * ContextDeleteForm constructor.
@@ -33,7 +34,7 @@ class ContextDeleteForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): ContextDeleteForm {
     return new static(
       $container->get('context.manager')
     );
@@ -42,7 +43,7 @@ class ContextDeleteForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getQuestion() {
+  public function getQuestion(): TranslatableMarkup {
     return $this->t('Are you sure you want to delete the %label context?', [
       '%label' => $this->entity->getLabel(),
     ]);
@@ -51,7 +52,7 @@ class ContextDeleteForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getCancelUrl() {
+  public function getCancelUrl(): Url {
     return new Url('entity.context.collection');
   }
 
@@ -73,15 +74,17 @@ class ContextDeleteForm extends EntityConfirmFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function submitForm(array &$form, FormStateInterface $formState) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $this->entity->delete();
 
     $this->messenger()->addMessage($this->t('The context %title has been deleted.', [
       '%title' => $this->entity->getLabel(),
     ]));
 
-    $formState->setRedirectUrl($this->getCancelUrl());
+    $form_state->setRedirectUrl($this->getCancelUrl());
   }
 
 }

@@ -2,11 +2,11 @@
 
 namespace Drupal\context\Plugin\Condition;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Condition\ConditionPluginBase;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Routing\CurrentRouteMatch;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -24,14 +24,14 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  private $entityTypeManager;
+  private EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The current route match.
    *
    * @var \Drupal\Core\Routing\CurrentRouteMatch
    */
-  private $currentRouteMatch;
+  private CurrentRouteMatch $currentRouteMatch;
 
   /**
    * View constructor.
@@ -59,7 +59,7 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): ViewInclusion {
     return new static(
       $configuration,
       $plugin_id,
@@ -72,7 +72,7 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $views = $this->entityTypeManager->getStorage('view')->loadMultiple();
     $options = [];
     foreach ($views as $key => $view) {
@@ -91,7 +91,7 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
       '#type' => 'select',
       '#options' => $options,
       '#multiple' => TRUE,
-      '#default_value' => isset($configuration['view_inclusion']) && !empty($configuration['view_inclusion']) ? array_keys($configuration['view_inclusion']) : [],
+      '#default_value' => !empty($configuration['view_inclusion']) ? array_keys($configuration['view_inclusion']) : [],
     ];
 
     $form = parent::buildConfigurationForm($form, $form_state);
@@ -104,14 +104,14 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return ['view_inclusion' => []] + parent::defaultConfiguration();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     parent::submitConfigurationForm($form, $form_state);
     $this->configuration['view_inclusion'] = array_filter($form_state->getValue('views_pages'));
     // Defaults negation to FALSE to match the defaultConfiguration.
@@ -141,7 +141,7 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function evaluate() {
+  public function evaluate(): bool {
     if (empty($this->configuration['view_inclusion'])) {
       // Return TRUE if empty.
       return TRUE;
@@ -155,7 +155,7 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function getCacheContexts() {
+  public function getCacheContexts(): array {
     $contexts = parent::getCacheContexts();
     $contexts[] = 'url.path';
     // $contexts[] = 'config:view_list';
