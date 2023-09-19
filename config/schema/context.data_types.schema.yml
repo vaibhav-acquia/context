@@ -41,6 +41,8 @@ reaction.plugin:
             type: string
           css_class:
             type: string
+          roles:
+            type: sequence
           unique:
             type: integer
           context_id:
