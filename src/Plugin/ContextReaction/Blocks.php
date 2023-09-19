@@ -233,6 +233,15 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
           $access = AccessResult::forbidden()->setCacheMaxAge(0);
         }
 
+        // Evaluate access constraint by role.
+        $roles = $block->getConfiguration()['roles'] ?? [];
+        if ($access->isAllowed() && count(array_filter($roles)) > 0) {
+          $user = \Drupal\user\Entity\User::load($this->account->id());
+          if (!(bool) array_intersect($roles, $user->getRoles())) {
+            $access = AccessResult::forbidden();
+          }
+        }
+
         $cacheability->addCacheableDependency($access);
 
         // If the user is not allowed then do not render the block.

@@ -268,6 +268,14 @@ abstract class BlockFormBase extends FormBase {
       '#default_value' => isset($configuration['css_class']) ? $configuration['css_class'] : '',
     ];
 
+    $form['roles'] = [
+      '#type' => 'checkboxes',
+      '#title' => t('Show only when the user has the following roles'),
+      '#default_value' => isset($configuration['roles']) ? $configuration['roles'] : '',
+      '#options' => array_map('\Drupal\Component\Utility\Html::escape', user_role_names()),
+      '#description' => t('If you select no roles, the condition will evaluate to TRUE for all users.'),
+    ];
+
     $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->getSubmitValue(),
@@ -342,6 +350,7 @@ abstract class BlockFormBase extends FormBase {
       'region' => $form_state->getValue('region'),
       'theme' => $form_state->getValue('theme'),
       'css_class' => $form_state->getValue('css_class'),
+      'roles' => $form_state->getValue('roles'),
       'unique' => $form_state->getValue('unique'),
       'context_id' => $this->context->id(),
       'third_party_settings' => $form_state->getValue('third_party_settings', []),
