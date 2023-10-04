@@ -1,6 +1,32 @@
 <?php
 
+use Drupal\Core\Form\FormStateInterface;
+
 /**
  * @file
  * Defines Drupal hooks for context_ui module.
  */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Provide translation action link on context overview page.
+ */
+function context_ui_form_context_ui_admin_display_form_alter(array &$form, FormStateInterface $form_state): void {
+  if (!\Drupal::moduleHandler()->moduleExists('config_translation')) {
+    return;
+  }
+
+  foreach ($form['contexts'] as $id => $context) {
+    // Let's skip non-context form elements,
+    // and elements without entity operations links.
+    if (!is_array($context) || !isset($context['operations'])) {
+      continue;
+    }
+
+    $form['contexts'][$id]['operations']['#links']['translate'] = [
+      'title' => t('Translate'),
+      'url' => Url::fromRoute('entity.context.config_translation_overview', ['context' => $id]),
+    ];
+  }
+}

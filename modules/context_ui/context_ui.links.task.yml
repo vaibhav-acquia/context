@@ -1,0 +1,9 @@
+entity.context.edit_form:
+  title: 'Edit'
+  route_name: entity.context.edit_form
+  base_route: entity.context.edit_form
+
+entity.context.duplicate_form:
+  title: 'Duplicate'
+  route_name: entity.context.duplicate_form
+  base_route: entity.context.edit_form
