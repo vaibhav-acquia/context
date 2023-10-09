@@ -244,6 +244,57 @@ class ContextManager {
   }
 
   /**
+   * Set specific contexts to be active regardless of the conditions.
+   *
+   * @param array $context_names
+   *    An array of context names to make active.
+   */
+  public function setActiveContexts(array $context_names) {
+    /** @var \Drupal\context\ContextInterface $context */
+    $contexts = $this->entityTypeManager->getStorage('context')->loadByProperties(['name' => $context_names]);
+    foreach ($contexts as $name => $context) {
+      // Only set the context if it's enabled in the config and not
+      // already active.
+      if (!$context->disabled() && !$this->isActiveContext($name)) {
+        $this->activeContexts[] = $context;
+      }
+    }
+  }
+
+  /**
+   * Unset an active context.
+   *
+   * @param array $context_names
+   *    An array of context names to unset if they are active.
+   */
+  public function unsetActiveContexts(array $context_names) {
+    foreach ($this->getActiveContexts() as $delta => $context) {
+      if (in_array($context->getName(), $context_names)) {
+        unset($this->activeContexts[$delta]);
+      }
+    }
+  }
+
+  /**
+   * Checks if a context is active.
+   *
+   * @param string $name
+   *    The name of the context to check for
+   *
+   * @return boolean
+   *    True if $name is an active context, false otherwise.
+   */
+  public function isActiveContext($name) {
+    foreach ($this->getActiveContexts() as $context) {
+      if ($name == $context->getName()) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+
+  /**
    * Evaluate all context conditions.
    */
   public function evaluateContexts() {
