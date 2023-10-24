@@ -5,6 +5,7 @@ namespace Drupal\context\Plugin\ContextReaction;
 use Drupal\block\BlockRepositoryInterface;
 use Drupal\block\Entity\Block;
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\PluginDependencyTrait;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
@@ -124,6 +125,13 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
   protected $blockManager;
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(
@@ -137,7 +145,8 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
     ContextHandlerInterface $contextHandler,
     AccountInterface $account,
     BlockManager $blockManager,
-    EntityTypeManagerInterface $entityTypeManager
+    EntityTypeManagerInterface $entityTypeManager,
+    ModuleHandlerInterface $moduleHandler
   ) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
 
@@ -149,6 +158,7 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
     $this->account = $account;
     $this->blockManager = $blockManager;
     $this->entityTypeManager = $entityTypeManager;
+    $this->moduleHandler = $moduleHandler;
   }
 
   /**
@@ -166,7 +176,8 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
       $container->get('context.handler'),
       $container->get('current_user'),
       $container->get('plugin.manager.block'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('module_handler')
     );
   }
 
@@ -297,10 +308,19 @@ class Blocks extends ContextReactionPluginBase implements ContainerFactoryPlugin
         // Invoke block_view_alter().
         // If an alter hook wants to modify the block contents, it can append
         // another #pre_render hook.
-        \Drupal::moduleHandler()->alter(['block_view', 'block_view_' . $block->getBaseId()], $block_build, $block);
+        $this->moduleHandler
+          ->alter(
+            ['block_view', 'block_view_' . $block->getBaseId()],
+            $block_build, $block
+          );
 
-        // Allow altering of cacheability metadata or setting #create_placeholder.
-        \Drupal::moduleHandler()->alter(['block_build', "block_build_" . $block->getBaseId()], $block_build, $block);
+        // Allow altering of cacheability metadata
+        // or setting #create_placeholder.
+        $this->moduleHandler
+          ->alter(
+            ['block_build', 'block_build_' . $block->getBaseId()],
+            $block_build, $block
+          );
 
         $build[$region][$block_placement_key] = $block_build;
 
