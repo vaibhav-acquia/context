@@ -4,8 +4,10 @@ namespace Drupal\context\Theme;
 
 use Drupal\context\ContextManager;
 use Drupal\context\Plugin\ContextReaction\Theme;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Theme\ThemeNegotiatorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Context Theme Switcher Negotiator.
@@ -13,35 +15,55 @@ use Drupal\Core\Theme\ThemeNegotiatorInterface;
 class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
 
   /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  private ConfigFactoryInterface $configFactory;
+
+  /**
    * ContextManager.
    *
    * @var \Drupal\context\ContextManager
    */
-  private $contextManager;
+  private ContextManager $contextManager;
 
   /**
    * Theme machine name.
    *
    * @var string
    */
-  protected $theme;
+  protected string $theme;
 
   /**
    * A boolean indicating if the applies method has already been evaluated.
    *
    * @var bool
    */
-  protected $evaluated;
+  protected bool $evaluated;
 
   /**
    * Service constructor.
    *
    * @param \Drupal\context\ContextManager $contextManager
-   *   ContextManager.
+   *   ContextManager parameter.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
    */
-  public function __construct(ContextManager $contextManager) {
+  public function __construct(ContextManager $contextManager, ConfigFactoryInterface $configFactory) {
     $this->contextManager = $contextManager;
+    $this->configFactory = $configFactory;
     $this->evaluated = FALSE;
+  }
+
+  /**
+   * ThemeSwitcherNegotiator create method.
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('context.manager'),
+      $container->get('config.factory')
+    );
   }
 
   /**
@@ -73,11 +95,11 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
         if (isset($configuration['theme'])) {
           switch ($configuration['theme']) {
             case '_admin':
-              $this->theme = \Drupal::config('system.theme')->get('admin');
+              $this->theme = $this->configFactory->get('system.theme')->get('admin');
               return TRUE;
 
             case '_default':
-              $this->theme = \Drupal::config('system.theme')->get('default');
+              $this->theme = $this->configFactory->get('system.theme')->get('default');
               return TRUE;
 
             default:
