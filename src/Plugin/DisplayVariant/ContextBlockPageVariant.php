@@ -172,6 +172,13 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
             break;
           }
         }
+        // Remove main page content block from block layout when a context has a
+        // main page content block.
+        $is_context_main_content_block_found = FALSE;
+        self::checkIfContextHasMainPageContentBlock($is_context_main_content_block_found, $build);
+        if ($is_context_main_content_block_found) {
+          self::removeBlockLayoutMainContentBlocks($build);
+        }
         return $build;
       }
     }
@@ -187,6 +194,51 @@ class ContextBlockPageVariant extends VariantBase implements PageVariantInterfac
     $display_variant->setMainContent($this->mainContent);
 
     return $display_variant->build();
+  }
+
+  /**
+   * Check if any context has a main page content block.
+   *
+   * @param bool $is_found
+   *   The initial flag, should be set to false, changed by reference.
+   * @param array $build
+   *   The current render array build.
+   */
+  protected static function checkIfContextHasMainPageContentBlock(bool &$is_found, array $build): void {
+    foreach (Element::children($build) as $key) {
+      if (is_array($build[$key])) {
+        self::checkIfContextHasMainPageContentBlock($is_found, $build[$key]);
+        if (isset($build[$key]['#plugin_id']) && $build[$key]['#plugin_id'] === 'system_main_block') {
+          if (!empty($build[$key]['#configuration']['context_id'])) {
+            $is_found = TRUE;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Remove all non-context main page content blocks.
+   *
+   * This is run when a context has a main page content block.
+   *
+   * @param array $build
+   *   The current render array build, changed by reference.
+   */
+  protected static function removeBlockLayoutMainContentBlocks(array &$build): void {
+    foreach (Element::children($build) as $key) {
+      if (is_array($build[$key])) {
+        self::removeBlockLayoutMainContentBlocks($build[$key]);
+        if (isset($build[$key]['#plugin_id']) && $build[$key]['#plugin_id'] === 'system_main_block') {
+          if (empty($build[$key]['#configuration']['context_id'])) {
+            // Remove main content block from block layout when a context
+            // one exists.
+            unset($build[$key]);
+          }
+        }
+      }
+    }
   }
 
 }
