@@ -17,7 +17,7 @@
    */
   Drupal.behaviors.contextTableFilter = {
     attach: function () {
-      var $input = $('input.context-table-filter').once('.context-table-filter');
+      var $input = $(once('context-table-filter', 'input.context-table-filter'));
       var $table = $($input.attr('data-element'));
       var $filter_rows;
 
