@@ -91,10 +91,12 @@ class ContextUIController extends ControllerBase {
     $matches = [];
 
     foreach ($this->contextManager->getContexts() as $context) {
-      if (stripos($context->getGroup(), $query) === 0) {
-        $matches[] = $context->getGroup();
+      $group = $context->getGroup();
+  
+      if ($group !== null && stripos($group, $query) === 0) {
+          $matches[] = $group;
       }
-    }
+    } 
 
     $response = [];
 
