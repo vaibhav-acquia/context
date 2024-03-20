@@ -4,6 +4,7 @@ namespace Drupal\context\Theme;
 
 use Drupal\context\ContextManager;
 use Drupal\context\Plugin\ContextReaction\Theme;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Theme\ThemeNegotiatorInterface;
 
@@ -34,14 +35,24 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
   protected $evaluated;
 
   /**
+   * The configuration factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * Service constructor.
    *
    * @param \Drupal\context\ContextManager $contextManager
    *   ContextManager.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory.
    */
-  public function __construct(ContextManager $contextManager) {
+  public function __construct(ContextManager $contextManager, ConfigFactoryInterface $config_factory) {
     $this->contextManager = $contextManager;
     $this->evaluated = FALSE;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -73,11 +84,11 @@ class ThemeSwitcherNegotiator implements ThemeNegotiatorInterface {
         if (isset($configuration['theme'])) {
           switch ($configuration['theme']) {
             case '_admin':
-              $this->theme = \Drupal::config('system.theme')->get('admin');
+              $this->theme = $this->configFactory->get('system.theme')->get('admin');
               return TRUE;
 
             case '_default':
-              $this->theme = \Drupal::config('system.theme')->get('default');
+              $this->theme = $this->configFactory->get('system.theme')->get('default');
               return TRUE;
 
             default:
