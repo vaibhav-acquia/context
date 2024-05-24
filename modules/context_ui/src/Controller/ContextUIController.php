@@ -276,39 +276,36 @@ class ContextUIController extends ControllerBase {
    */
   public function addReaction(Request $request, ContextInterface $context, $reaction_id) {
 
-    if ($context->hasReaction($reaction_id)) {
-      throw new HttpException(403, 'The specified reaction had already been added to the context.');
-    }
+    if (!$context->hasReaction($reaction_id)) {
+      // Create an instance of the reaction and add it to the context.
+      try {
+        $reaction = $this->contextReactionManager->createInstance($reaction_id);
+      } catch (PluginException $e) {
+        throw new HttpException(400, $e->getMessage());
+      }
 
-    // Create an instance of the reaction and add it to the context.
-    try {
-      $reaction = $this->contextReactionManager->createInstance($reaction_id);
-    }
-    catch (PluginException $e) {
-      throw new HttpException(400, $e->getMessage());
-    }
+      // If one of the condition is "Current theme",
+      // prevent adding Theme reaction.
+      // Else this will cause an infinite loop
+      // when checking for active contexts.
+      if ($reaction_id == 'theme') {
+        $conditions = $context->getConditions();
+        foreach ($conditions as $condition) {
+          if ($condition->getPluginId() == 'current_theme') {
+            if ($request->isXmlHttpRequest()) {
+              $response = new AjaxResponse();
 
-    // If one of the condition is "Current theme",
-    // prevent adding Theme reaction.
-    // Else this will cause an infinite loop
-    // when checking for active contexts.
-    if ($reaction_id == 'theme') {
-      $conditions = $context->getConditions();
-      foreach ($conditions as $condition) {
-        if ($condition->getPluginId() == 'current_theme') {
-          if ($request->isXmlHttpRequest()) {
-            $response = new AjaxResponse();
-
-            $response->addCommand(new CloseModalDialogCommand());
-            $response->addCommand(new OpenModalDialogCommand($this->t("Theme reaction"), $this->t("You can not place Theme reaction if Current theme condition is set."), ['width' => '700']));
-            return $response;
+              $response->addCommand(new CloseModalDialogCommand());
+              $response->addCommand(new OpenModalDialogCommand($this->t("Theme reaction"), $this->t("You can not place Theme reaction if Current theme condition is set."), ['width' => '700']));
+              return $response;
+            }
           }
         }
       }
-    }
 
-    $context->addReaction($reaction->getConfiguration());
-    $context->save();
+      $context->addReaction($reaction->getConfiguration());
+      $context->save();
+    }
 
     // If the request is an AJAX request then return an AJAX response with
     // commands to replace the content on the page.
@@ -343,38 +340,35 @@ class ContextUIController extends ControllerBase {
    */
   public function addCondition(Request $request, ContextInterface $context, $condition_id) {
 
-    if ($context->hasCondition($condition_id)) {
-      throw new HttpException(403, 'The specified condition had already been added to the context.');
-    }
+    if (!$context->hasCondition($condition_id)) {
+      // Create an instance of the condition and add it to the context.
+      try {
+        $condition = $this->conditionManager->createInstance($condition_id);
+      } catch (PluginException $e) {
+        throw new HttpException(400, $e->getMessage());
+      }
 
-    // Create an instance of the condition and add it to the context.
-    try {
-      $condition = $this->conditionManager->createInstance($condition_id);
-    }
-    catch (PluginException $e) {
-      throw new HttpException(400, $e->getMessage());
-    }
+      // Prevent adding "Current theme" condition,
+      // if "Theme" reaction is already set.
+      // Else this will cause an infinite loop when checking for active contexts.
+      if ($condition_id == 'current_theme') {
+        $reactions = $context->getReactions();
+        foreach ($reactions as $reaction) {
+          if ($reaction->getPluginId() == 'theme') {
+            if ($request->isXmlHttpRequest()) {
+              $response = new AjaxResponse();
 
-    // Prevent adding "Current theme" condition,
-    // if "Theme" reaction is already set.
-    // Else this will cause an infinite loop when checking for active contexts.
-    if ($condition_id == 'current_theme') {
-      $reactions = $context->getReactions();
-      foreach ($reactions as $reaction) {
-        if ($reaction->getPluginId() == 'theme') {
-          if ($request->isXmlHttpRequest()) {
-            $response = new AjaxResponse();
-
-            $response->addCommand(new CloseModalDialogCommand());
-            $response->addCommand(new OpenModalDialogCommand($this->t("Current theme condition"), $this->t("You can not set Current theme condition if Theme reaction is set."), ['width' => '700']));
-            return $response;
+              $response->addCommand(new CloseModalDialogCommand());
+              $response->addCommand(new OpenModalDialogCommand($this->t("Current theme condition"), $this->t("You can not set Current theme condition if Theme reaction is set."), ['width' => '700']));
+              return $response;
+            }
           }
         }
       }
-    }
 
-    $context->addCondition($condition->getConfiguration());
-    $context->save();
+      $context->addCondition($condition->getConfiguration());
+      $context->save();
+    }
 
     // If the request is an AJAX request then return an AJAX response with
     // commands to replace the content on the page.
