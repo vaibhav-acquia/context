@@ -144,9 +144,14 @@ class ViewInclusion extends ConditionPluginBase implements ContainerFactoryPlugi
   public function evaluate() {
     $routeName = $this->currentRouteMatch->getRouteName();
 
-    if (empty($this->configuration['view_inclusion']) || $routeName === NULL) {
-      // Return TRUE if empty or there no route name was found.
+    if (empty($this->configuration['view_inclusion'])) {
+      // Return TRUE if empty.
       return TRUE;
+    }
+
+    if ($routeName === NULL) {
+      // No validate if is not a valid route.
+      return FALSE;
     }
 
     $route = str_replace('.', '-', $routeName);
