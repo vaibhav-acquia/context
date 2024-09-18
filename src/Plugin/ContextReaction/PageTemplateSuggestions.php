@@ -23,6 +23,15 @@ class PageTemplateSuggestions extends ContextReactionPluginBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'suggestions' => '',
+    ] + parent::defaultConfiguration();
+  }
+
+  /**
    * Executes the plugin.
    */
   public function execute() {
