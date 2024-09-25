@@ -23,6 +23,15 @@ class PageTitle extends ContextReactionPluginBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'page_title' => '',
+    ] + parent::defaultConfiguration();
+  }
+
+  /**
    * {@inheritDoc}
    */
   public function execute() {
