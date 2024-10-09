@@ -293,7 +293,6 @@ class ContextManager {
     return FALSE;
   }
 
-
   /**
    * Evaluate all context conditions.
    */
