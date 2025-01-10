@@ -143,9 +143,10 @@ class ContextAny extends ConditionPluginBase implements ContainerFactoryPluginIn
     // Handle negated contexts first.
     foreach ($negated_contexts as $name) {
       /** @var \Drupal\context\ContextInterface $negated_context */
-      $negated_context = $this->contextManager->getContext($name);
-      if ($this->contextManager->evaluateContextConditions($negated_context) && !$negated_context->disabled()) {
-        return FALSE;
+      if ($negated_context = $this->contextManager->getContext($name)) {
+        if ($this->contextManager->evaluateContextConditions($negated_context) && !$negated_context->disabled()) {
+          return FALSE;
+        }
       }
     }
 
